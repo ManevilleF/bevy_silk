@@ -18,16 +18,35 @@ pub mod point;
 pub mod stick;
 mod systems;
 
+use crate::config::ClothTickUpdate;
 use bevy::app::{App, Plugin};
+use bevy::core::FixedTimestep;
+use bevy::prelude::SystemSet;
 
 pub mod prelude {
-    pub use crate::{cloth::Cloth, config::ClothConfig, point::Point, ClothPlugin};
+    pub use crate::{
+        cloth::Cloth,
+        config::{ClothConfig, ClothTickUpdate},
+        point::Point,
+        ClothPlugin,
+    };
 }
 
-pub struct ClothPlugin;
+#[derive(Copy, Clone, Default)]
+pub struct ClothPlugin {
+    pub custom_tick: Option<f64>,
+}
 
 impl Plugin for ClothPlugin {
     fn build(&self, app: &mut App) {
-        todo!()
+        let system_set = SystemSet::new().with_system(systems::update_cloth);
+        let system_set = if let Some(tick) = self.custom_tick {
+            app.insert_resource(ClothTickUpdate::FixedDeltaTime(tick));
+            system_set.with_run_criteria(FixedTimestep::step(tick))
+        } else {
+            app.insert_resource(ClothTickUpdate::DeltaTime);
+            system_set
+        };
+        app.add_system_set(system_set);
     }
 }

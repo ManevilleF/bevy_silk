@@ -1,6 +1,17 @@
 use bevy::math::Vec3;
 
-/// Cloth physics configuration
+/// Cloth timer configuration resource
+///
+/// Defines how frequently cloths get updated
+#[derive(Debug, Copy, Clone)]
+pub enum ClothTickUpdate {
+    /// Cloth gets updated every frame
+    DeltaTime,
+    /// Cloth gets updated at a fixed timestep (tick)
+    FixedDeltaTime(f64),
+}
+
+/// Cloth physics configuration resource
 #[derive(Debug, Clone)]
 pub struct ClothConfig {
     /// Custom gravity, classic (0, -9.81, 0) is used by default
@@ -22,6 +33,12 @@ impl ClothConfig {
     #[inline]
     pub(crate) fn friction_coefficient(&self) -> f32 {
         1.0 - self.friction.clamp(0.0, 1.0)
+    }
+}
+
+impl Default for ClothTickUpdate {
+    fn default() -> Self {
+        Self::DeltaTime
     }
 }
 

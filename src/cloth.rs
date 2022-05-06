@@ -22,11 +22,17 @@ pub struct Cloth {
 
 impl Cloth {
     #[allow(clippy::cast_precision_loss)]
-    pub fn rectangle(size_x: usize, size_y: usize, step: f32) -> Self {
-        let points = (1..=size_y)
-            .flat_map(|y| {
+    /// Creates a cloth component as a rectangle
+    ///
+    /// # Params
+    ///
+    /// * `size_x` - the size of the cloth in the X axis (should be above 1)
+    /// * `size_z` - the size of the cloth in the Z axis (should be above 1)
+    pub fn rectangle(size_x: usize, size_z: usize, step: f32) -> Self {
+        let points = (1..=size_z)
+            .flat_map(|z| {
                 (1..=size_x).map(move |x| Point::Dynamic {
-                    position: Vec3::new(x as f32 * step, 0.0, y as f32 * step),
+                    position: Vec3::new(x as f32 * step, 0.0, z as f32 * step),
                     old_position: None,
                 })
             })
@@ -38,7 +44,7 @@ impl Cloth {
         }
     }
 
-    fn update_points(&mut self, delta_time: f32, config: &ClothConfig) {
+    pub(crate) fn update_points(&mut self, delta_time: f32, config: &ClothConfig) {
         let gravity = config.gravity * delta_time;
         let friction = config.friction_coefficient();
 
@@ -55,7 +61,7 @@ impl Cloth {
         }
     }
 
-    fn update_sticks(&mut self, config: &ClothConfig, transform: &GlobalTransform) {
+    pub(crate) fn update_sticks(&mut self, config: &ClothConfig, transform: &GlobalTransform) {
         let matrix = transform.compute_matrix();
         for _depth in 0..config.sticks_computation_depth {
             for stick in &self.sticks {
