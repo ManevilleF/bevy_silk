@@ -5,7 +5,7 @@ fn main() {
     App::new()
         .insert_resource(WindowDescriptor::default())
         .add_plugins(DefaultPlugins)
-        .add_plugin(ClothPlugin)
+        .add_plugin(ClothPlugin::default())
         .add_startup_system(spawn_cloth)
         .add_startup_system(spawn_camera)
         .run();
