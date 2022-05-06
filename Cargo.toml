@@ -1,0 +1,21 @@
+[package]
+name = "bevy_cloth"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[dependencies.bevy]
+version = "0.7"
+default-features = false
+features = ["render"]
+
+[dev-dependencies]
+
+[dev-dependencies.bevy]
+version = "0.7"
+features = ["render", "bevy_winit", "x11"]
+default-features = false
+
+[[example]]
+name = "basic_example"
