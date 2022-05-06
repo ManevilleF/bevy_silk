@@ -1,26 +1,41 @@
-use bevy::math::Vec3;
+use bevy::math::{Mat4, Vec3};
 
 /// A single cloth point
 #[derive(Debug, Clone)]
-pub struct Point {
-    /// Custom 3D position of the point
-    pub position: Vec3,
-    /// Previous 3D position of the point, used to compute its velocity
-    pub old_position: Option<Vec3>,
+pub enum Point {
+    /// Fixed point attached to a `GlobalTransform`
+    Fixed {
+        /// offset from the attached `lobalTTransform`
+        offset: Vec3,
+    },
+    /// Regular dynamic cloth point
+    Dynamic {
+        /// Custom 3D position of the point
+        position: Vec3,
+        /// Previous 3D position of the point, used to compute its velocity
+        old_position: Option<Vec3>,
+    },
 }
 
 impl Point {
-    /// Retrieves the previous 3D position of the point
+    /// Retrieves the position of the point
+    ///
+    /// The `transform_matrix` is used for `Point::Fixed` variants.
+    ///
+    /// You can retrieve the matrix with the `GlobalTransform::compute_matrix` method.
     #[inline]
     #[must_use]
-    pub fn old_position(&self) -> Vec3 {
-        self.old_position.unwrap_or(self.position)
+    pub fn position(&self, transform_matrix: &Mat4) -> Vec3 {
+        match self {
+            Point::Fixed { offset } => transform_matrix.transform_point3(*offset),
+            Point::Dynamic { position, .. } => *position,
+        }
     }
 
-    /// Computes the current point velocity
     #[inline]
     #[must_use]
-    pub fn velocity(&self) -> Vec3 {
-        self.position - self.old_position()
+    /// Checks if `self` is a [`Point::Fixed`]
+    pub const fn is_fixed(&self) -> bool {
+        matches!(self, Point::Fixed { .. })
     }
 }

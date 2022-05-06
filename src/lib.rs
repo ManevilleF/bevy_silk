@@ -28,6 +28,6 @@ pub struct ClothPlugin;
 
 impl Plugin for ClothPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<cloth::Cloth>();
+        todo!()
     }
 }
