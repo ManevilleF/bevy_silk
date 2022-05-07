@@ -3,6 +3,10 @@ name = "bevy_cloth"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = []
+debug = ["bevy-inspector-egui"]
+
 [dependencies]
 
 [dependencies.bevy]
@@ -10,7 +14,14 @@ version = "0.7"
 default-features = false
 features = ["render"]
 
+[dependencies.bevy-inspector-egui]
+version = "0.10"
+optional = true
+default-features = false
+features = ["clipboard", "bevy_pbr"]
+
 [dev-dependencies]
+bevy-inspector-egui = "0.10"
 
 [dev-dependencies.bevy]
 version = "0.7"
@@ -19,3 +30,4 @@ default-features = false
 
 [[example]]
 name = "basic_example"
+required-features = ["debug"]

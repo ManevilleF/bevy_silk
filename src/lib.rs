@@ -14,32 +14,34 @@
 
 pub mod cloth;
 pub mod config;
-pub mod point;
+mod mesh;
 pub mod stick;
 mod systems;
 
 use crate::config::ClothTickUpdate;
 use bevy::app::{App, Plugin};
 use bevy::core::FixedTimestep;
-use bevy::prelude::SystemSet;
+use bevy::prelude::{ParallelSystemDescriptorCoercion, SystemSet};
 
 pub mod prelude {
     pub use crate::{
         cloth::Cloth,
         config::{ClothConfig, ClothTickUpdate},
-        point::Point,
+        stick::Stick,
         ClothPlugin,
     };
 }
 
 #[derive(Copy, Clone, Default)]
 pub struct ClothPlugin {
+    /// Defines a custom time step for cloth update.
+    /// If not set, cloths will be updated every frame
     pub custom_tick: Option<f64>,
 }
 
 impl Plugin for ClothPlugin {
     fn build(&self, app: &mut App) {
-        let system_set = SystemSet::new().with_system(systems::update_cloth);
+        let system_set = SystemSet::new().with_system(systems::update_cloth.label("CLOTH_UPDATE"));
         let system_set = if let Some(tick) = self.custom_tick {
             app.insert_resource(ClothTickUpdate::FixedDeltaTime(tick));
             system_set.with_run_criteria(FixedTimestep::step(tick))

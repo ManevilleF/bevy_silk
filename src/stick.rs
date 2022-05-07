@@ -1,5 +1,5 @@
 /// A single cloth "stick" connecting two points
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub struct Stick {
     /// Index of a first [`Point`] in a [`Cloth`]
     ///
