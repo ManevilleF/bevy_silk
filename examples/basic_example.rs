@@ -11,7 +11,7 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(WorldInspectorPlugin::default())
-        .add_plugin(ClothPlugin::default())
+        .add_plugin(ClothPlugin)
         .add_startup_system(spawn_cloth)
         .add_startup_system(setup)
         .run();
@@ -57,13 +57,13 @@ fn spawn_cloth(
             mesh: meshes.add(
                 shape::Icosphere {
                     radius: 5.0,
-                    subdivisions: 20,
+                    subdivisions: 10,
                 }
                 .into(),
             ),
             material: materials.add(Color::WHITE.into()),
             ..Default::default()
         })
-        .insert(Cloth::new(vec![(0, Vec3::ZERO)].into_iter()))
+        .insert(Cloth::new(vec![0].into_iter()))
         .insert(Name::new("Cloth"));
 }
