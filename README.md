@@ -7,7 +7,7 @@
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 
-Cloth engine for Bevy using Verlet integration.
+CPU driven Cloth engine for Bevy using Verlet integration.
 
 by [Félix Lescaudey de Maneville](https://linktree.com/ManevilleF)
 
@@ -91,13 +91,19 @@ fn main() {
 
 ## TODO list
 
-- [ ] Wind
+- [x] Wind
 - [ ] [heron](https://github.com/jcornaz/heron) integration to support collisions
 - [ ] dynamic normal mapping
 
 ## Examples
 
-1. Balloon example
+1. Flag example
+
+run `cargo run --example flag_example`
+
+![GIF](docs/flag_example.gif)*Flag example*
+
+2. Balloon example
 
 run `cargo run --example balloon_example`
 

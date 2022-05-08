@@ -1,7 +1,9 @@
 use bevy_math::Vec3;
+use bevy_reflect::Reflect;
 
 /// Cloth physics configuration resource
-#[derive(Debug, Clone)]
+#[cfg_attr(feature = "debug", derive(bevy_inspector_egui::Inspectable))]
+#[derive(Debug, Clone, Reflect)]
 pub struct ClothConfig {
     /// Custom gravity, classic (0, -9.81, 0) is used by default
     pub gravity: Vec3,
@@ -30,7 +32,7 @@ impl Default for ClothConfig {
         Self {
             gravity: Vec3::Y * Self::DEFAULT_GRAVITY,
             friction: 0.02,
-            sticks_computation_depth: 4,
+            sticks_computation_depth: 3,
         }
     }
 }

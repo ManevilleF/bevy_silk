@@ -14,6 +14,7 @@ documentation = "https://docs.rs/bevy_cloth"
 
 [features]
 default = []
+debug = ["bevy-inspector-egui", "bevy"]
 
 [dependencies]
 bevy_app = "0.7"
@@ -25,13 +26,30 @@ bevy_log = "0.7"
 bevy_transform = "0.7"
 bevy_core = "0.7"
 bevy_asset = "0.7"
+bevy_reflect = "0.7"
+
+[dependencies.bevy-inspector-egui]
+version = "0.11"
+optional = true
+
+[dependencies.bevy]
+version = "0.7"
+optional = true
+default-features = false
 
 [dev-dependencies]
+smooth-bevy-cameras = "0.4"
+bevy-inspector-egui = "0.11"
 
 [dev-dependencies.bevy]
 version = "0.7"
-features = ["render", "bevy_winit", "x11"]
+features = ["render", "bevy_winit", "x11", "png"]
 default-features = false
 
 [[example]]
 name = "balloon_example"
+required-features = ["debug"]
+
+[[example]]
+name = "flag_example"
+required-features = ["debug"]

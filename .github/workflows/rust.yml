@@ -32,6 +32,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: build baloon example
         run: cargo clippy --all-features --example balloon_example
+      - name: build flag example
+        run: cargo clippy --all-features --example flag_example
 
   test:
     runs-on: ubuntu-latest

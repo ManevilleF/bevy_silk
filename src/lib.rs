@@ -5,7 +5,7 @@
 //! [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 //! [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 //!
-//! Cloth engine for Bevy using Verlet integration.
+//! CPU driven Cloth engine for Bevy using Verlet integration.
 //!
 //! by [Félix Lescaudey de Maneville](https://linktree.com/ManevilleF)
 //!
@@ -97,20 +97,32 @@
     clippy::module_name_repetitions,
     clippy::redundant_pub_crate
 )]
-#[doc(hidden)]
+/// cloth module
 pub mod cloth;
-#[doc(hidden)]
+/// config module
 pub mod config;
-mod mesh;
+/// mesh module
+pub mod mesh;
+/// systems module
 mod systems;
+/// wind module
+pub mod wind;
 
+use crate::cloth::Cloth;
 use crate::config::ClothConfig;
+use crate::wind::Wind;
 use bevy_app::{App, Plugin};
 use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 
-#[doc(hidden)]
+/// Prelude module, providing every public type of the lib
 pub mod prelude {
-    pub use crate::{cloth::Cloth, config::ClothConfig, mesh::rectangle_mesh, ClothPlugin};
+    pub use crate::{
+        cloth::{Cloth, StickGeneration},
+        config::ClothConfig,
+        mesh::rectangle_mesh,
+        wind::Wind,
+        ClothPlugin,
+    };
 }
 
 /// Plugin for cloth physics
@@ -120,8 +132,17 @@ pub struct ClothPlugin;
 impl Plugin for ClothPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ClothConfig>();
+        app.register_type::<ClothConfig>();
+        app.register_type::<Wind>();
+        app.register_type::<Cloth>();
         app.add_system_set(
             SystemSet::new().with_system(systems::update_cloth.label("CLOTH_UPDATE")),
         );
+        #[cfg(feature = "debug")]
+        {
+            use bevy_inspector_egui::RegisterInspectable;
+            app.register_inspectable::<ClothConfig>();
+            app.register_inspectable::<Wind>();
+        }
     }
 }
