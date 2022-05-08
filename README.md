@@ -101,8 +101,4 @@ fn main() {
 
 run `cargo run --example balloon_example`
 
-<figure class="video_container">
-  <video controls="true">
-    <source src="docs/balloon_example.mp4" type="video/mp4">
-  </video>
-</figure>
+![GIF](docs/balloon_example.gif)*Balloon example*
