@@ -1,4 +1,4 @@
-use bevy::math::Vec3;
+use bevy_math::Vec3;
 
 /// Cloth physics configuration resource
 #[derive(Debug, Clone)]

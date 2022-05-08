@@ -1,15 +1,15 @@
 use crate::config::ClothConfig;
-use bevy::ecs::component::Component;
-use bevy::log;
-use bevy::math::{Mat4, Vec3};
-use bevy::render::mesh::{Indices, Mesh, VertexAttributeValues};
-use bevy::utils::{HashMap, HashSet};
+use bevy_ecs::component::Component;
+use bevy_log::{error, warn};
+use bevy_math::{Mat4, Vec3};
+use bevy_render::mesh::{Indices, Mesh, VertexAttributeValues};
+use bevy_utils::{HashMap, HashSet};
 
 macro_rules! get_point {
     ($id:expr, $points:expr, $fixed_points:expr, $matrix:expr) => {
         match $points.get($id) {
             None => {
-                log::warn!("Failed to retrieve a Cloth point at index {}", $id);
+                warn!("Failed to retrieve a Cloth point at index {}", $id);
                 continue;
             }
             Some(p) => {
@@ -140,7 +140,7 @@ impl Cloth {
         };
         let indices: Vec<usize> = match mesh.indices() {
             None => {
-                log::error!("Mesh associated to cloth doesn't have indices set");
+                error!("Mesh associated to cloth doesn't have indices set");
                 return;
             }
             Some(i) => match i {
@@ -218,7 +218,7 @@ impl Cloth {
                 let center = (position_b + position_a) / 2.0;
                 let direction = match (position_b - position_a).try_normalize() {
                     None => {
-                        log::warn!("Failed handle stick between points {} and {} which are too close to each other", *id_a, *id_b);
+                        warn!("Failed handle stick between points {} and {} which are too close to each other", *id_a, *id_b);
                         continue;
                     }
                     Some(dir) => dir * target_len,
@@ -238,10 +238,10 @@ impl Cloth {
 mod tests {
     use super::*;
     use crate::mesh::rectangle_mesh;
-    use bevy::prelude::Transform;
 
     mod init_from_mesh {
         use super::*;
+        use bevy_transform::prelude::Transform;
 
         fn expected_stick_len(
             len: usize,
@@ -265,7 +265,7 @@ mod tests {
         fn works_with_quads() {
             let mesh = rectangle_mesh(100, 100, Vec3::X, Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = Cloth::new(vec![].into_iter());
+            let mut cloth = Cloth::new();
             cloth.stick_generation = StickGeneration::Quads; // QUADS
             cloth.init_from_mesh(&mesh, &matrix);
             assert_eq!(cloth.current_point_positions.len(), 100 * 100);
@@ -277,7 +277,7 @@ mod tests {
         fn works_with_quads_2() {
             let mesh = rectangle_mesh(66, 42, Vec3::X, Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = Cloth::new(vec![].into_iter());
+            let mut cloth = Cloth::new();
             cloth.stick_generation = StickGeneration::Quads; // QUADS
             cloth.init_from_mesh(&mesh, &matrix);
             assert_eq!(cloth.current_point_positions.len(), 66 * 42);
@@ -289,7 +289,7 @@ mod tests {
         fn works_with_triangles() {
             let mesh = rectangle_mesh(100, 100, Vec3::X, Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = Cloth::new(vec![].into_iter());
+            let mut cloth = Cloth::new();
             cloth.stick_generation = StickGeneration::Triangles; // TRIANGLES
             cloth.init_from_mesh(&mesh, &matrix);
             assert_eq!(cloth.current_point_positions.len(), 100 * 100);
@@ -301,7 +301,7 @@ mod tests {
         fn works_with_triangles_2() {
             let mesh = rectangle_mesh(66, 42, Vec3::X, Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = Cloth::new(vec![].into_iter());
+            let mut cloth = Cloth::new();
             cloth.stick_generation = StickGeneration::Triangles; // TRIANGLES
             cloth.init_from_mesh(&mesh, &matrix);
             assert_eq!(cloth.current_point_positions.len(), 66 * 42);

@@ -23,8 +23,8 @@ pub mod config;
 mod mesh;
 mod systems;
 
-use bevy::app::{App, Plugin};
-use bevy::prelude::{ParallelSystemDescriptorCoercion, SystemSet};
+use bevy_app::{App, Plugin};
+use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 
 #[doc(hidden)]
 pub mod prelude {

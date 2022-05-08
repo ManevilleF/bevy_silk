@@ -1,8 +1,13 @@
 #![allow(clippy::needless_pass_by_value)]
+
 use crate::cloth::Cloth;
 use crate::config::ClothConfig;
-use bevy::log;
-use bevy::prelude::*;
+use bevy_asset::{Assets, Handle};
+use bevy_core::Time;
+use bevy_ecs::prelude::*;
+use bevy_log::debug;
+use bevy_render::prelude::Mesh;
+use bevy_transform::prelude::GlobalTransform;
 
 #[allow(clippy::cast_possible_truncation)]
 pub fn update_cloth(
@@ -19,7 +24,7 @@ pub fn update_cloth(
             if cloth.is_setup() {
                 cloth.update(&config, delta_time, &matrix);
             } else {
-                log::debug!("Setting up sticks for uninitialized cloth");
+                debug!("Setting up sticks for uninitialized cloth");
                 cloth.init_from_mesh(mesh, &matrix);
             }
             cloth.apply_to_mesh(mesh, &matrix);
