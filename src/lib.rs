@@ -15,16 +15,13 @@
 pub mod cloth;
 pub mod config;
 mod mesh;
-pub mod stick;
 mod systems;
 
 use bevy::app::{App, Plugin};
 use bevy::prelude::{ParallelSystemDescriptorCoercion, SystemSet};
 
 pub mod prelude {
-    pub use crate::{
-        cloth::Cloth, config::ClothConfig, mesh::rectangle_mesh, stick::Stick, ClothPlugin,
-    };
+    pub use crate::{cloth::Cloth, config::ClothConfig, mesh::rectangle_mesh, ClothPlugin};
 }
 
 #[derive(Copy, Clone, Default)]

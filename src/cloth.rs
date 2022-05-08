@@ -1,10 +1,9 @@
 use crate::config::ClothConfig;
-use crate::stick::Stick;
 use bevy::ecs::component::Component;
 use bevy::log;
 use bevy::math::{Mat4, Vec3};
 use bevy::render::mesh::{Indices, Mesh, VertexAttributeValues};
-use bevy::utils::HashSet;
+use bevy::utils::{HashMap, HashSet};
 
 macro_rules! get_point {
     ($id:expr, $points:expr, $fixed_points:expr, $matrix:expr) => {
@@ -50,7 +49,10 @@ pub struct Cloth {
     /// Old Cloth points 3D positions in world space
     previous_point_positions: Vec<Vec3>,
     /// Cloth sticks linking points
-    sticks: Vec<Stick>,
+    ///
+    /// * key: tuple with the connected points indexes
+    /// * value: the target distance between the points
+    sticks: HashMap<(usize, usize), f32>,
     /// How cloth sticks get generated
     pub stick_generation: StickGeneration,
 }
@@ -62,7 +64,7 @@ impl Cloth {
             fixed_points: fixed_points.collect(),
             current_point_positions: vec![],
             previous_point_positions: vec![],
-            sticks: vec![],
+            sticks: HashMap::new(),
             stick_generation: StickGeneration::default(),
         }
     }
@@ -114,33 +116,23 @@ impl Cloth {
                 Indices::U32(v) => v.iter().map(|i| *i as usize).collect(),
             },
         };
-        let sticks = indices
-            .chunks_exact(3)
-            .flat_map(|truple| {
-                let [a, b, c] = [truple[0], truple[1], truple[2]];
-                let (p_a, p_b, p_c) = (positions[a], positions[b], positions[c]);
-                let mut sticks = vec![
-                    Stick {
-                        point_a_index: a,
-                        point_b_index: b,
-                        length: p_a.distance(p_b),
-                    },
-                    Stick {
-                        point_a_index: b,
-                        point_b_index: c,
-                        length: p_b.distance(p_c),
-                    },
-                ];
-                if let StickGeneration::Triangles = self.stick_generation {
-                    sticks.push(Stick {
-                        point_a_index: c,
-                        point_b_index: a,
-                        length: p_c.distance(p_a),
-                    });
+        let mut sticks = HashMap::new();
+
+        for truple in indices.chunks_exact(3) {
+            let [a, b, c] = [truple[0], truple[1], truple[2]];
+            let (p_a, p_b, p_c) = (positions[a], positions[b], positions[c]);
+            if !sticks.contains_key(&(b, a)) {
+                sticks.insert((a, b), p_a.distance(p_b));
+            }
+            if !sticks.contains_key(&(c, b)) {
+                sticks.insert((b, c), p_b.distance(p_c));
+            }
+            if let StickGeneration::Triangles = self.stick_generation {
+                if !sticks.contains_key(&(a, c)) {
+                    sticks.insert((c, a), p_c.distance(p_a));
                 }
-                sticks
-            })
-            .collect();
+            }
+        }
         self.sticks = sticks;
         self.previous_point_positions = positions.clone();
         self.current_point_positions = positions;
@@ -166,37 +158,37 @@ impl Cloth {
 
     fn update_sticks(&mut self, config: &ClothConfig, matrix: &Mat4) {
         for _depth in 0..config.sticks_computation_depth {
-            for stick in &self.sticks {
+            for ((id_a, id_b), distance) in &self.sticks {
                 let (position_a, fixed_a) = get_point!(
-                    stick.point_a_index,
+                    *id_a,
                     self.current_point_positions,
                     self.fixed_points,
                     matrix
                 );
                 let (position_b, fixed_b) = get_point!(
-                    stick.point_b_index,
+                    *id_b,
                     self.current_point_positions,
                     self.fixed_points,
                     matrix
                 );
                 let target_len = if fixed_a == fixed_b {
-                    stick.length / 2.0
+                    *distance / 2.0
                 } else {
-                    stick.length
+                    *distance
                 };
                 let center = (position_b + position_a) / 2.0;
                 let direction = match (position_b - position_a).try_normalize() {
                     None => {
-                        log::warn!("Failed handle stick between points {} and {} which are too close to each other", stick.point_a_index, stick.point_b_index);
+                        log::warn!("Failed handle stick between points {} and {} which are too close to each other", *id_a, *id_b);
                         continue;
                     }
                     Some(dir) => dir * target_len,
                 };
                 if !fixed_a {
-                    self.current_point_positions[stick.point_a_index] = center + direction;
+                    self.current_point_positions[*id_a] = center + direction;
                 }
                 if !fixed_b {
-                    self.current_point_positions[stick.point_b_index] = center - direction;
+                    self.current_point_positions[*id_b] = center - direction;
                 }
             }
         }
@@ -212,6 +204,24 @@ mod tests {
     mod init_from_mesh {
         use super::*;
 
+        fn expected_stick_len(
+            len: usize,
+            generation: StickGeneration,
+            (size_x, size_y): (usize, usize),
+        ) {
+            match generation {
+                StickGeneration::Quads => {
+                    assert_eq!(len, (size_x - 1) * size_y + (size_y - 1) * size_x);
+                }
+                StickGeneration::Triangles => {
+                    assert_eq!(
+                        len,
+                        (size_x - 1) * size_y + (size_y - 1) * size_x + (size_x - 1) * (size_y - 1)
+                    );
+                }
+            }
+        }
+
         #[test]
         fn works_with_quads() {
             let mesh = rectangle_mesh(100, 100, Vec3::X, Vec3::Z);
@@ -221,7 +231,19 @@ mod tests {
             cloth.init_from_mesh(&mesh, &matrix);
             assert_eq!(cloth.current_point_positions.len(), 100 * 100);
             assert_eq!(cloth.previous_point_positions.len(), 100 * 100);
-            assert_eq!(cloth.sticks.len(), 100 * 100 * 2);
+            expected_stick_len(cloth.sticks.len(), cloth.stick_generation, (100, 100));
+        }
+
+        #[test]
+        fn works_with_quads_2() {
+            let mesh = rectangle_mesh(66, 42, Vec3::X, Vec3::Z);
+            let matrix = Transform::default().compute_matrix();
+            let mut cloth = Cloth::new(vec![].into_iter());
+            cloth.stick_generation = StickGeneration::Quads; // QUADS
+            cloth.init_from_mesh(&mesh, &matrix);
+            assert_eq!(cloth.current_point_positions.len(), 66 * 42);
+            assert_eq!(cloth.previous_point_positions.len(), 66 * 42);
+            expected_stick_len(cloth.sticks.len(), cloth.stick_generation, (66, 42));
         }
 
         #[test]
@@ -229,11 +251,23 @@ mod tests {
             let mesh = rectangle_mesh(100, 100, Vec3::X, Vec3::Z);
             let matrix = Transform::default().compute_matrix();
             let mut cloth = Cloth::new(vec![].into_iter());
-            cloth.stick_generation = StickGeneration::Triangles; // TRIANGLEs
+            cloth.stick_generation = StickGeneration::Triangles; // TRIANGLES
             cloth.init_from_mesh(&mesh, &matrix);
             assert_eq!(cloth.current_point_positions.len(), 100 * 100);
             assert_eq!(cloth.previous_point_positions.len(), 100 * 100);
-            assert_eq!(cloth.sticks.len(), 100 * 100 * 2);
+            expected_stick_len(cloth.sticks.len(), cloth.stick_generation, (100, 100));
+        }
+
+        #[test]
+        fn works_with_triangles_2() {
+            let mesh = rectangle_mesh(66, 42, Vec3::X, Vec3::Z);
+            let matrix = Transform::default().compute_matrix();
+            let mut cloth = Cloth::new(vec![].into_iter());
+            cloth.stick_generation = StickGeneration::Triangles; // TRIANGLES
+            cloth.init_from_mesh(&mesh, &matrix);
+            assert_eq!(cloth.current_point_positions.len(), 66 * 42);
+            assert_eq!(cloth.previous_point_positions.len(), 66 * 42);
+            expected_stick_len(cloth.sticks.len(), cloth.stick_generation, (66, 42));
         }
     }
 }
