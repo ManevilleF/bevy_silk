@@ -3,7 +3,8 @@
 use bevy::math::Vec3;
 use bevy::render::mesh::{Indices, Mesh, PrimitiveTopology};
 
-#[allow(clippy::cast_precision_loss)]
+#[allow(clippy::cast_precision_loss, clippy::cast_possible_truncation)]
+#[must_use]
 /// Creates a cloth ready mesh in a triangle shape
 ///
 /// # Params
