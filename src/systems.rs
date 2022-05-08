@@ -12,11 +12,10 @@ use bevy_transform::prelude::GlobalTransform;
 #[allow(clippy::cast_possible_truncation)]
 pub fn update_cloth(
     mut query: Query<(&mut Cloth, &GlobalTransform, &Handle<Mesh>)>,
-    config: Option<Res<ClothConfig>>,
+    config: Res<ClothConfig>,
     time: Res<Time>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    let config = config.as_deref().cloned().unwrap_or_default();
     let delta_time = time.delta_seconds();
     for (mut cloth, transform, handle) in query.iter_mut() {
         if let Some(mesh) = meshes.get_mut(handle) {

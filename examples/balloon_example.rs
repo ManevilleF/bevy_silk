@@ -10,7 +10,7 @@ fn main() {
             brightness: 1.0,
         })
         .insert_resource(ClothConfig {
-            gravity: Vec3::Y * -1.0,
+            gravity: Vec3::Y * -2.0,
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
