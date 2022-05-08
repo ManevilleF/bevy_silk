@@ -22,7 +22,9 @@ use bevy::app::{App, Plugin};
 use bevy::prelude::{ParallelSystemDescriptorCoercion, SystemSet};
 
 pub mod prelude {
-    pub use crate::{cloth::Cloth, config::ClothConfig, stick::Stick, ClothPlugin};
+    pub use crate::{
+        cloth::Cloth, config::ClothConfig, mesh::rectangle_mesh, stick::Stick, ClothPlugin,
+    };
 }
 
 #[derive(Copy, Clone, Default)]

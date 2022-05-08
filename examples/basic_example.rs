@@ -1,3 +1,4 @@
+use bevy::pbr::wireframe::{Wireframe, WireframePlugin};
 use bevy::prelude::*;
 use bevy_cloth::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
@@ -10,6 +11,7 @@ fn main() {
             brightness: 1.0,
         })
         .add_plugins(DefaultPlugins)
+        .add_plugin(WireframePlugin)
         .add_plugin(WorldInspectorPlugin::default())
         .add_plugin(ClothPlugin)
         .add_startup_system(spawn_cloth)
@@ -65,5 +67,19 @@ fn spawn_cloth(
             ..Default::default()
         })
         .insert(Cloth::new(vec![0].into_iter()))
-        .insert(Name::new("Cloth"));
+        .insert(Wireframe)
+        .insert(Name::new("Ico Cloth"));
+    commands
+        .spawn_bundle(PbrBundle {
+            mesh: meshes.add(rectangle_mesh(10, 10, Vec3::X, Vec3::Z)),
+            material: materials.add(StandardMaterial {
+                base_color: Color::WHITE,
+                ..Default::default()
+            }),
+            // transform: Transform::from_xyz(-5.0, 5.0, 0.0),
+            ..Default::default()
+        })
+        .insert(Cloth::new((0..10).into_iter()))
+        .insert(Wireframe)
+        .insert(Name::new("Plane Cloth"));
 }
