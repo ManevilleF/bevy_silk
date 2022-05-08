@@ -58,6 +58,11 @@ pub struct Cloth {
 }
 
 impl Cloth {
+    /// Creates a new Cloth
+    ///
+    /// # Arguments
+    ///
+    /// * `fixed_points` - Iterator on the vertex indexes that should be attached to the associated `GlobalTransform`
     #[inline]
     pub fn new(fixed_points: impl Iterator<Item = usize>) -> Self {
         Self {
@@ -69,12 +74,19 @@ impl Cloth {
         }
     }
 
+    /// Checks if the cloth initialized from mesh data
     #[inline]
     #[must_use]
     pub fn is_setup(&self) -> bool {
         !self.current_point_positions.is_empty()
     }
 
+    /// Applies the cloth data to a mesh
+    ///
+    /// # Arguments
+    ///
+    /// * `mesh` - the mesh to edit
+    /// * `transform_matrix` - the transform matrix of the associated `GlobalTransform`
     pub fn apply_to_mesh(&self, mesh: &mut Mesh, transform_matrix: &Mat4) {
         let matrix = transform_matrix.inverse();
 
@@ -93,6 +105,14 @@ impl Cloth {
         mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
     }
 
+    /// Initializes the cloth from a mesh. Points positions will be extracted from the mesh vertex positions
+    /// (`ATTRIBUTE_POSITION`) and the sticks will be extracted from the `indices` (triangles) according to
+    /// the associated [`StickGeneration`] mode.
+    ///
+    /// # Arguments
+    ///
+    /// * `mesh` - the mesh containing the desired data
+    /// * `transform_matrix` - the transform matrix of the associated `GlobalTransform`
     pub fn init_from_mesh(&mut self, mesh: &Mesh, transform_matrix: &Mat4) {
         let vertex_positions = mesh
             .attribute(Mesh::ATTRIBUTE_POSITION)
@@ -138,6 +158,13 @@ impl Cloth {
         self.current_point_positions = positions;
     }
 
+    /// Updates the cloth
+    ///
+    /// # Arguments
+    ///
+    /// * `config` - the current configuration for the cloth physics
+    /// * `delta_time` - the time since last update
+    /// * `transform_matrix` - the transform matrix of the associated `GlobalTransform`
     pub fn update(&mut self, config: &ClothConfig, delta_time: f32, transform_matrix: &Mat4) {
         self.update_points(delta_time, config);
         self.update_sticks(config, transform_matrix);
