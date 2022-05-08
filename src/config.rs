@@ -30,7 +30,7 @@ impl Default for ClothConfig {
         Self {
             gravity: Vec3::Y * Self::DEFAULT_GRAVITY,
             friction: 0.02,
-            sticks_computation_depth: 2,
+            sticks_computation_depth: 4,
         }
     }
 }

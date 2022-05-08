@@ -144,7 +144,7 @@ impl Cloth {
     }
 
     fn update_points(&mut self, delta_time: f32, config: &ClothConfig) {
-        let gravity = config.gravity * delta_time * delta_time;
+        let gravity = config.gravity * delta_time;
         let friction = config.friction_coefficient();
 
         for (i, point) in self.current_point_positions.iter_mut().enumerate() {
@@ -185,10 +185,10 @@ impl Cloth {
                     Some(dir) => dir * target_len,
                 };
                 if !fixed_a {
-                    self.current_point_positions[*id_a] = center + direction;
+                    self.current_point_positions[*id_a] = center - direction;
                 }
                 if !fixed_b {
-                    self.current_point_positions[*id_b] = center - direction;
+                    self.current_point_positions[*id_b] = center + direction;
                 }
             }
         }

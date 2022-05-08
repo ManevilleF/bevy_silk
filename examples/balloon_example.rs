@@ -10,6 +10,10 @@ fn main() {
             color: Color::YELLOW,
             brightness: 1.0,
         })
+        .insert_resource(ClothConfig {
+            gravity: Vec3::Y * -1.0,
+            ..Default::default()
+        })
         .add_plugins(DefaultPlugins)
         .add_plugin(WireframePlugin)
         .add_plugin(WorldInspectorPlugin::default())
@@ -25,7 +29,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     commands.spawn_bundle(PerspectiveCameraBundle {
-        transform: Transform::from_xyz(10.0, 10.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
+        transform: Transform::from_xyz(20.0, 20.0, 20.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..PerspectiveCameraBundle::new_3d()
     });
     let mesh_handle = meshes.add(shape::Cube::new(1.0).into());
@@ -68,18 +72,5 @@ fn spawn_cloth(
         })
         .insert(Cloth::new(vec![0].into_iter()))
         .insert(Wireframe)
-        .insert(Name::new("Ico Cloth"));
-    commands
-        .spawn_bundle(PbrBundle {
-            mesh: meshes.add(rectangle_mesh(10, 10, Vec3::X, Vec3::Z)),
-            material: materials.add(StandardMaterial {
-                base_color: Color::WHITE,
-                ..Default::default()
-            }),
-            // transform: Transform::from_xyz(-5.0, 5.0, 0.0),
-            ..Default::default()
-        })
-        .insert(Cloth::new((0..10).into_iter()))
-        .insert(Wireframe)
-        .insert(Name::new("Plane Cloth"));
+        .insert(Name::new("Balloon"));
 }

@@ -29,5 +29,4 @@ features = ["render", "bevy_winit", "x11"]
 default-features = false
 
 [[example]]
-name = "basic_example"
-required-features = ["debug"]
+name = "balloon_example"
