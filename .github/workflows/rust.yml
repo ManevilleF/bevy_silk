@@ -25,15 +25,13 @@ jobs:
         run: cargo build --verbose --all-features
       - name: no default features
         run: cargo build --verbose --no-default-features
-      - name: debug
-        run: cargo build --verbose --no-default-features --features debug
 
   build_examples:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: build basic_example
-        run: cargo clippy --all-features --example basic_example
+      - name: build baloon example
+        run: cargo clippy --all-features --example balloon_example
 
   test:
     runs-on: ubuntu-latest

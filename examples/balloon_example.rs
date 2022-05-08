@@ -1,7 +1,6 @@
 use bevy::pbr::wireframe::{Wireframe, WireframePlugin};
 use bevy::prelude::*;
 use bevy_cloth::prelude::*;
-use bevy_inspector_egui::WorldInspectorPlugin;
 
 fn main() {
     App::new()
@@ -16,7 +15,6 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(WireframePlugin)
-        .add_plugin(WorldInspectorPlugin::default())
         .add_plugin(ClothPlugin)
         .add_startup_system(spawn_cloth)
         .add_startup_system(setup)
@@ -70,7 +68,7 @@ fn spawn_cloth(
             material: materials.add(Color::WHITE.into()),
             ..Default::default()
         })
-        .insert(Cloth::new(vec![0].into_iter()))
+        .insert(Cloth::with_fixed_points(vec![0].into_iter()))
         .insert(Wireframe)
         .insert(Name::new("Balloon"));
 }
