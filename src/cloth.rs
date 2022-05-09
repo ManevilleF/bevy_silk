@@ -46,6 +46,8 @@ impl Default for StickGeneration {
 pub struct Cloth {
     /// cloth points unaffected by physics and following the attached `GlobalTransform`.
     pub fixed_points: HashSet<usize>,
+    /// How cloth sticks get generated
+    pub stick_generation: StickGeneration,
     /// Current Cloth points 3D positions in world space
     current_point_positions: Vec<Vec3>,
     /// Old Cloth points 3D positions in world space
@@ -55,8 +57,6 @@ pub struct Cloth {
     /// * key: tuple with the connected points indexes
     /// * value: the target distance between the points
     sticks: HashMap<(usize, usize), f32>,
-    /// How cloth sticks get generated
-    pub stick_generation: StickGeneration,
 }
 
 impl Cloth {
@@ -81,10 +81,7 @@ impl Cloth {
     pub fn with_fixed_points(fixed_points: impl Iterator<Item = usize>) -> Self {
         Self {
             fixed_points: fixed_points.collect(),
-            current_point_positions: vec![],
-            previous_point_positions: vec![],
-            sticks: HashMap::new(),
-            stick_generation: StickGeneration::default(),
+            ..Self::new()
         }
     }
 
@@ -190,8 +187,12 @@ impl Cloth {
         transform_matrix: &Mat4,
         wind_force: Vec3,
     ) {
+        let position_cache = self.current_point_positions.clone();
         self.update_points(delta_time, config, wind_force);
-        self.update_sticks(config, transform_matrix);
+        for _depth in 0..config.sticks_computation_depth {
+            self.update_sticks(transform_matrix);
+        }
+        self.previous_point_positions = position_cache;
     }
 
     fn update_points(&mut self, delta_time: f32, config: &ClothConfig, wind_force: Vec3) {
@@ -200,47 +201,51 @@ impl Cloth {
 
         for (i, point) in self.current_point_positions.iter_mut().enumerate() {
             if !self.fixed_points.contains(&i) {
-                let velocity = *point - self.previous_point_positions[i] + wind_force;
-                self.previous_point_positions[i] = *point;
+                let velocity = self
+                    .previous_point_positions
+                    .get(i)
+                    .map_or(Vec3::ZERO, |prev| *point - *prev)
+                    + wind_force;
                 *point += velocity * friction * delta_time + gravity;
             }
         }
     }
 
-    fn update_sticks(&mut self, config: &ClothConfig, matrix: &Mat4) {
-        for _depth in 0..config.sticks_computation_depth {
-            for ((id_a, id_b), distance) in &self.sticks {
-                let (position_a, fixed_a) = get_point!(
-                    *id_a,
-                    self.current_point_positions,
-                    self.fixed_points,
-                    matrix
-                );
-                let (position_b, fixed_b) = get_point!(
-                    *id_b,
-                    self.current_point_positions,
-                    self.fixed_points,
-                    matrix
-                );
-                let target_len = if fixed_a == fixed_b {
-                    *distance / 2.0
+    fn update_sticks(&mut self, matrix: &Mat4) {
+        for ((id_a, id_b), target_len) in &self.sticks {
+            let (position_a, fixed_a) = get_point!(
+                *id_a,
+                self.current_point_positions,
+                self.fixed_points,
+                matrix
+            );
+            let (position_b, fixed_b) = get_point!(
+                *id_b,
+                self.current_point_positions,
+                self.fixed_points,
+                matrix
+            );
+            let center = (position_b + position_a) / 2.0;
+            let direction = match (position_b - position_a).try_normalize() {
+                None => {
+                    warn!("Failed handle stick between points {} and {} which are too close to each other", *id_a, *id_b);
+                    continue;
+                }
+                Some(dir) => dir * *target_len / 2.0,
+            };
+            if !fixed_a {
+                self.current_point_positions[*id_a] = if fixed_b {
+                    position_b - direction * 2.0
                 } else {
-                    *distance
+                    center - direction
                 };
-                let center = (position_b + position_a) / 2.0;
-                let direction = match (position_b - position_a).try_normalize() {
-                    None => {
-                        warn!("Failed handle stick between points {} and {} which are too close to each other", *id_a, *id_b);
-                        continue;
-                    }
-                    Some(dir) => dir * target_len,
+            }
+            if !fixed_b {
+                self.current_point_positions[*id_b] = if fixed_a {
+                    position_a + direction * 2.0
+                } else {
+                    center + direction
                 };
-                if !fixed_a {
-                    self.current_point_positions[*id_a] = center - direction;
-                }
-                if !fixed_b {
-                    self.current_point_positions[*id_b] = center + direction;
-                }
             }
         }
     }
@@ -275,7 +280,7 @@ mod tests {
 
         #[test]
         fn works_with_quads() {
-            let mesh = rectangle_mesh(100, 100, Vec3::X, Vec3::Z);
+            let mesh = rectangle_mesh((100, 100), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
             let mut cloth = Cloth::new();
             cloth.stick_generation = StickGeneration::Quads; // QUADS
@@ -287,7 +292,7 @@ mod tests {
 
         #[test]
         fn works_with_quads_2() {
-            let mesh = rectangle_mesh(66, 42, Vec3::X, Vec3::Z);
+            let mesh = rectangle_mesh((66, 42), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
             let mut cloth = Cloth::new();
             cloth.stick_generation = StickGeneration::Quads; // QUADS
@@ -299,7 +304,7 @@ mod tests {
 
         #[test]
         fn works_with_triangles() {
-            let mesh = rectangle_mesh(100, 100, Vec3::X, Vec3::Z);
+            let mesh = rectangle_mesh((100, 100), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
             let mut cloth = Cloth::new();
             cloth.stick_generation = StickGeneration::Triangles; // TRIANGLES
@@ -311,7 +316,7 @@ mod tests {
 
         #[test]
         fn works_with_triangles_2() {
-            let mesh = rectangle_mesh(66, 42, Vec3::X, Vec3::Z);
+            let mesh = rectangle_mesh((66, 42), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
             let mut cloth = Cloth::new();
             cloth.stick_generation = StickGeneration::Triangles; // TRIANGLES

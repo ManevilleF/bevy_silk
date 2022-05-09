@@ -92,6 +92,7 @@ fn main() {
 ## TODO list
 
 - [x] Wind
+- [ ] Different stick behaviors (spring, stick, etc)
 - [ ] [heron](https://github.com/jcornaz/heron) integration to support collisions
 - [ ] dynamic normal mapping
 

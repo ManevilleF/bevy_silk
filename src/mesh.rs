@@ -11,12 +11,18 @@ use bevy_render::mesh::{Indices, Mesh, PrimitiveTopology};
 ///
 /// * `size_x` - the size of the cloth in the X axis (should be above 1)
 /// * `size_z` - the size of the cloth in the Z axis (should be above 1)
-/// * `step` - the direction of the cloth propagation
+/// * `step_x` - the direction of the cloth propagation in the X axis
+/// * `step_y` - the direction of the cloth propagation in the Y axis
 /// * `normal` - the normal vector to apply to each vertex
-pub fn rectangle_mesh(size_x: usize, size_y: usize, step: Vec3, normal: Vec3) -> Mesh {
+pub fn rectangle_mesh(
+    (size_x, size_y): (usize, usize),
+    (step_x, step_y): (Vec3, Vec3),
+    normal: Vec3,
+) -> Mesh {
     let points: Vec<[f32; 3]> = (0..size_y)
         .flat_map(|y| {
-            (0..size_x).map(move |x| ((x % size_x) as f32 * step - Vec3::Y * y as f32).to_array())
+            (0..size_x)
+                .map(move |x| ((x % size_x) as f32 * step_x + (y as f32) * step_y).to_array())
         })
         .collect();
     let normal = normal.to_array();
@@ -58,7 +64,7 @@ mod tests {
 
     #[test]
     fn valid_rectangle_mesh() {
-        let mesh = rectangle_mesh(100, 100, Vec3::X, Vec3::Z);
+        let mesh = rectangle_mesh((100, 100), (Vec3::X, -Vec3::Y), Vec3::Z);
         assert_eq!(mesh.count_vertices(), 100 * 100);
     }
 }
