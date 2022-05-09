@@ -82,6 +82,33 @@ fn main() {
 }
 ```
 
+## Wind
+
+You may add wind to the simulation for a more dynamic clothing effect, you may choose from:
+- `Wind::Constant` for constant wind force
+- `Wind::SinWave` for a sinwave following wind intensity with custom force and frequency.
+
+The `Wind` can be added as a resource to your app:
+
+```rust no_run
+use bevy::prelude::*;
+use bevy_cloth::prelude::*;
+
+fn main() {
+  App::new()
+    .add_plugins(DefaultPlugins)
+    .insert_resource(Wind::SinWave {
+        max_velocity: Vec3::new(10.0, 15.0, -5.0),
+         frequency: 3.0,
+    })
+    .add_plugin(ClothPlugin)
+    // ... Add your resources and systems
+    .run();
+}
+```
+
+> Check the flag example for simple wind effect.
+
 ## Mesh utils
 
 `bevy_cloth` provides a plane mesh generation function `rectangle_mesh` useful for classic cloth uses like flags or capes
