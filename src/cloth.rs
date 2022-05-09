@@ -225,6 +225,7 @@ mod tests {
 
     mod init_from_mesh {
         use super::*;
+        use crate::cloth_builder::ClothBuilder;
         use bevy_transform::prelude::Transform;
 
         fn expected_stick_len(
@@ -249,8 +250,9 @@ mod tests {
         fn works_with_quads() {
             let mesh = rectangle_mesh((100, 100), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = Cloth::new();
-            cloth.stick_generation = StickGeneration::Quads; // QUADS
+            let mut cloth = ClothBuilder::new()
+                .with_stick_generation(StickGeneration::Quads)
+                .build(); // QUADS
             cloth.init_from_mesh(&mesh, &matrix);
             assert_eq!(cloth.current_point_positions.len(), 100 * 100);
             assert_eq!(cloth.previous_point_positions.len(), 100 * 100);
@@ -261,8 +263,9 @@ mod tests {
         fn works_with_quads_2() {
             let mesh = rectangle_mesh((66, 42), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = Cloth::new();
-            cloth.stick_generation = StickGeneration::Quads; // QUADS
+            let mut cloth = ClothBuilder::new()
+                .with_stick_generation(StickGeneration::Quads)
+                .build(); // QUADS
             cloth.init_from_mesh(&mesh, &matrix);
             assert_eq!(cloth.current_point_positions.len(), 66 * 42);
             assert_eq!(cloth.previous_point_positions.len(), 66 * 42);
@@ -273,8 +276,9 @@ mod tests {
         fn works_with_triangles() {
             let mesh = rectangle_mesh((100, 100), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = Cloth::new();
-            cloth.stick_generation = StickGeneration::Triangles; // TRIANGLES
+            let mut cloth = ClothBuilder::new()
+                .with_stick_generation(StickGeneration::Triangles)
+                .build(); // TRIANGLES
             cloth.init_from_mesh(&mesh, &matrix);
             assert_eq!(cloth.current_point_positions.len(), 100 * 100);
             assert_eq!(cloth.previous_point_positions.len(), 100 * 100);
@@ -285,8 +289,9 @@ mod tests {
         fn works_with_triangles_2() {
             let mesh = rectangle_mesh((66, 42), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = Cloth::new();
-            cloth.stick_generation = StickGeneration::Triangles; // TRIANGLES
+            let mut cloth = ClothBuilder::new()
+                .with_stick_generation(StickGeneration::Triangles)
+                .build(); // TRIANGLES
             cloth.init_from_mesh(&mesh, &matrix);
             assert_eq!(cloth.current_point_positions.len(), 66 * 42);
             assert_eq!(cloth.previous_point_positions.len(), 66 * 42);

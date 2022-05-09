@@ -148,6 +148,7 @@ You probably didn't specify any *fixed points*, meaning there are no vertices an
 - [ ] Different stick behaviors (spring, stick, etc)
 - [ ] [heron](https://github.com/jcornaz/heron) integration to support collisions
 - [ ] dynamic normal mapping
+- [ ] Cloth cutting maybe?
 
 ## Examples
 
