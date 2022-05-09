@@ -1,5 +1,5 @@
 use crate::config::ClothConfig;
-use crate::stick::StickGeneration;
+use crate::stick::{StickGeneration, StickLen};
 use bevy_ecs::prelude::{Component, ReflectComponent};
 use bevy_log::{error, warn};
 use bevy_math::{Mat4, Vec3};
@@ -34,6 +34,8 @@ pub struct Cloth {
     pub fixed_points: HashSet<usize>,
     /// How cloth sticks get generated
     pub stick_generation: StickGeneration,
+    /// Define cloth sticks target length
+    pub stick_length: StickLen,
     /// Current Cloth points 3D positions in world space
     ///
     /// Note: this field will be automatically populated from mesh data
@@ -83,6 +85,16 @@ impl Cloth {
         mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
     }
 
+    fn get_stick_len(&self, (point_a, point_b): (Vec3, Vec3)) -> f32 {
+        let dist = point_a.distance(point_b);
+        match self.stick_length {
+            StickLen::Auto => dist,
+            StickLen::Fixed(v) => v,
+            StickLen::Offset(offset) => dist + offset,
+            StickLen::Coefficient(coeff) => dist * coeff,
+        }
+    }
+
     /// Initializes the cloth from a mesh. Points positions will be extracted from the mesh vertex positions
     /// (`ATTRIBUTE_POSITION`) and the sticks will be extracted from the `indices` (triangles) according to
     /// the associated [`StickGeneration`] mode.
@@ -124,14 +136,14 @@ impl Cloth {
             let [a, b, c] = [truple[0], truple[1], truple[2]];
             let (p_a, p_b, p_c) = (positions[a], positions[b], positions[c]);
             if !sticks.contains_key(&(b, a)) {
-                sticks.insert((a, b), p_a.distance(p_b));
+                sticks.insert((a, b), self.get_stick_len((p_a, p_b)));
             }
             if !sticks.contains_key(&(c, b)) {
-                sticks.insert((b, c), p_b.distance(p_c));
+                sticks.insert((b, c), self.get_stick_len((p_b, p_c)));
             }
             if let StickGeneration::Triangles = self.stick_generation {
                 if !sticks.contains_key(&(a, c)) {
-                    sticks.insert((c, a), p_c.distance(p_a));
+                    sticks.insert((c, a), self.get_stick_len((p_c, p_a)));
                 }
             }
         }
@@ -192,6 +204,9 @@ impl Cloth {
                 self.fixed_points,
                 matrix
             );
+            if fixed_a && fixed_b {
+                continue;
+            }
             let center = (position_b + position_a) / 2.0;
             let direction = match (position_b - position_a).try_normalize() {
                 None => {

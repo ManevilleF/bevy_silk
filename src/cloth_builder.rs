@@ -9,6 +9,8 @@ pub struct ClothBuilder {
     pub fixed_points: HashSet<usize>,
     /// How cloth sticks get generated
     pub stick_generation: Option<StickGeneration>,
+    /// Define cloth sticks target length
+    pub stick_length: Option<StickLen>,
 }
 
 #[allow(clippy::missing_const_for_fn)]
@@ -41,12 +43,24 @@ impl ClothBuilder {
         self
     }
 
+    /// Sets the sticks target length option for the cloth
+    ///
+    /// # Arguments
+    ///
+    /// * `stick_len` - Cloth sticks target length option
+    #[inline]
+    pub fn with_stick_length(mut self, stick_len: StickLen) -> Self {
+        self.stick_length = Some(stick_len);
+        self
+    }
+
     /// Consumes the builder and builds a new [`Cloth`] components
     #[inline]
     pub fn build(self) -> Cloth {
         Cloth {
             fixed_points: self.fixed_points,
             stick_generation: self.stick_generation.unwrap_or_default(),
+            stick_length: self.stick_length.unwrap_or_default(),
             ..Default::default()
         }
     }

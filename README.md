@@ -58,6 +58,8 @@ fn spawn(mut commands: Commands) {
         .with_fixed_points(0..9)
         // Define the stick generation mode
         .with_stick_generation(StickGeneration::Quads)
+        // Defines the sticks target length option
+        .with_stick_length(StickLen::Auto)
         // Build the cloth
         .build()
     );
@@ -145,6 +147,7 @@ You probably didn't specify any *fixed points*, meaning there are no vertices an
 ## TODO list
 
 - [x] Wind
+- [x] Custom stick target length options
 - [ ] Different stick behaviors (spring, stick, etc)
 - [ ] [heron](https://github.com/jcornaz/heron) integration to support collisions
 - [ ] dynamic normal mapping

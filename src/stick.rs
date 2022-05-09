@@ -9,8 +9,27 @@ pub enum StickGeneration {
     Quads,
 }
 
+/// Defines the target length of cloth sticks
+#[derive(Debug, Copy, Clone, Reflect)]
+pub enum StickLen {
+    /// The target length will be the actual distance between the vertices
+    Auto,
+    /// Custom target length
+    Fixed(f32),
+    /// Same as [`StickLen::Auto`] with a custom additional offset
+    Offset(f32),
+    /// Same as [`StickLen::Auto`] with a custom coefficient
+    Coefficient(f32),
+}
+
 impl Default for StickGeneration {
     fn default() -> Self {
         Self::Quads
+    }
+}
+
+impl Default for StickLen {
+    fn default() -> Self {
+        Self::Auto
     }
 }

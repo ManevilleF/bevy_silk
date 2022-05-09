@@ -56,6 +56,8 @@
 //!         .with_fixed_points(0..9)
 //!         // Define the stick generation mode
 //!         .with_stick_generation(StickGeneration::Quads)
+//!         // Defines the sticks target length option
+//!         .with_stick_length(StickLen::Auto)
 //!         // Build the cloth
 //!         .build()
 //!     );
@@ -174,8 +176,13 @@ use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 /// Prelude module, providing every public type of the lib
 pub mod prelude {
     pub use crate::{
-        cloth::Cloth, cloth_builder::ClothBuilder, config::ClothConfig, mesh::rectangle_mesh,
-        stick::StickGeneration, wind::Wind, ClothPlugin,
+        cloth::Cloth,
+        cloth_builder::ClothBuilder,
+        config::ClothConfig,
+        mesh::rectangle_mesh,
+        stick::{StickGeneration, StickLen},
+        wind::Wind,
+        ClothPlugin,
     };
 }
 
