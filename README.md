@@ -62,7 +62,7 @@ To do this you need to specify the vertex indexes to keep fixed by:
 
 ### Configuration
 
-You can customize the cloth physics by inserting the `ClothConfig` resource to your app:
+You can customize the global cloth physics by inserting the `ClothConfig` resource to your app:
 
 ```rust no_run
 use bevy::prelude::*;
@@ -81,6 +81,8 @@ fn main() {
     .run();
 }
 ```
+
+`ClothConfig` can also be used as a *component* to override the global configuration.
 
 ## Wind
 

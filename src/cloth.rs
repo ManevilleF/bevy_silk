@@ -35,14 +35,20 @@ pub struct Cloth {
     /// How cloth sticks get generated
     pub stick_generation: StickGeneration,
     /// Current Cloth points 3D positions in world space
-    current_point_positions: Vec<Vec3>,
+    ///
+    /// Note: this field will be automatically populated from mesh data
+    pub current_point_positions: Vec<Vec3>,
     /// Old Cloth points 3D positions in world space
-    previous_point_positions: Vec<Vec3>,
+    ///
+    /// Note: this field will be automatically populated from mesh data
+    pub previous_point_positions: Vec<Vec3>,
     /// Cloth sticks linking points
     ///
     /// * key: tuple with the connected points indexes
     /// * value: the target distance between the points
-    sticks: HashMap<(usize, usize), f32>,
+    ///
+    /// Note: this field will be automatically populated from mesh data
+    pub sticks: HashMap<(usize, usize), f32>,
 }
 
 impl Cloth {

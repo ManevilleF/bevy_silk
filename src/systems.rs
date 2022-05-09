@@ -13,7 +13,12 @@ use bevy_transform::prelude::GlobalTransform;
 
 #[allow(clippy::cast_possible_truncation)]
 pub fn update_cloth(
-    mut query: Query<(&mut Cloth, &GlobalTransform, &Handle<Mesh>)>,
+    mut query: Query<(
+        &mut Cloth,
+        &GlobalTransform,
+        &Handle<Mesh>,
+        Option<&ClothConfig>,
+    )>,
     config: Res<ClothConfig>,
     wind: Option<Res<Wind>>,
     time: Res<Time>,
@@ -23,11 +28,16 @@ pub fn update_cloth(
     let wind_force = wind.map_or(Vec3::ZERO, |w| {
         w.current_velocity(time.time_since_startup().as_secs_f32())
     });
-    for (mut cloth, transform, handle) in query.iter_mut() {
+    for (mut cloth, transform, handle, custom_config) in query.iter_mut() {
         if let Some(mesh) = meshes.get_mut(handle) {
             let matrix = transform.compute_matrix();
             if cloth.is_setup() {
-                cloth.update(&config, delta_time, &matrix, wind_force);
+                cloth.update(
+                    custom_config.unwrap_or(&config),
+                    delta_time,
+                    &matrix,
+                    wind_force,
+                );
             } else {
                 debug!("Setting up sticks for uninitialized cloth");
                 cloth.init_from_mesh(mesh, &matrix);

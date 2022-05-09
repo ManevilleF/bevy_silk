@@ -1,9 +1,14 @@
+use bevy_ecs::prelude::{Component, ReflectComponent};
 use bevy_math::Vec3;
 use bevy_reflect::Reflect;
 
-/// Cloth physics configuration resource
+/// Cloth physics configuration.
+///
+/// Used as a resource, it is used as a global configuration for every cloth entity.
+/// Used as a component on a cloth entity, it overrides the global values for that cloth.
 #[cfg_attr(feature = "debug", derive(bevy_inspector_egui::Inspectable))]
-#[derive(Debug, Clone, Reflect)]
+#[derive(Debug, Clone, Component, Reflect)]
+#[reflect(Component)]
 pub struct ClothConfig {
     /// Custom gravity, classic (0, -9.81, 0) is used by default
     pub gravity: Vec3,
