@@ -46,7 +46,7 @@
 //!
 //! fn spawn(mut commands: Commands) {
 //!     commands.spawn_bundle(PbrBundle {
-//!         // Add your mesh, material and your custom PBR dat    
+//!         // Add your mesh, material and your custom PBR data   
 //!         ..Default::default()
 //!     }).insert(Cloth::new());
 //! }
@@ -88,7 +88,7 @@
 //!
 //! The `Wind` can be added as a resource to your app:
 //!
-//! ```rust
+//! ```rust no_run
 //! use bevy::prelude::*;
 //! use bevy_cloth::prelude::*;
 //!
@@ -130,6 +130,8 @@ pub mod cloth;
 pub mod config;
 /// mesh module
 pub mod mesh;
+/// stick module
+pub mod stick;
 /// systems module
 mod systems;
 /// wind module
@@ -144,11 +146,8 @@ use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 /// Prelude module, providing every public type of the lib
 pub mod prelude {
     pub use crate::{
-        cloth::{Cloth, StickGeneration},
-        config::ClothConfig,
-        mesh::rectangle_mesh,
-        wind::Wind,
-        ClothPlugin,
+        cloth::Cloth, config::ClothConfig, mesh::rectangle_mesh, stick::StickGeneration,
+        wind::Wind, ClothPlugin,
     };
 }
 

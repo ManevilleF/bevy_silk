@@ -48,7 +48,7 @@ use bevy_cloth::prelude::*;
 
 fn spawn(mut commands: Commands) {
     commands.spawn_bundle(PbrBundle {
-        // Add your mesh, material and your custom PBR dat    
+        // Add your mesh, material and your custom PBR data   
         ..Default::default()
     }).insert(Cloth::new());
 }
