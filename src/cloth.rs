@@ -52,31 +52,6 @@ pub struct Cloth {
 }
 
 impl Cloth {
-    #[inline]
-    /// Creates a new empty Cloth
-    pub fn new() -> Self {
-        Self {
-            fixed_points: HashSet::new(),
-            current_point_positions: vec![],
-            previous_point_positions: vec![],
-            sticks: HashMap::new(),
-            stick_generation: StickGeneration::default(),
-        }
-    }
-
-    /// Creates a new Cloth with fixed points
-    ///
-    /// # Arguments
-    ///
-    /// * `fixed_points` - Iterator on the vertex indexes that should be attached to the associated `GlobalTransform`
-    #[inline]
-    pub fn with_fixed_points(fixed_points: impl Iterator<Item = usize>) -> Self {
-        Self {
-            fixed_points: fixed_points.collect(),
-            ..Self::new()
-        }
-    }
-
     /// Checks if the cloth initialized from mesh data
     #[inline]
     #[must_use]

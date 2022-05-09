@@ -74,7 +74,9 @@ fn spawn_cloth(
     let flag_texture = asset_server.load("France.png");
     let (size_x, size_y) = (15, 15);
     let mesh = rectangle_mesh((size_x, size_y), (Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
-    let cloth = Cloth::with_fixed_points((0..size_y).map(|i| i * size_x));
+    let cloth = ClothBuilder::new()
+        .with_fixed_points((0..size_y).map(|i| i * size_x))
+        .build();
     commands
         .spawn_bundle(PbrBundle {
             mesh: meshes.add(mesh),

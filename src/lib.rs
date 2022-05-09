@@ -40,6 +40,9 @@
 //!
 //! > Note: `Transform` and `GlobalTransform` are also required
 //!
+//! `Cloth` contains a lot of data which will be populated automatically from the associated `Handle<Mesh>`.
+//! To specify options to the `Cloth` it is suggested to use the `ClothBuilder`:
+//!
 //! ```rust
 //! use bevy::prelude::*;
 //! use bevy_cloth::prelude::*;
@@ -48,15 +51,30 @@
 //!     commands.spawn_bundle(PbrBundle {
 //!         // Add your mesh, material and your custom PBR data   
 //!         ..Default::default()
-//!     }).insert(Cloth::new());
+//!     }).insert(ClothBuilder::new()
+//!         // Define fixed vertices using an Iterator
+//!         .with_fixed_points(0..9)
+//!         // Define the stick generation mode
+//!         .with_stick_generation(StickGeneration::Quads)
+//!         // Build the cloth
+//!         .build()
+//!     );
 //! }
 //! ```
 //!
-//! The entity's mesh will now behave as cloth and will fall downwards.
-//! To avoid this, you need to specify **fixed points** which will keep the cloth attached to the entity.
-//! To do this you need to specify the vertex indexes to keep fixed by:
-//! - Using `Cloth::with_fixed_points` instead of `Cloth::new`
-//! - Editing the `Cloth::fixed_points` field
+//! But you can also directly use the `Cloth` struct.
+//!
+//! ```rust
+//! use bevy::prelude::*;
+//! use bevy_cloth::prelude::*;
+//!
+//! fn spawn(mut commands: Commands) {
+//!     commands.spawn_bundle(PbrBundle {
+//!         // Add your mesh, material and your custom PBR data   
+//!         ..Default::default()
+//!     }).insert(Cloth::default());
+//! }
+//! ```
 //!
 //! ### Configuration
 //!
@@ -113,6 +131,12 @@
 //!
 //! `bevy_cloth` provides a plane mesh generation function `rectangle_mesh` useful for classic cloth uses like flags or capes
 //!
+//! ## Q&A
+//!
+//! - `My mesh falls immediately and infinitely when I add a Cloth component, how to fix it?`
+//!
+//! You probably didn't specify any *fixed points*, meaning there are no vertices anchored to your entity's `GlobalTransform`.
+//!
 #![forbid(unsafe_code, missing_docs)]
 #![warn(
     clippy::all,
@@ -128,6 +152,8 @@
 )]
 /// cloth module
 pub mod cloth;
+/// cloth builder module
+pub mod cloth_builder;
 /// config module
 pub mod config;
 /// mesh module
@@ -148,8 +174,8 @@ use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 /// Prelude module, providing every public type of the lib
 pub mod prelude {
     pub use crate::{
-        cloth::Cloth, config::ClothConfig, mesh::rectangle_mesh, stick::StickGeneration,
-        wind::Wind, ClothPlugin,
+        cloth::Cloth, cloth_builder::ClothBuilder, config::ClothConfig, mesh::rectangle_mesh,
+        stick::StickGeneration, wind::Wind, ClothPlugin,
     };
 }
 
