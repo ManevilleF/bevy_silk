@@ -35,11 +35,6 @@ fn main() {
         .add_plugin(InspectorPlugin::<MovingAnimation>::new())
         .add_plugin(LookTransformPlugin)
         .add_plugin(OrbitCameraPlugin::default())
-        .insert_resource(ClothConfig {
-            gravity: -Vec3::Y,
-            sticks_computation_depth: 10,
-            ..Default::default()
-        })
         .add_plugin(ClothPlugin)
         .add_startup_system(spawn_cloth)
         .add_startup_system(setup)
@@ -86,7 +81,7 @@ fn spawn_cloth(
     asset_server: Res<AssetServer>,
 ) {
     let flag_texture = asset_server.load("France.png");
-    let (size_x, size_y) = (20, 20);
+    let (size_x, size_y) = (20, 40);
     let mesh = rectangle_mesh((size_x, size_y), (Vec3::X * 0.1, -Vec3::Y * 0.1), Vec3::Z);
     let cloth = ClothBuilder::new().with_fixed_points(0..size_x).build();
     let base_entity = Some(

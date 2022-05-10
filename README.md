@@ -159,16 +159,10 @@ You probably didn't specify any *fixed points*, meaning there are no vertices an
 
 run `cargo run --example flag_example --features debug`
 
-![GIF](docs/flag_example.gif)*Flag example*
-
 2. Balloon example
 
 run `cargo run --example balloon_example --features debug`
 
-![GIF](docs/balloon_example.gif)*Balloon example*
-
 3. Moving example
 
 run `cargo run --example moving_example --features debug`
-
-![GIF](docs/moving_example.gif)*Moving example*

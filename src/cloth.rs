@@ -180,7 +180,7 @@ impl Cloth {
     }
 
     fn update_points(&mut self, delta_time: f32, config: &ClothConfig, wind_force: Vec3) {
-        let gravity = config.gravity * delta_time;
+        let acceleration = (config.gravity + wind_force) * delta_time * delta_time;
         let friction = config.friction_coefficient();
 
         for (i, point) in self.current_point_positions.iter_mut().enumerate() {
@@ -188,9 +188,8 @@ impl Cloth {
                 let velocity = self
                     .previous_point_positions
                     .get(i)
-                    .map_or(Vec3::ZERO, |prev| *point - *prev)
-                    + wind_force;
-                *point += velocity * friction * delta_time + gravity;
+                    .map_or(Vec3::ZERO, |prev| *point - *prev);
+                *point += velocity * friction + acceleration;
             }
         }
     }

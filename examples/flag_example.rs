@@ -20,12 +20,8 @@ fn main() {
         .add_plugin(LookTransformPlugin)
         .add_plugin(OrbitCameraPlugin::default())
         .insert_resource(Wind::SinWave {
-            max_velocity: Vec3::new(10.0, 15.0, -5.0),
-            frequency: 3.0,
-        })
-        .insert_resource(ClothConfig {
-            sticks_computation_depth: 10,
-            ..Default::default()
+            max_velocity: Vec3::new(20.0, 10.0, -20.0),
+            frequency: 1.0,
         })
         .add_plugin(ClothPlugin)
         .add_startup_system(spawn_cloth)
@@ -72,7 +68,7 @@ fn spawn_cloth(
     asset_server: Res<AssetServer>,
 ) {
     let flag_texture = asset_server.load("France.png");
-    let (size_x, size_y) = (15, 15);
+    let (size_x, size_y) = (30, 15);
     let mesh = rectangle_mesh((size_x, size_y), (Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
     let cloth = ClothBuilder::new()
         .with_fixed_points((0..size_y).map(|i| i * size_x))

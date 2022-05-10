@@ -20,11 +20,6 @@ fn main() {
         .add_plugin(LookTransformPlugin)
         .add_plugin(OrbitCameraPlugin::default())
         .add_plugin(WireframePlugin)
-        .insert_resource(ClothConfig {
-            gravity: -Vec3::Y,
-            sticks_computation_depth: 10,
-            ..Default::default()
-        })
         .add_plugin(ClothPlugin)
         .add_startup_system(spawn_cloth)
         .add_startup_system(setup)
