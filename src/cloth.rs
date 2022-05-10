@@ -111,15 +111,30 @@ impl Cloth {
         let vertex_positions = mesh
             .attribute(Mesh::ATTRIBUTE_POSITION)
             .expect("Mesh associated to cloth doesn't have `ATTRIBUTE_POSITION` set");
-        let positions: Vec<Vec3> = match vertex_positions {
-            VertexAttributeValues::Float32x3(v) => v
-                .iter()
-                .map(|p| transform_matrix.transform_point3(Vec3::from(*p)))
-                .collect(),
+        // Original vertex positions in local space
+        let vertex_positions: Vec<Vec3> = match vertex_positions {
+            VertexAttributeValues::Float32x3(v) => v.iter().copied().map(Vec3::from).collect(),
             _ => {
                 panic!("Unsupported vertex position attribute, only `Float32x3` is supported");
             }
         };
+        // World space positions used to compute stick lengths
+        let world_positions: Vec<Vec3> = vertex_positions
+            .iter()
+            .map(|p| transform_matrix.transform_point3(*p))
+            .collect();
+        // World and local positions to store in cloth
+        let positions: Vec<Vec3> = vertex_positions
+            .iter()
+            .enumerate()
+            .map(|(i, p)| {
+                if self.fixed_points.contains(&i) {
+                    *p
+                } else {
+                    transform_matrix.transform_point3(*p)
+                }
+            })
+            .collect();
         let indices: Vec<usize> = match mesh.indices() {
             None => {
                 error!("Mesh associated to cloth doesn't have indices set");
@@ -134,7 +149,7 @@ impl Cloth {
 
         for truple in indices.chunks_exact(3) {
             let [a, b, c] = [truple[0], truple[1], truple[2]];
-            let (p_a, p_b, p_c) = (positions[a], positions[b], positions[c]);
+            let (p_a, p_b, p_c) = (world_positions[a], world_positions[b], world_positions[c]);
             if !sticks.contains_key(&(b, a)) {
                 sticks.insert((a, b), self.get_stick_len((p_a, p_b)));
             }

@@ -34,6 +34,8 @@ jobs:
         run: cargo clippy --all-features --example balloon_example
       - name: build flag example
         run: cargo clippy --all-features --example flag_example
+      - name: build moving example
+        run: cargo clippy --all-features --example moving_example
 
   test:
     runs-on: ubuntu-latest

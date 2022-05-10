@@ -81,7 +81,7 @@ fn spawn_cloth(
         .spawn_bundle(PbrBundle {
             mesh: meshes.add(mesh),
             material: materials.add(flag_texture.into()),
-            transform: Transform::from_xyz(-(size_x as f32) / 8.0, 5.0, 0.0),
+            transform: Transform::from_xyz(0.0, 5.0, 0.0),
             ..Default::default()
         })
         .insert(cloth)

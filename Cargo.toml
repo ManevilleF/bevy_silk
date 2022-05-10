@@ -53,3 +53,7 @@ required-features = ["debug"]
 [[example]]
 name = "flag_example"
 required-features = ["debug"]
+
+[[example]]
+name = "moving_example"
+required-features = ["debug"]
