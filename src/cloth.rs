@@ -85,16 +85,6 @@ impl Cloth {
         mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
     }
 
-    fn get_stick_len(&self, (point_a, point_b): (Vec3, Vec3)) -> f32 {
-        let dist = point_a.distance(point_b);
-        match self.stick_length {
-            StickLen::Auto => dist,
-            StickLen::Fixed(v) => v,
-            StickLen::Offset(offset) => dist + offset,
-            StickLen::Coefficient(coeff) => dist * coeff,
-        }
-    }
-
     /// Initializes the cloth from a mesh. Points positions will be extracted from the mesh vertex positions
     /// (`ATTRIBUTE_POSITION`) and the sticks will be extracted from the `indices` (triangles) according to
     /// the associated [`StickGeneration`] mode.
@@ -151,14 +141,14 @@ impl Cloth {
             let [a, b, c] = [truple[0], truple[1], truple[2]];
             let (p_a, p_b, p_c) = (world_positions[a], world_positions[b], world_positions[c]);
             if !sticks.contains_key(&(b, a)) {
-                sticks.insert((a, b), self.get_stick_len((p_a, p_b)));
+                sticks.insert((a, b), self.stick_length.get_stick_len(p_a, p_b));
             }
             if !sticks.contains_key(&(c, b)) {
-                sticks.insert((b, c), self.get_stick_len((p_b, p_c)));
+                sticks.insert((b, c), self.stick_length.get_stick_len(p_b, p_c));
             }
             if let StickGeneration::Triangles = self.stick_generation {
                 if !sticks.contains_key(&(a, c)) {
-                    sticks.insert((c, a), self.get_stick_len((p_c, p_a)));
+                    sticks.insert((c, a), self.stick_length.get_stick_len(p_c, p_a));
                 }
             }
         }

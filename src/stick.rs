@@ -1,3 +1,4 @@
+use bevy_math::Vec3;
 use bevy_reflect::Reflect;
 
 /// Defines how the cloth will compute sticks from mesh indices.
@@ -31,5 +32,18 @@ impl Default for StickGeneration {
 impl Default for StickLen {
     fn default() -> Self {
         Self::Auto
+    }
+}
+
+impl StickLen {
+    /// Retrieves the stick length from the two points it connects
+    #[must_use]
+    pub fn get_stick_len(&self, point_a: Vec3, point_b: Vec3) -> f32 {
+        match self {
+            Self::Auto => point_a.distance(point_b),
+            Self::Fixed(v) => *v,
+            Self::Offset(offset) => point_a.distance(point_b) + offset,
+            Self::Coefficient(coeff) => point_a.distance(point_b) * coeff,
+        }
     }
 }
