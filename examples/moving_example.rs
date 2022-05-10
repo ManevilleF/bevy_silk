@@ -8,7 +8,10 @@ use smooth_bevy_cameras::{
 
 #[derive(Debug, Clone, Inspectable)]
 struct MovingAnimation {
-    #[inspectable(collapse)]m}
+    #[inspectable(collapse)]
+    pub base_entity: Option<Entity>,
+    pub rotation_speed: f32,
+}
 
 impl Default for MovingAnimation {
     fn default() -> Self {
