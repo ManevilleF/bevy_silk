@@ -147,7 +147,7 @@ pub mod cloth;
 /// cloth builder module
 pub mod cloth_builder;
 /// cloth rendering module
-mod cloth_rendering;
+pub mod cloth_rendering;
 /// config module
 pub mod config;
 /// error module
@@ -161,14 +161,15 @@ mod systems;
 /// wind module
 pub mod wind;
 
+use crate::cloth::Cloth;
+use crate::cloth_rendering::ClothRendering;
 use crate::prelude::*;
 use bevy_app::{App, Plugin};
-use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
+use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
 
 /// Prelude module, providing every public type of the lib
 pub mod prelude {
     pub use crate::{
-        cloth::Cloth,
         cloth_builder::ClothBuilder,
         config::ClothConfig,
         error::Error,
@@ -190,7 +191,8 @@ impl Plugin for ClothPlugin {
             .register_type::<Wind>()
             .register_type::<Winds>()
             .register_type::<ClothBuilder>()
-            .register_type::<Cloth>();
+            .register_type::<Cloth>()
+            .register_type::<ClothRendering>();
         app.add_system(systems::init_cloth.label("CLOTH_INIT"));
         app.add_system(systems::update_cloth.label("CLOTH_UPDATE"));
     }

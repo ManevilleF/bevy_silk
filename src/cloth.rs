@@ -1,12 +1,9 @@
-use crate::cloth_rendering::ClothRendering;
 use crate::config::ClothConfig;
 use crate::stick::{StickGeneration, StickLen};
-use crate::Error;
 use bevy_ecs::prelude::{Component, ReflectComponent};
-use bevy_log::{error, warn};
+use bevy_log::warn;
 use bevy_math::{Mat4, Vec3};
 use bevy_reflect::Reflect;
-use bevy_render::mesh::{Indices, Mesh, VertexAttributeValues};
 use bevy_utils::{HashMap, HashSet};
 
 macro_rules! get_point {
@@ -57,6 +54,7 @@ impl Cloth {
     /// # Arguments
     ///
     /// * `transform_matrix` - the transform matrix of the associated `GlobalTransform`
+    #[must_use]
     pub fn compute_vertex_positions(&self, transform_matrix: &Mat4) -> Vec<Vec3> {
         let matrix = transform_matrix.inverse();
 
@@ -223,7 +221,7 @@ mod tests {
 
     mod init_from_mesh {
         use super::*;
-        use crate::cloth_builder::ClothBuilder;
+        use crate::ClothRendering;
         use bevy_transform::prelude::Transform;
 
         fn expected_stick_len(
@@ -248,52 +246,72 @@ mod tests {
         fn works_with_quads() {
             let mesh = rectangle_mesh((100, 100), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = ClothBuilder::new()
-                .with_stick_generation(StickGeneration::Quads)
-                .build(); // QUADS
-            cloth.init_from_mesh(&mesh, &matrix);
+            let cloth_rendering = ClothRendering::init(&mesh, false).unwrap();
+            let cloth = Cloth::new(
+                &cloth_rendering.vertex_positions,
+                &cloth_rendering.indices,
+                Default::default(),
+                StickGeneration::Quads,
+                StickLen::Auto,
+                &matrix,
+            );
             assert_eq!(cloth.current_point_positions.len(), 100 * 100);
             assert_eq!(cloth.previous_point_positions.len(), 100 * 100);
-            expected_stick_len(cloth.sticks.len(), cloth.stick_generation, (100, 100));
+            expected_stick_len(cloth.sticks.len(), StickGeneration::Quads, (100, 100));
         }
 
         #[test]
         fn works_with_quads_2() {
             let mesh = rectangle_mesh((66, 42), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = ClothBuilder::new()
-                .with_stick_generation(StickGeneration::Quads)
-                .build(); // QUADS
-            cloth.init_from_mesh(&mesh, &matrix);
+            let cloth_rendering = ClothRendering::init(&mesh, false).unwrap();
+            let cloth = Cloth::new(
+                &cloth_rendering.vertex_positions,
+                &cloth_rendering.indices,
+                Default::default(),
+                StickGeneration::Quads,
+                StickLen::Auto,
+                &matrix,
+            );
             assert_eq!(cloth.current_point_positions.len(), 66 * 42);
             assert_eq!(cloth.previous_point_positions.len(), 66 * 42);
-            expected_stick_len(cloth.sticks.len(), cloth.stick_generation, (66, 42));
+            expected_stick_len(cloth.sticks.len(), StickGeneration::Quads, (66, 42));
         }
 
         #[test]
         fn works_with_triangles() {
             let mesh = rectangle_mesh((100, 100), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = ClothBuilder::new()
-                .with_stick_generation(StickGeneration::Triangles)
-                .build(); // TRIANGLES
-            cloth.init_from_mesh(&mesh, &matrix);
+            let cloth_rendering = ClothRendering::init(&mesh, false).unwrap();
+            let cloth = Cloth::new(
+                &cloth_rendering.vertex_positions,
+                &cloth_rendering.indices,
+                Default::default(),
+                StickGeneration::Triangles,
+                StickLen::Auto,
+                &matrix,
+            );
             assert_eq!(cloth.current_point_positions.len(), 100 * 100);
             assert_eq!(cloth.previous_point_positions.len(), 100 * 100);
-            expected_stick_len(cloth.sticks.len(), cloth.stick_generation, (100, 100));
+            expected_stick_len(cloth.sticks.len(), StickGeneration::Triangles, (100, 100));
         }
 
         #[test]
         fn works_with_triangles_2() {
             let mesh = rectangle_mesh((66, 42), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = ClothBuilder::new()
-                .with_stick_generation(StickGeneration::Triangles)
-                .build(); // TRIANGLES
-            cloth.init_from_mesh(&mesh, &matrix);
+            let cloth_rendering = ClothRendering::init(&mesh, false).unwrap();
+            let cloth = Cloth::new(
+                &cloth_rendering.vertex_positions,
+                &cloth_rendering.indices,
+                Default::default(),
+                StickGeneration::Triangles,
+                StickLen::Auto,
+                &matrix,
+            );
             assert_eq!(cloth.current_point_positions.len(), 66 * 42);
             assert_eq!(cloth.previous_point_positions.len(), 66 * 42);
-            expected_stick_len(cloth.sticks.len(), cloth.stick_generation, (66, 42));
+            expected_stick_len(cloth.sticks.len(), StickGeneration::Triangles, (66, 42));
         }
     }
 }

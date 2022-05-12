@@ -4,11 +4,15 @@ use bevy_math::Vec3;
 use bevy_reflect::Reflect;
 use bevy_render::mesh::{Indices, Mesh, VertexAttributeValues};
 
+/// Cloth rendering component. It allows mesh data extraction, vertex duplication and normal computation
 #[derive(Debug, Clone, Component, Default, Reflect)]
 #[reflect(Component)]
 pub struct ClothRendering {
+    /// Mesh vertex positions
     pub vertex_positions: Vec<Vec3>,
+    /// Mesh vertex indices
     pub indices: Vec<u32>,
+    /// If set to true, the vertices will be duplicated and normals computed before updating the mesh
     pub compute_normals: bool,
 }
 
@@ -23,7 +27,7 @@ impl ClothRendering {
     ///
     /// * `mesh` - the mesh containing the desired data
     ///
-    /// # Error
+    /// # Errors
     ///
     /// The function fails in the event of the mesh `ATTRIBUTE_POSITION` attribute is missing or invalid.
     /// It may also fail if the mesh doesn't have indices.
@@ -39,8 +43,8 @@ impl ClothRendering {
         let indices = match mesh.indices() {
             None => return Err(Error::MissingIndices),
             Some(i) => match i {
-                Indices::U16(v) => v.iter().map(|i| *i as u32).collect(),
-                Indices::U32(v) => v.iter().copied().collect(),
+                Indices::U16(v) => v.iter().copied().map(u32::from).collect(),
+                Indices::U32(v) => v.clone(),
             },
         };
         Ok(Self {
@@ -50,16 +54,26 @@ impl ClothRendering {
         })
     }
 
+    /// Updates the vertex positions from the cloth point values
+    ///
+    /// # Panics
+    ///
+    /// Panics if the new `vertex_positions` doesn't have the same length as the previous vertices
     pub fn update_positions(&mut self, vertex_positions: Vec<Vec3>) {
         assert_eq!(vertex_positions.len(), self.vertex_positions.len());
         self.vertex_positions = vertex_positions;
     }
 
+    /// Duplicates `self` by computing one vertex position per indice.
+    /// This allows to remove shared vertices and compute normals.
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
     pub fn duplicated_self(&self) -> Self {
-        let (vertex_positions, indices): (Vec<_>, Vec<_>) = indices
-            .into_iter()
+        let (vertex_positions, indices): (Vec<_>, Vec<_>) = self
+            .indices
+            .iter()
             .enumerate()
-            .map(|(i, indice)| (vertex_positions[indice as usize], i as u32))
+            .map(|(i, indice)| (self.vertex_positions[*indice as usize], i as u32))
             .unzip();
         Self {
             vertex_positions,
@@ -68,6 +82,8 @@ impl ClothRendering {
         }
     }
 
+    /// Computes vertex normals from indices, should be called on [`Self::duplicated_self`] as it requires
+    /// no shared vertices
     pub(crate) fn compute_normals(&self) -> Vec<Vec3> {
         self.indices
             .chunks_exact(3)
@@ -80,6 +96,10 @@ impl ClothRendering {
             .collect()
     }
 
+    /// applies the rendering data to the mesh.
+    /// If [`Self::compute_normals`] is set to `true`, the vertices will be duplicated and vertex
+    /// normals will be computed and applied to the mesh.
+    /// Otherwise, only the vertex positions are applied.
     pub fn apply(&self, mesh: &mut Mesh) {
         if self.compute_normals {
             let new_self = self.duplicated_self();
@@ -99,7 +119,7 @@ impl ClothRendering {
                     .map(Vec3::to_array)
                     .collect::<Vec<[f32; 3]>>(),
             );
-            mesh.set_indices(Some(Indices::U32(new_self.indices.clone())));
+            mesh.set_indices(Some(Indices::U32(new_self.indices)));
         } else {
             mesh.insert_attribute(
                 Mesh::ATTRIBUTE_POSITION,

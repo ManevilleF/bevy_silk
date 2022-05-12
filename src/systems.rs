@@ -1,4 +1,8 @@
-#![allow(clippy::needless_pass_by_value)]
+#![allow(
+    clippy::needless_pass_by_value,
+    clippy::type_complexity,
+    clippy::option_if_let_else
+)]
 
 use crate::cloth::Cloth;
 use crate::cloth_rendering::ClothRendering;
@@ -58,13 +62,13 @@ pub fn init_cloth(
         if let Some(mesh) = meshes.get(handle) {
             let matrix = transform.compute_matrix();
             debug!("Initializing Cloth");
-            let rendering = ClothRendering::init(mesh, builder.compute_normals()).unwrap();
+            let rendering = ClothRendering::init(mesh, builder.compute_normals).unwrap();
             let cloth = Cloth::new(
                 &rendering.vertex_positions,
                 &rendering.indices,
-                builder.fixed_points(),
-                builder.stick_generation(),
-                builder.stick_length(),
+                builder.fixed_points.clone(),
+                builder.stick_generation,
+                builder.stick_length,
                 &matrix,
             );
             commands.entity(entity).insert(rendering).insert(cloth);
