@@ -1,15 +1,16 @@
 use crate::Error;
-use bevy_ecs::prelude::{Component, ReflectComponent};
+use bevy_ecs::prelude::Component;
+use bevy_log::warn;
 use bevy_math::Vec3;
-use bevy_reflect::Reflect;
 use bevy_render::mesh::{Indices, Mesh, VertexAttributeValues};
 
 /// Cloth rendering component. It allows mesh data extraction, vertex duplication and normal computation
-#[derive(Debug, Clone, Component, Default, Reflect)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Component, Default)]
 pub struct ClothRendering {
     /// Mesh vertex positions
     pub vertex_positions: Vec<Vec3>,
+    /// Mesh vertex UV positions
+    pub vertex_uvs: Vec<[f32; 2]>,
     /// Mesh vertex indices
     pub indices: Vec<u32>,
     /// If set to true, the vertices will be duplicated and normals computed before updating the mesh
@@ -35,10 +36,21 @@ impl ClothRendering {
         let vertex_positions = mesh
             .attribute(Mesh::ATTRIBUTE_POSITION)
             .ok_or_else(|| Error::MissingMeshAttribute("ATTRIBUTE_POSITION".to_string()))?;
-        // Original vertex positions in local space
-        let vertex_positions = match vertex_positions {
+        let vertex_positions: Vec<Vec3> = match vertex_positions {
             VertexAttributeValues::Float32x3(v) => v.iter().copied().map(Vec3::from).collect(),
             _ => return Err(Error::UnsupportedVertexPositionAttribute),
+        };
+        let vertex_uvs = match mesh
+            .attribute(Mesh::ATTRIBUTE_UV_0)
+            .and_then(|attr| match attr {
+                VertexAttributeValues::Float32x2(v) => Some(v.clone()),
+                _ => None,
+            }) {
+            None => {
+                warn!("Mesh doesn't have a valid UV_0 attribute, using a default value");
+                (0..vertex_positions.len()).map(|_| [0.0; 2]).collect()
+            }
+            Some(attr) => attr,
         };
         let indices = match mesh.indices() {
             None => return Err(Error::MissingIndices),
@@ -49,6 +61,7 @@ impl ClothRendering {
         };
         Ok(Self {
             vertex_positions,
+            vertex_uvs,
             indices,
             compute_normals,
         })
@@ -69,16 +82,25 @@ impl ClothRendering {
     #[must_use]
     #[allow(clippy::cast_possible_truncation)]
     pub fn duplicated_self(&self) -> Self {
-        let (vertex_positions, indices): (Vec<_>, Vec<_>) = self
+        let ((vertex_positions, vertex_uvs), indices): ((Vec<_>, Vec<_>), Vec<_>) = self
             .indices
             .iter()
             .enumerate()
-            .map(|(i, indice)| (self.vertex_positions[*indice as usize], i as u32))
+            .map(|(i, indice)| {
+                (
+                    (
+                        self.vertex_positions[*indice as usize],
+                        self.vertex_uvs[*indice as usize],
+                    ),
+                    i as u32,
+                )
+            })
             .unzip();
         Self {
             vertex_positions,
             indices,
             compute_normals: self.compute_normals,
+            vertex_uvs,
         }
     }
 
@@ -96,6 +118,10 @@ impl ClothRendering {
             .collect()
     }
 
+    fn vec3_vertex_attr(attr: &[Vec3]) -> Vec<[f32; 3]> {
+        attr.iter().map(Vec3::to_array).collect()
+    }
+
     /// applies the rendering data to the mesh.
     /// If [`Self::compute_normals`] is set to `true`, the vertices will be duplicated and vertex
     /// normals will be computed and applied to the mesh.
@@ -104,29 +130,20 @@ impl ClothRendering {
         if self.compute_normals {
             let new_self = self.duplicated_self();
             mesh.insert_attribute(
-                Mesh::ATTRIBUTE_NORMAL,
-                new_self
-                    .vertex_positions
-                    .iter()
-                    .map(Vec3::to_array)
-                    .collect::<Vec<[f32; 3]>>(),
+                Mesh::ATTRIBUTE_POSITION,
+                Self::vec3_vertex_attr(&new_self.vertex_positions),
             );
+            mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, new_self.vertex_uvs.clone());
             let vertex_normals = new_self.compute_normals();
             mesh.insert_attribute(
                 Mesh::ATTRIBUTE_NORMAL,
-                vertex_normals
-                    .iter()
-                    .map(Vec3::to_array)
-                    .collect::<Vec<[f32; 3]>>(),
+                Self::vec3_vertex_attr(&vertex_normals),
             );
             mesh.set_indices(Some(Indices::U32(new_self.indices)));
         } else {
             mesh.insert_attribute(
                 Mesh::ATTRIBUTE_POSITION,
-                self.vertex_positions
-                    .iter()
-                    .map(Vec3::to_array)
-                    .collect::<Vec<[f32; 3]>>(),
+                Self::vec3_vertex_attr(&self.vertex_positions),
             );
         }
     }

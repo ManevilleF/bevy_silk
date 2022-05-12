@@ -162,7 +162,6 @@ mod systems;
 pub mod wind;
 
 use crate::cloth::Cloth;
-use crate::cloth_rendering::ClothRendering;
 use crate::prelude::*;
 use bevy_app::{App, Plugin};
 use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
@@ -191,8 +190,7 @@ impl Plugin for ClothPlugin {
             .register_type::<Wind>()
             .register_type::<Winds>()
             .register_type::<ClothBuilder>()
-            .register_type::<Cloth>()
-            .register_type::<ClothRendering>();
+            .register_type::<Cloth>();
         app.add_system(systems::init_cloth.label("CLOTH_INIT"));
         app.add_system(systems::update_cloth.label("CLOTH_UPDATE"));
     }
