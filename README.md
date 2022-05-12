@@ -141,10 +141,12 @@ You probably didn't specify any *fixed points*, meaning there are no vertices an
 - [ ] Different stick behaviors (spring, stick, etc)
 - [x] dynamic flat normal mapping
 - [x] dynamic smooth normal mapping
-- [ ] [heron](https://github.com/jcornaz/heron) integration to support collisions
+- [ ] Collision support
 - [ ] Cloth cutting maybe?
 
 ## Examples
+
+![Bevy Flag](docs/flag.gif)
 
 1. Flag example
 
