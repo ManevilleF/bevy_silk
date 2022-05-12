@@ -13,8 +13,8 @@ pub struct ClothConfig {
     /// Custom gravity, classic (0, -9.81, 0) is used by default
     pub gravity: Vec3,
     /// Custom friction to apply to velocity. Useful to reduce the elasticity of a cloth.
-    /// The friction is not applied to external accelerations like gravity and winds
     ///
+    /// Note: The friction is not applied to external accelerations like gravity and winds
     /// Note: will be clamped between 0.0 and 1.0
     pub friction: f32,
     /// Sets the number of sticks computation iteration.
@@ -47,7 +47,7 @@ impl Default for ClothConfig {
     fn default() -> Self {
         Self {
             gravity: Vec3::Y * Self::DEFAULT_GRAVITY,
-            friction: 0.1,
+            friction: 0.05,
             sticks_computation_depth: 5,
         }
     }
