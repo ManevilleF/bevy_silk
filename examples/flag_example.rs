@@ -77,7 +77,7 @@ fn spawn_cloth(
     mut meshes: ResMut<Assets<Mesh>>,
     asset_server: Res<AssetServer>,
 ) {
-    let flag_texture = asset_server.load("France.png");
+    let flag_texture = asset_server.load("Bevy.png");
     let (size_x, size_y) = (30, 15);
     let mesh = rectangle_mesh((size_x, size_y), (Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
     let cloth = ClothBuilder::new()

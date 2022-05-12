@@ -37,14 +37,16 @@ pub fn rectangle_mesh(
             let mut res = vec![];
             let i_32 = i as u32;
             if (i + 1) % size_x != 0 && points.get(i + size_x).is_some() {
-                res.extend(vec![i_32 + 1, i_32, i_32 + size_x as u32]);
+                res.extend(vec![i_32 + 1, i_32, i_32 + size_x as u32]); // Front triangle
+                res.extend(vec![i_32 + size_x as u32, i_32, i_32 + 1]); // Back triangle
             }
             if i % size_x != 0
                 && i.checked_sub(size_x)
                     .and_then(|i2| points.get(i2))
                     .is_some()
             {
-                res.extend(vec![i_32 - 1, i_32, i_32 - size_x as u32]);
+                res.extend(vec![i_32 - 1, i_32, i_32 - size_x as u32]); // Front triangle
+                res.extend(vec![i_32 - size_x as u32, i_32, i_32 - 1]); // Back triangle
             }
             res
         })
