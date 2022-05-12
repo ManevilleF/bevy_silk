@@ -2,7 +2,27 @@ use crate::Error;
 use bevy_ecs::prelude::Component;
 use bevy_log::warn;
 use bevy_math::Vec3;
+use bevy_reflect::Reflect;
 use bevy_render::mesh::{Indices, Mesh, VertexAttributeValues};
+use bevy_utils::HashMap;
+
+/// Defines the cloth computation mode of vertex normals
+#[derive(Debug, Copy, Clone, Reflect)]
+pub enum NormalComputing {
+    /// The cloth won't compute any vertex normals, leaving the original ones
+    None,
+    ///
+    SmoothNormals,
+    /// The cloth will duplicate the vertex positions, avoiding shared vertices, and compute
+    /// flat vertex normals
+    FlatNormals,
+}
+
+impl Default for NormalComputing {
+    fn default() -> Self {
+        Self::SmoothNormals
+    }
+}
 
 /// Cloth rendering component. It allows mesh data extraction, vertex duplication and normal computation
 #[derive(Debug, Clone, Component, Default)]
@@ -14,7 +34,7 @@ pub struct ClothRendering {
     /// Mesh vertex indices
     pub indices: Vec<u32>,
     /// If set to true, the vertices will be duplicated and normals computed before updating the mesh
-    pub compute_flat_normals: bool,
+    pub normal_computing: NormalComputing,
 }
 
 impl ClothRendering {
@@ -32,7 +52,7 @@ impl ClothRendering {
     ///
     /// The function fails in the event of the mesh `ATTRIBUTE_POSITION` attribute is missing or invalid.
     /// It may also fail if the mesh doesn't have indices.
-    pub fn init(mesh: &Mesh, compute_flat_normals: bool) -> Result<Self, Error> {
+    pub fn init(mesh: &Mesh, normal_computing: NormalComputing) -> Result<Self, Error> {
         let vertex_positions = mesh
             .attribute(Mesh::ATTRIBUTE_POSITION)
             .ok_or_else(|| Error::MissingMeshAttribute("ATTRIBUTE_POSITION".to_string()))?;
@@ -63,7 +83,7 @@ impl ClothRendering {
             vertex_positions,
             vertex_uvs,
             indices,
-            compute_flat_normals,
+            normal_computing,
         })
     }
 
@@ -99,14 +119,14 @@ impl ClothRendering {
         Self {
             vertex_positions,
             indices,
-            compute_flat_normals: self.compute_flat_normals,
+            normal_computing: self.normal_computing,
             vertex_uvs,
         }
     }
 
     /// Computes vertex normals from indices, should be called on [`Self::duplicated_self`] as it requires
     /// no shared vertices
-    pub(crate) fn compute_normals(&self) -> Vec<Vec3> {
+    pub(crate) fn compute_flat_normals(&self) -> Vec<Vec3> {
         self.indices
             .chunks_exact(3)
             .flat_map(|chunk| {
@@ -114,6 +134,29 @@ impl ClothRendering {
                     [chunk[0], chunk[1], chunk[2]].map(|i| self.vertex_positions[i as usize]);
                 let normal = Self::face_normal(a, b, c);
                 [normal; 3]
+            })
+            .collect()
+    }
+
+    /// Computes averaged vertex normals from indices, should be called without duplication as it requires shared vertices
+    #[allow(clippy::cast_precision_loss)]
+    pub(crate) fn compute_smooth_normals(&self) -> Vec<Vec3> {
+        let mut map = HashMap::with_capacity(self.vertex_positions.len());
+        for chunk in self.indices.chunks_exact(3) {
+            let [a, b, c] = [chunk[0] as usize, chunk[1] as usize, chunk[2] as usize];
+            let flat_normal = Self::face_normal(
+                self.vertex_positions[a],
+                self.vertex_positions[b],
+                self.vertex_positions[c],
+            );
+            map.entry(a).or_insert(vec![]).push(flat_normal);
+            map.entry(b).or_insert(vec![]).push(flat_normal);
+            map.entry(c).or_insert(vec![]).push(flat_normal);
+        }
+        (0..self.vertex_positions.len())
+            .map(|i| {
+                let sum = map[&i].iter().fold(Vec3::ZERO, |res, v| res + *v);
+                sum / map[&i].len() as f32
             })
             .collect()
     }
@@ -127,24 +170,36 @@ impl ClothRendering {
     /// normals will be computed and applied to the mesh.
     /// Otherwise, only the vertex positions are applied.
     pub fn apply(&self, mesh: &mut Mesh) {
-        if self.compute_flat_normals {
-            let new_self = self.duplicated_self();
-            mesh.insert_attribute(
-                Mesh::ATTRIBUTE_POSITION,
-                Self::vec3_vertex_attr(&new_self.vertex_positions),
-            );
-            mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, new_self.vertex_uvs.clone());
-            let vertex_normals = new_self.compute_normals();
-            mesh.insert_attribute(
-                Mesh::ATTRIBUTE_NORMAL,
-                Self::vec3_vertex_attr(&vertex_normals),
-            );
-            mesh.set_indices(Some(Indices::U32(new_self.indices)));
-        } else {
-            mesh.insert_attribute(
+        match self.normal_computing {
+            NormalComputing::None => mesh.insert_attribute(
                 Mesh::ATTRIBUTE_POSITION,
                 Self::vec3_vertex_attr(&self.vertex_positions),
-            );
+            ),
+            NormalComputing::SmoothNormals => {
+                mesh.insert_attribute(
+                    Mesh::ATTRIBUTE_POSITION,
+                    Self::vec3_vertex_attr(&self.vertex_positions),
+                );
+                let vertex_normals = self.compute_smooth_normals();
+                mesh.insert_attribute(
+                    Mesh::ATTRIBUTE_NORMAL,
+                    Self::vec3_vertex_attr(&vertex_normals),
+                );
+            }
+            NormalComputing::FlatNormals => {
+                let new_self = self.duplicated_self();
+                mesh.insert_attribute(
+                    Mesh::ATTRIBUTE_POSITION,
+                    Self::vec3_vertex_attr(&new_self.vertex_positions),
+                );
+                mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, new_self.vertex_uvs.clone());
+                let vertex_normals = new_self.compute_flat_normals();
+                mesh.insert_attribute(
+                    Mesh::ATTRIBUTE_NORMAL,
+                    Self::vec3_vertex_attr(&vertex_normals),
+                );
+                mesh.set_indices(Some(Indices::U32(new_self.indices)));
+            }
         }
     }
 }

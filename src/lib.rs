@@ -57,8 +57,9 @@
 //!         .with_stick_generation(StickGeneration::Quads)
 //!         // Defines the sticks target length option
 //!         .with_stick_length(StickLen::Auto)
-//!         // Defines that the cloth will compute mesh normals
-//!         .with_normal_computation()
+//!         // The cloth will compute flat mesh normals
+//!         .with_flat_normal_computation()
+//!         // ...
 //!     );
 //! }
 //! ```
@@ -170,6 +171,7 @@ use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
 pub mod prelude {
     pub use crate::{
         cloth_builder::ClothBuilder,
+        cloth_rendering::NormalComputing,
         config::ClothConfig,
         error::Error,
         mesh::rectangle_mesh,

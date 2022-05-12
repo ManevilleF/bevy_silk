@@ -62,7 +62,7 @@ pub fn init_cloth(
         if let Some(mesh) = meshes.get(handle) {
             let matrix = transform.compute_matrix();
             debug!("Initializing Cloth");
-            let rendering = ClothRendering::init(mesh, builder.compute_flat_normals).unwrap();
+            let rendering = ClothRendering::init(mesh, builder.normals_computing).unwrap();
             let cloth = Cloth::new(
                 &rendering.vertex_positions,
                 &rendering.indices,
@@ -71,6 +71,7 @@ pub fn init_cloth(
                 builder.stick_length,
                 &matrix,
             );
+            // TODO: should the cloth builder be removed ?
             commands.entity(entity).insert(rendering).insert(cloth);
         }
     }

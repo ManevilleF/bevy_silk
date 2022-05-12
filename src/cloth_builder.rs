@@ -6,7 +6,7 @@ use bevy_utils::HashSet;
 /// Builder component for cloth behaviour, defines every available option for cloth generation and rendering.
 ///
 /// Add this component to an entity with at least a `GlobalTransform` and a `Handle<Mesh>`
-#[derive(Debug, Clone, Component, Reflect)]
+#[derive(Debug, Clone, Default, Component, Reflect)]
 #[reflect(Component)]
 #[must_use]
 pub struct ClothBuilder {
@@ -16,9 +16,8 @@ pub struct ClothBuilder {
     pub stick_generation: StickGeneration,
     /// Define cloth sticks target length
     pub stick_length: StickLen,
-    /// Should the cloth compute normal data.
-    /// If set to true the lighting will be correct, but the rendering might be slower
-    pub compute_flat_normals: bool,
+    /// Defines the cloth computation mode of vertex normals
+    pub normals_computing: NormalComputing,
 }
 
 #[allow(clippy::missing_const_for_fn)]
@@ -65,23 +64,19 @@ impl ClothBuilder {
     /// The cloth won't re-compute the mesh normals. It's the fastest option but lighting will
     /// become inconsistent
     pub fn without_normal_computation(mut self) -> Self {
-        self.compute_flat_normals = false;
+        self.normals_computing = NormalComputing::None;
         self
     }
-    /// The cloth will re-compute the mesh normals
-    pub fn with_normal_computation(mut self) -> Self {
-        self.compute_flat_normals = true;
-        self
-    }
-}
 
-impl Default for ClothBuilder {
-    fn default() -> Self {
-        Self {
-            fixed_points: Default::default(),
-            stick_generation: Default::default(),
-            stick_length: Default::default(),
-            compute_flat_normals: true,
-        }
+    /// The cloth will compute smooth vertex normals
+    pub fn with_smooth_normal_computation(mut self) -> Self {
+        self.normals_computing = NormalComputing::SmoothNormals;
+        self
+    }
+
+    /// The cloth will compute flat vertex normals and duplicate shared vertices
+    pub fn with_flat_normal_computation(mut self) -> Self {
+        self.normals_computing = NormalComputing::FlatNormals;
+        self
     }
 }

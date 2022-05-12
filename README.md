@@ -59,8 +59,9 @@ fn spawn(mut commands: Commands) {
         .with_stick_generation(StickGeneration::Quads)
         // Defines the sticks target length option
         .with_stick_length(StickLen::Auto)
-        // Defines that the cloth will compute mesh normals
-        .with_normal_computation()
+        // The cloth will compute flat mesh normals
+        .with_flat_normal_computation()
+        // ...
     );
 }
 ```
@@ -138,8 +139,9 @@ You probably didn't specify any *fixed points*, meaning there are no vertices an
 - [x] Wind
 - [x] Custom stick target length options
 - [ ] Different stick behaviors (spring, stick, etc)
+- [x] dynamic flat normal mapping
+- [x] dynamic smooth normal mapping
 - [ ] [heron](https://github.com/jcornaz/heron) integration to support collisions
-- [ ] dynamic normal mapping
 - [ ] Cloth cutting maybe?
 
 ## Examples

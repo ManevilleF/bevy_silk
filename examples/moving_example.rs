@@ -102,7 +102,12 @@ fn spawn_cloth(
                 .with_children(|b2| {
                     b2.spawn_bundle(PbrBundle {
                         mesh: meshes.add(mesh),
-                        material: materials.add(flag_texture.into()),
+                        material: materials.add(StandardMaterial {
+                            base_color_texture: Some(flag_texture),
+                            cull_mode: None, // Option required to render back faces correctly
+                            double_sided: true, // Option required to render back faces correctly
+                            ..Default::default()
+                        }),
                         transform: Transform::from_xyz(-1.0, 1.0, 1.01),
                         ..Default::default()
                     })

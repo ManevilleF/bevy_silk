@@ -246,7 +246,7 @@ mod tests {
         fn works_with_quads() {
             let mesh = rectangle_mesh((100, 100), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let cloth_rendering = ClothRendering::init(&mesh, false).unwrap();
+            let cloth_rendering = ClothRendering::init(&mesh, Default::default()).unwrap();
             let cloth = Cloth::new(
                 &cloth_rendering.vertex_positions,
                 &cloth_rendering.indices,
@@ -264,7 +264,7 @@ mod tests {
         fn works_with_quads_2() {
             let mesh = rectangle_mesh((66, 42), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let cloth_rendering = ClothRendering::init(&mesh, false).unwrap();
+            let cloth_rendering = ClothRendering::init(&mesh, Default::default()).unwrap();
             let cloth = Cloth::new(
                 &cloth_rendering.vertex_positions,
                 &cloth_rendering.indices,
@@ -282,7 +282,7 @@ mod tests {
         fn works_with_triangles() {
             let mesh = rectangle_mesh((100, 100), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let cloth_rendering = ClothRendering::init(&mesh, false).unwrap();
+            let cloth_rendering = ClothRendering::init(&mesh, Default::default()).unwrap();
             let cloth = Cloth::new(
                 &cloth_rendering.vertex_positions,
                 &cloth_rendering.indices,
@@ -300,7 +300,7 @@ mod tests {
         fn works_with_triangles_2() {
             let mesh = rectangle_mesh((66, 42), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let cloth_rendering = ClothRendering::init(&mesh, false).unwrap();
+            let cloth_rendering = ClothRendering::init(&mesh, Default::default()).unwrap();
             let cloth = Cloth::new(
                 &cloth_rendering.vertex_positions,
                 &cloth_rendering.indices,
