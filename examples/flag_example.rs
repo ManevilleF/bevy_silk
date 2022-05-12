@@ -27,7 +27,7 @@ fn main() {
                 abs: false,
             },
             Wind::SinWave {
-                max_velocity: Vec3::new(0.0, 0.0, 13.0),
+                max_velocity: Vec3::new(0.0, 0.0, 30.0),
                 frequency: 2.0,
                 normalize: false,
                 abs: false,
