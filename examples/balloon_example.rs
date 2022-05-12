@@ -1,4 +1,3 @@
-use bevy::pbr::wireframe::{Wireframe, WireframePlugin};
 use bevy::prelude::*;
 use bevy_cloth::prelude::*;
 use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
@@ -19,7 +18,6 @@ fn main() {
         .add_plugin(InspectorPlugin::<ClothConfig>::new())
         .add_plugin(LookTransformPlugin)
         .add_plugin(OrbitCameraPlugin::default())
-        .add_plugin(WireframePlugin)
         .add_plugin(ClothPlugin)
         .insert_resource(ClothConfig {
             friction: 0.7, // SLows down the motions
@@ -35,6 +33,7 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
+    commands.spawn_bundle(DirectionalLightBundle::default());
     commands.spawn_bundle(OrbitCameraBundle::new(
         OrbitCameraController::default(),
         PerspectiveCameraBundle::default(),
@@ -81,6 +80,5 @@ fn spawn_cloth(
             ..Default::default()
         })
         .insert(ClothBuilder::new().with_fixed_points(0..=0))
-        .insert(Wireframe)
         .insert(Name::new("Balloon"));
 }
