@@ -62,7 +62,7 @@ pub fn init_cloth(
         if let Some(mesh) = meshes.get(handle) {
             let matrix = transform.compute_matrix();
             debug!("Initializing Cloth");
-            let rendering = ClothRendering::init(mesh, builder.compute_normals).unwrap();
+            let rendering = ClothRendering::init(mesh, builder.compute_flat_normals).unwrap();
             let cloth = Cloth::new(
                 &rendering.vertex_positions,
                 &rendering.indices,

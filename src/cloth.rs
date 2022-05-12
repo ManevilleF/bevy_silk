@@ -221,7 +221,7 @@ mod tests {
 
     mod init_from_mesh {
         use super::*;
-        use crate::ClothRendering;
+        use crate::cloth_rendering::ClothRendering;
         use bevy_transform::prelude::Transform;
 
         fn expected_stick_len(

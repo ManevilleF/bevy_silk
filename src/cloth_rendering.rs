@@ -14,7 +14,7 @@ pub struct ClothRendering {
     /// Mesh vertex indices
     pub indices: Vec<u32>,
     /// If set to true, the vertices will be duplicated and normals computed before updating the mesh
-    pub compute_normals: bool,
+    pub compute_flat_normals: bool,
 }
 
 impl ClothRendering {
@@ -32,7 +32,7 @@ impl ClothRendering {
     ///
     /// The function fails in the event of the mesh `ATTRIBUTE_POSITION` attribute is missing or invalid.
     /// It may also fail if the mesh doesn't have indices.
-    pub fn init(mesh: &Mesh, compute_normals: bool) -> Result<Self, Error> {
+    pub fn init(mesh: &Mesh, compute_flat_normals: bool) -> Result<Self, Error> {
         let vertex_positions = mesh
             .attribute(Mesh::ATTRIBUTE_POSITION)
             .ok_or_else(|| Error::MissingMeshAttribute("ATTRIBUTE_POSITION".to_string()))?;
@@ -63,7 +63,7 @@ impl ClothRendering {
             vertex_positions,
             vertex_uvs,
             indices,
-            compute_normals,
+            compute_flat_normals,
         })
     }
 
@@ -99,7 +99,7 @@ impl ClothRendering {
         Self {
             vertex_positions,
             indices,
-            compute_normals: self.compute_normals,
+            compute_flat_normals: self.compute_flat_normals,
             vertex_uvs,
         }
     }
@@ -127,7 +127,7 @@ impl ClothRendering {
     /// normals will be computed and applied to the mesh.
     /// Otherwise, only the vertex positions are applied.
     pub fn apply(&self, mesh: &mut Mesh) {
-        if self.compute_normals {
+        if self.compute_flat_normals {
             let new_self = self.duplicated_self();
             mesh.insert_attribute(
                 Mesh::ATTRIBUTE_POSITION,

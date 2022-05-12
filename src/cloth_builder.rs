@@ -18,7 +18,7 @@ pub struct ClothBuilder {
     pub stick_length: StickLen,
     /// Should the cloth compute normal data.
     /// If set to true the lighting will be correct, but the rendering might be slower
-    pub compute_normals: bool,
+    pub compute_flat_normals: bool,
 }
 
 #[allow(clippy::missing_const_for_fn)]
@@ -65,12 +65,12 @@ impl ClothBuilder {
     /// The cloth won't re-compute the mesh normals. It's the fastest option but lighting will
     /// become inconsistent
     pub fn without_normal_computation(mut self) -> Self {
-        self.compute_normals = false;
+        self.compute_flat_normals = false;
         self
     }
     /// The cloth will re-compute the mesh normals
     pub fn with_normal_computation(mut self) -> Self {
-        self.compute_normals = true;
+        self.compute_flat_normals = true;
         self
     }
 }
@@ -81,7 +81,7 @@ impl Default for ClothBuilder {
             fixed_points: Default::default(),
             stick_generation: Default::default(),
             stick_length: Default::default(),
-            compute_normals: true,
+            compute_flat_normals: true,
         }
     }
 }
