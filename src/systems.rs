@@ -2,7 +2,7 @@
 
 use crate::cloth::Cloth;
 use crate::config::ClothConfig;
-use crate::wind::Wind;
+use crate::wind::*;
 use bevy_asset::{Assets, Handle};
 use bevy_core::Time;
 use bevy_ecs::prelude::*;
@@ -20,7 +20,7 @@ pub fn update_cloth(
         Option<&ClothConfig>,
     )>,
     config: Res<ClothConfig>,
-    wind: Option<Res<Wind>>,
+    wind: Option<Res<Winds>>,
     time: Res<Time>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
@@ -31,17 +31,16 @@ pub fn update_cloth(
     for (mut cloth, transform, handle, custom_config) in query.iter_mut() {
         if let Some(mesh) = meshes.get_mut(handle) {
             let matrix = transform.compute_matrix();
-            if cloth.is_setup() {
-                cloth.update(
-                    custom_config.unwrap_or(&config),
-                    delta_time,
-                    &matrix,
-                    wind_force,
-                );
-            } else {
+            if !(cloth.is_setup()) {
                 debug!("Setting up sticks for uninitialized cloth");
                 cloth.init_from_mesh(mesh, &matrix);
             }
+            cloth.update(
+                custom_config.unwrap_or(&config),
+                delta_time,
+                &matrix,
+                wind_force,
+            );
             cloth.apply_to_mesh(mesh, &matrix);
         }
     }

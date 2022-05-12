@@ -12,7 +12,8 @@ use bevy_reflect::Reflect;
 pub struct ClothConfig {
     /// Custom gravity, classic (0, -9.81, 0) is used by default
     pub gravity: Vec3,
-    /// Custom friction to apply to velocity.
+    /// Custom friction to apply to velocity. Useful to reduce the elasticity of a cloth.
+    /// The friction is not applied to external accelerations like gravity and winds
     ///
     /// Note: will be clamped between 0.0 and 1.0
     pub friction: f32,
@@ -29,6 +30,16 @@ impl ClothConfig {
     #[inline]
     pub(crate) fn friction_coefficient(&self) -> f32 {
         1.0 - self.friction.clamp(0.0, 1.0)
+    }
+
+    /// Initializes a cloth config with no gravity force
+    #[must_use]
+    #[inline]
+    pub fn no_gravity() -> Self {
+        Self {
+            gravity: Vec3::ZERO,
+            ..Default::default()
+        }
     }
 }
 

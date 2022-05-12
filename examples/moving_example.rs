@@ -126,4 +126,6 @@ fn animate_cube(
     let delta_time = time.delta_seconds();
     let mut base_transform = query.get_mut(animation.base_entity.unwrap()).unwrap();
     base_transform.rotate(Quat::from_rotation_y(delta_time * animation.rotation_speed));
+    base_transform.translation.y =
+        3.0 + (time.time_since_startup().as_secs_f32() * 3.0).sin() * 2.0;
 }

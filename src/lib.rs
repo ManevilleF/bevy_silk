@@ -104,11 +104,11 @@
 //!
 //! ## Wind
 //!
-//! You may add wind to the simulation for a more dynamic clothing effect, you may choose from:
+//! You may add wind forces to the simulation for a more dynamic clothing effect, for each force you may choose from:
 //! - `Wind::Constant` for constant wind force
 //! - `Wind::SinWave` for a sinwave following wind intensity with custom force and frequency.
 //!
-//! The `Wind` can be added as a resource to your app:
+//! `Wind` forces can be added as a resource to your app through the `Winds` container:
 //!
 //! ```rust no_run
 //! use bevy::prelude::*;
@@ -117,9 +117,13 @@
 //! fn main() {
 //!   App::new()
 //!     .add_plugins(DefaultPlugins)
-//!     .insert_resource(Wind::SinWave {
-//!         max_velocity: Vec3::new(10.0, 15.0, -5.0),
-//!          frequency: 3.0,
+//!     .insert_resource(Winds {
+//!         wind_forces: vec![Wind::SinWave {
+//!             max_velocity: Vec3::new(10.0, 15.0, -5.0),
+//!             frequency: 3.0,
+//!             normalize: false,
+//!             abs: false
+//!         }]
 //!     })
 //!     .add_plugin(ClothPlugin)
 //!     // ... Add your resources and systems
@@ -169,7 +173,7 @@ pub mod wind;
 
 use crate::cloth::Cloth;
 use crate::config::ClothConfig;
-use crate::wind::Wind;
+use crate::wind::*;
 use bevy_app::{App, Plugin};
 use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 
@@ -181,7 +185,7 @@ pub mod prelude {
         config::ClothConfig,
         mesh::rectangle_mesh,
         stick::{StickGeneration, StickLen},
-        wind::Wind,
+        wind::{Wind, Winds},
         ClothPlugin,
     };
 }
@@ -195,6 +199,7 @@ impl Plugin for ClothPlugin {
         app.init_resource::<ClothConfig>();
         app.register_type::<ClothConfig>();
         app.register_type::<Wind>();
+        app.register_type::<Winds>();
         app.register_type::<Cloth>();
         app.add_system_set(
             SystemSet::new().with_system(systems::update_cloth.label("CLOTH_UPDATE")),
@@ -204,6 +209,7 @@ impl Plugin for ClothPlugin {
             use bevy_inspector_egui::RegisterInspectable;
             app.register_inspectable::<ClothConfig>();
             app.register_inspectable::<Wind>();
+            app.register_inspectable::<Winds>();
         }
     }
 }

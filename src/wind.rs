@@ -1,9 +1,9 @@
 use bevy_math::Vec3;
-use bevy_reflect::Reflect;
+use bevy_reflect::{FromReflect, Reflect};
 
 /// Wind definition for cloth physics
 #[cfg_attr(feature = "debug", derive(bevy_inspector_egui::Inspectable))]
-#[derive(Debug, Clone, Reflect)]
+#[derive(Debug, Clone, Reflect, FromReflect)]
 pub enum Wind {
     /// Constant Wind force
     ConstantWind {
@@ -16,14 +16,28 @@ pub enum Wind {
         max_velocity: Vec3,
         /// sin wave frequency
         frequency: f32,
+        /// If set to true the wave will be normalized between 0 and 1 and avoid negative values
+        normalize: bool,
+        /// Use absolute values, making the wave act as a bouncing signal
+        abs: bool,
     },
+}
+
+/// Wind forces resource for cloth physics
+#[cfg_attr(feature = "debug", derive(bevy_inspector_egui::Inspectable))]
+#[derive(Debug, Clone, Reflect, Default)]
+pub struct Winds {
+    /// Array of wind forces
+    pub wind_forces: Vec<Wind>,
 }
 
 impl Default for Wind {
     fn default() -> Self {
         Self::SinWave {
-            max_velocity: Vec3::X,
+            max_velocity: Vec3::ZERO,
             frequency: 0.5,
+            normalize: true,
+            abs: false,
         }
     }
 }
@@ -37,7 +51,42 @@ impl Wind {
             Wind::SinWave {
                 max_velocity,
                 frequency,
-            } => ((elapsed_time * frequency).sin() + 1.0) / 2.0 * *max_velocity,
+                normalize,
+                abs,
+            } => {
+                let mut sin_value = (elapsed_time * frequency).sin();
+                if *normalize {
+                    sin_value = (sin_value + 1.0) / 2.0;
+                }
+                if *abs {
+                    sin_value = sin_value.abs();
+                }
+                sin_value * *max_velocity
+            }
         }
+    }
+}
+
+impl Winds {
+    /// Retrieves the current winds velocity sum according to the elapsed time since startup
+    #[must_use]
+    pub fn current_velocity(&self, elapsed_time: f32) -> Vec3 {
+        self.wind_forces
+            .iter()
+            .fold(Vec3::ZERO, |res, w| res + w.current_velocity(elapsed_time))
+    }
+}
+
+impl From<Wind> for Winds {
+    fn from(wind: Wind) -> Self {
+        Self {
+            wind_forces: vec![wind],
+        }
+    }
+}
+
+impl From<Vec<Wind>> for Winds {
+    fn from(wind_forces: Vec<Wind>) -> Self {
+        Self { wind_forces }
     }
 }

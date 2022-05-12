@@ -15,14 +15,24 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(WorldInspectorPlugin::default())
-        .add_plugin(InspectorPlugin::<Wind>::new())
+        .add_plugin(InspectorPlugin::<Winds>::new())
         .add_plugin(InspectorPlugin::<ClothConfig>::new())
         .add_plugin(LookTransformPlugin)
         .add_plugin(OrbitCameraPlugin::default())
-        .insert_resource(Wind::SinWave {
-            max_velocity: Vec3::new(20.0, 10.0, -20.0),
-            frequency: 1.0,
-        })
+        .insert_resource(Winds::from(vec![
+            Wind::SinWave {
+                max_velocity: Vec3::new(15.0, 10.0, 0.0),
+                frequency: 2.0,
+                normalize: true,
+                abs: false,
+            },
+            Wind::SinWave {
+                max_velocity: Vec3::new(0.0, 0.0, 13.0),
+                frequency: 2.0,
+                normalize: false,
+                abs: false,
+            },
+        ]))
         .add_plugin(ClothPlugin)
         .add_startup_system(spawn_cloth)
         .add_startup_system(setup)
