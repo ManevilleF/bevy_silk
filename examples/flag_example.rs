@@ -44,6 +44,7 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
+    commands.spawn_bundle(DirectionalLightBundle::default());
     commands.spawn_bundle(OrbitCameraBundle::new(
         OrbitCameraController::default(),
         PerspectiveCameraBundle::default(),
@@ -80,13 +81,16 @@ fn spawn_cloth(
     let flag_texture = asset_server.load("Bevy.png");
     let (size_x, size_y) = (30, 15);
     let mesh = rectangle_mesh((size_x, size_y), (Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
-    let cloth = ClothBuilder::new()
-        .with_fixed_points((0..size_y).map(|i| i * size_x))
-        .build();
+    let cloth = ClothBuilder::new().with_fixed_points((0..size_y).map(|i| i * size_x));
     commands
         .spawn_bundle(PbrBundle {
             mesh: meshes.add(mesh),
-            material: materials.add(flag_texture.into()),
+            material: materials.add(StandardMaterial {
+                base_color_texture: Some(flag_texture),
+                cull_mode: None,    // Option required to render back faces correctly
+                double_sided: true, // Option required to render back faces correctly
+                ..Default::default()
+            }),
             transform: Transform::from_xyz(0.0, 5.0, 0.0),
             ..Default::default()
         })

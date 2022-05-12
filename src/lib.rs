@@ -36,12 +36,11 @@
 //!
 //! ### Add cloth to a mesh
 //!
-//! For a mesh to be used as cloth, add the `Cloth` component to any entity with a `Handle<Mesh>` component.
+//! For a mesh to be used as cloth, add the `ClothBuilder` component to any entity with a `Handle<Mesh>` component.
 //!
 //! > Note: `Transform` and `GlobalTransform` are also required
 //!
-//! `Cloth` contains a lot of data which will be populated automatically from the associated `Handle<Mesh>`.
-//! To specify options to the `Cloth` it is suggested to use the `ClothBuilder`:
+//! cloth data which will be populated automatically from the associated `Handle<Mesh>`.
 //!
 //! ```rust
 //! use bevy::prelude::*;
@@ -58,23 +57,9 @@
 //!         .with_stick_generation(StickGeneration::Quads)
 //!         // Defines the sticks target length option
 //!         .with_stick_length(StickLen::Auto)
-//!         // Build the cloth
-//!         .build()
+//!         // Defines that the cloth will compute mesh normals
+//!         .with_normal_computation()
 //!     );
-//! }
-//! ```
-//!
-//! But you can also directly use the `Cloth` struct.
-//!
-//! ```rust
-//! use bevy::prelude::*;
-//! use bevy_cloth::prelude::*;
-//!
-//! fn spawn(mut commands: Commands) {
-//!     commands.spawn_bundle(PbrBundle {
-//!         // Add your mesh, material and your custom PBR data   
-//!         ..Default::default()
-//!     }).insert(Cloth::default());
 //! }
 //! ```
 //!
@@ -143,8 +128,9 @@
 //!
 //! You probably didn't specify any *fixed points*, meaning there are no vertices anchored to your entity's `GlobalTransform`.
 //!
-#![forbid(unsafe_code, missing_docs)]
+#![forbid(unsafe_code)]
 #![warn(
+    missing_docs,
     clippy::all,
     clippy::nursery,
     clippy::pedantic,
@@ -160,8 +146,12 @@
 pub mod cloth;
 /// cloth builder module
 pub mod cloth_builder;
+/// cloth rendering module
+mod cloth_rendering;
 /// config module
 pub mod config;
+/// error module
+pub mod error;
 /// mesh module
 pub mod mesh;
 /// stick module
@@ -181,6 +171,7 @@ pub mod prelude {
         cloth::Cloth,
         cloth_builder::ClothBuilder,
         config::ClothConfig,
+        error::Error,
         mesh::rectangle_mesh,
         stick::{StickGeneration, StickLen},
         wind::{Wind, Winds},
@@ -198,9 +189,9 @@ impl Plugin for ClothPlugin {
         app.register_type::<ClothConfig>()
             .register_type::<Wind>()
             .register_type::<Winds>()
+            .register_type::<ClothBuilder>()
             .register_type::<Cloth>();
-        app.add_system_set(
-            SystemSet::new().with_system(systems::update_cloth.label("CLOTH_UPDATE")),
-        );
+        app.add_system(systems::init_cloth.label("CLOTH_INIT"));
+        app.add_system(systems::update_cloth.label("CLOTH_UPDATE"));
     }
 }
