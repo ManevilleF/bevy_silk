@@ -195,19 +195,12 @@ pub struct ClothPlugin;
 impl Plugin for ClothPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ClothConfig>();
-        app.register_type::<ClothConfig>();
-        app.register_type::<Wind>();
-        app.register_type::<Winds>();
-        app.register_type::<Cloth>();
+        app.register_type::<ClothConfig>()
+            .register_type::<Wind>()
+            .register_type::<Winds>()
+            .register_type::<Cloth>();
         app.add_system_set(
             SystemSet::new().with_system(systems::update_cloth.label("CLOTH_UPDATE")),
         );
-        #[cfg(feature = "debug")]
-        {
-            use bevy_inspector_egui::RegisterInspectable;
-            app.register_inspectable::<ClothConfig>();
-            app.register_inspectable::<Wind>();
-            app.register_inspectable::<Winds>();
-        }
     }
 }
