@@ -171,9 +171,7 @@ mod systems;
 /// wind module
 pub mod wind;
 
-use crate::cloth::Cloth;
-use crate::config::ClothConfig;
-use crate::wind::*;
+use crate::prelude::*;
 use bevy_app::{App, Plugin};
 use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 

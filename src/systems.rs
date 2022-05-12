@@ -2,7 +2,7 @@
 
 use crate::cloth::Cloth;
 use crate::config::ClothConfig;
-use crate::wind::*;
+use crate::wind::Winds;
 use bevy_asset::{Assets, Handle};
 use bevy_core::Time;
 use bevy_ecs::prelude::*;
