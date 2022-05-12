@@ -1,10 +1,9 @@
 use crate::config::ClothConfig;
 use crate::stick::{StickGeneration, StickLen};
 use bevy_ecs::prelude::{Component, ReflectComponent};
-use bevy_log::{error, warn};
+use bevy_log::warn;
 use bevy_math::{Mat4, Vec3};
 use bevy_reflect::Reflect;
-use bevy_render::mesh::{Indices, Mesh, VertexAttributeValues};
 use bevy_utils::{HashMap, HashSet};
 
 macro_rules! get_point {
@@ -32,10 +31,6 @@ macro_rules! get_point {
 pub struct Cloth {
     /// cloth points unaffected by physics and following the attached `GlobalTransform`.
     pub fixed_points: HashSet<usize>,
-    /// How cloth sticks get generated
-    pub stick_generation: StickGeneration,
-    /// Define cloth sticks target length
-    pub stick_length: StickLen,
     /// Current Cloth points 3D positions in world space
     ///
     /// Note: this field will be automatically populated from mesh data
@@ -54,60 +49,48 @@ pub struct Cloth {
 }
 
 impl Cloth {
-    /// Checks if the cloth initialized from mesh data
-    #[inline]
-    #[must_use]
-    pub fn is_setup(&self) -> bool {
-        !self.current_point_positions.is_empty()
-    }
-
-    /// Applies the cloth data to a mesh
+    /// Computes the new vertex positions of the cloth mesh
     ///
     /// # Arguments
     ///
-    /// * `mesh` - the mesh to edit
     /// * `transform_matrix` - the transform matrix of the associated `GlobalTransform`
-    pub fn apply_to_mesh(&self, mesh: &mut Mesh, transform_matrix: &Mat4) {
+    #[must_use]
+    pub fn compute_vertex_positions(&self, transform_matrix: &Mat4) -> Vec<Vec3> {
         let matrix = transform_matrix.inverse();
 
-        let positions: Vec<[f32; 3]> = self
-            .current_point_positions
+        self.current_point_positions
             .iter()
             .enumerate()
             .map(|(i, p)| {
                 if self.fixed_points.contains(&i) {
-                    p.to_array()
+                    *p
                 } else {
-                    matrix.transform_point3(*p).to_array()
+                    matrix.transform_point3(*p)
                 }
             })
-            .collect();
-        mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
+            .collect()
     }
 
-    /// Initializes the cloth from a mesh. Points positions will be extracted from the mesh vertex positions
-    /// (`ATTRIBUTE_POSITION`) and the sticks will be extracted from the `indices` (triangles) according to
-    /// the associated [`StickGeneration`] mode.
+    /// Creates a new cloth from a mesh. Points positions will be directly extracted from the given vertex positions
+    /// and the sticks will be extracted from the given `indices` (triangles) according to
+    /// the associated [`StickGeneration`] and [`StickLen`].
     ///
     /// # Arguments
     ///
-    /// * `mesh` - the mesh containing the desired data
+    /// * `vertex_positions` - the mesh vertex positions
+    /// * `indices` - the mesh indices
+    /// * `fixed_points` - the fixed vertex position indices
+    /// * `stick_generation` - The stick generation mode
+    /// * `stick_len` - The stick length option
     /// * `transform_matrix` - the transform matrix of the associated `GlobalTransform`
-    ///
-    /// # Panics
-    ///
-    /// The function may panic in the event of the mesh `ATTRIBUTE_POSITION` attribute being invalid
-    pub fn init_from_mesh(&mut self, mesh: &Mesh, transform_matrix: &Mat4) {
-        let vertex_positions = mesh
-            .attribute(Mesh::ATTRIBUTE_POSITION)
-            .expect("Mesh associated to cloth doesn't have `ATTRIBUTE_POSITION` set");
-        // Original vertex positions in local space
-        let vertex_positions: Vec<Vec3> = match vertex_positions {
-            VertexAttributeValues::Float32x3(v) => v.iter().copied().map(Vec3::from).collect(),
-            _ => {
-                panic!("Unsupported vertex position attribute, only `Float32x3` is supported");
-            }
-        };
+    pub fn new(
+        vertex_positions: &[Vec3],
+        indices: &[u32],
+        fixed_points: HashSet<usize>,
+        stick_generation: StickGeneration,
+        stick_len: StickLen,
+        transform_matrix: &Mat4,
+    ) -> Self {
         // World space positions used to compute stick lengths
         let world_positions: Vec<Vec3> = vertex_positions
             .iter()
@@ -118,43 +101,37 @@ impl Cloth {
             .iter()
             .enumerate()
             .map(|(i, p)| {
-                if self.fixed_points.contains(&i) {
+                if fixed_points.contains(&i) {
                     *p
                 } else {
                     transform_matrix.transform_point3(*p)
                 }
             })
             .collect();
-        let indices: Vec<usize> = match mesh.indices() {
-            None => {
-                error!("Mesh associated to cloth doesn't have indices set");
-                return;
-            }
-            Some(i) => match i {
-                Indices::U16(v) => v.iter().map(|i| *i as usize).collect(),
-                Indices::U32(v) => v.iter().map(|i| *i as usize).collect(),
-            },
-        };
+        let indices: Vec<usize> = indices.iter().map(|i| *i as usize).collect();
         let mut sticks = HashMap::new();
 
         for truple in indices.chunks_exact(3) {
             let [a, b, c] = [truple[0], truple[1], truple[2]];
             let (p_a, p_b, p_c) = (world_positions[a], world_positions[b], world_positions[c]);
             if !sticks.contains_key(&(b, a)) {
-                sticks.insert((a, b), self.stick_length.get_stick_len(p_a, p_b));
+                sticks.insert((a, b), stick_len.get_stick_len(p_a, p_b));
             }
             if !sticks.contains_key(&(c, b)) {
-                sticks.insert((b, c), self.stick_length.get_stick_len(p_b, p_c));
+                sticks.insert((b, c), stick_len.get_stick_len(p_b, p_c));
             }
-            if let StickGeneration::Triangles = self.stick_generation {
+            if let StickGeneration::Triangles = stick_generation {
                 if !sticks.contains_key(&(a, c)) {
-                    sticks.insert((c, a), self.stick_length.get_stick_len(p_c, p_a));
+                    sticks.insert((c, a), stick_len.get_stick_len(p_c, p_a));
                 }
             }
         }
-        self.sticks = sticks;
-        self.previous_point_positions = positions.clone();
-        self.current_point_positions = positions;
+        Self {
+            fixed_points,
+            current_point_positions: positions.clone(),
+            previous_point_positions: positions,
+            sticks,
+        }
     }
 
     /// Updates the cloth
@@ -244,7 +221,7 @@ mod tests {
 
     mod init_from_mesh {
         use super::*;
-        use crate::cloth_builder::ClothBuilder;
+        use crate::cloth_rendering::ClothRendering;
         use bevy_transform::prelude::Transform;
 
         fn expected_stick_len(
@@ -269,52 +246,72 @@ mod tests {
         fn works_with_quads() {
             let mesh = rectangle_mesh((100, 100), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = ClothBuilder::new()
-                .with_stick_generation(StickGeneration::Quads)
-                .build(); // QUADS
-            cloth.init_from_mesh(&mesh, &matrix);
+            let cloth_rendering = ClothRendering::init(&mesh, false).unwrap();
+            let cloth = Cloth::new(
+                &cloth_rendering.vertex_positions,
+                &cloth_rendering.indices,
+                Default::default(),
+                StickGeneration::Quads,
+                StickLen::Auto,
+                &matrix,
+            );
             assert_eq!(cloth.current_point_positions.len(), 100 * 100);
             assert_eq!(cloth.previous_point_positions.len(), 100 * 100);
-            expected_stick_len(cloth.sticks.len(), cloth.stick_generation, (100, 100));
+            expected_stick_len(cloth.sticks.len(), StickGeneration::Quads, (100, 100));
         }
 
         #[test]
         fn works_with_quads_2() {
             let mesh = rectangle_mesh((66, 42), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = ClothBuilder::new()
-                .with_stick_generation(StickGeneration::Quads)
-                .build(); // QUADS
-            cloth.init_from_mesh(&mesh, &matrix);
+            let cloth_rendering = ClothRendering::init(&mesh, false).unwrap();
+            let cloth = Cloth::new(
+                &cloth_rendering.vertex_positions,
+                &cloth_rendering.indices,
+                Default::default(),
+                StickGeneration::Quads,
+                StickLen::Auto,
+                &matrix,
+            );
             assert_eq!(cloth.current_point_positions.len(), 66 * 42);
             assert_eq!(cloth.previous_point_positions.len(), 66 * 42);
-            expected_stick_len(cloth.sticks.len(), cloth.stick_generation, (66, 42));
+            expected_stick_len(cloth.sticks.len(), StickGeneration::Quads, (66, 42));
         }
 
         #[test]
         fn works_with_triangles() {
             let mesh = rectangle_mesh((100, 100), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = ClothBuilder::new()
-                .with_stick_generation(StickGeneration::Triangles)
-                .build(); // TRIANGLES
-            cloth.init_from_mesh(&mesh, &matrix);
+            let cloth_rendering = ClothRendering::init(&mesh, false).unwrap();
+            let cloth = Cloth::new(
+                &cloth_rendering.vertex_positions,
+                &cloth_rendering.indices,
+                Default::default(),
+                StickGeneration::Triangles,
+                StickLen::Auto,
+                &matrix,
+            );
             assert_eq!(cloth.current_point_positions.len(), 100 * 100);
             assert_eq!(cloth.previous_point_positions.len(), 100 * 100);
-            expected_stick_len(cloth.sticks.len(), cloth.stick_generation, (100, 100));
+            expected_stick_len(cloth.sticks.len(), StickGeneration::Triangles, (100, 100));
         }
 
         #[test]
         fn works_with_triangles_2() {
             let mesh = rectangle_mesh((66, 42), (Vec3::X, -Vec3::Y), Vec3::Z);
             let matrix = Transform::default().compute_matrix();
-            let mut cloth = ClothBuilder::new()
-                .with_stick_generation(StickGeneration::Triangles)
-                .build(); // TRIANGLES
-            cloth.init_from_mesh(&mesh, &matrix);
+            let cloth_rendering = ClothRendering::init(&mesh, false).unwrap();
+            let cloth = Cloth::new(
+                &cloth_rendering.vertex_positions,
+                &cloth_rendering.indices,
+                Default::default(),
+                StickGeneration::Triangles,
+                StickLen::Auto,
+                &matrix,
+            );
             assert_eq!(cloth.current_point_positions.len(), 66 * 42);
             assert_eq!(cloth.previous_point_positions.len(), 66 * 42);
-            expected_stick_len(cloth.sticks.len(), cloth.stick_generation, (66, 42));
+            expected_stick_len(cloth.sticks.len(), StickGeneration::Triangles, (66, 42));
         }
     }
 }

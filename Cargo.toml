@@ -17,6 +17,8 @@ default = []
 debug = ["bevy-inspector-egui", "bevy"]
 
 [dependencies]
+
+# Bevy dependencies
 bevy_app = "0.7"
 bevy_utils = "0.7"
 bevy_ecs = "0.7"
@@ -27,6 +29,9 @@ bevy_transform = "0.7"
 bevy_core = "0.7"
 bevy_asset = "0.7"
 bevy_reflect = "0.7"
+
+# Error handling
+thiserror = "1.0"
 
 [dependencies.bevy-inspector-egui]
 version = "0.11"
