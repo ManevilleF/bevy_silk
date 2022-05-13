@@ -1,6 +1,8 @@
 use thiserror::Error;
 
 /// Error enum for [`ClothPlugin`]
+///
+/// [`ClothPlugin`]: crate::ClothPlugin
 #[derive(Debug, Clone, Error)]
 pub enum Error {
     /// The mesh associated to a cloth is missing a vertex attribute

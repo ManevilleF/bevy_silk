@@ -41,8 +41,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: test
-        run: cargo test --tests --all-features
+      - name: tests
+        run: cargo test --tests
+      - name: doc tests
+        run: cargo test --doc
 
   fmt:
     runs-on: ubuntu-latest
@@ -65,4 +67,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: rustdoc
-        run: cargo rustdoc --all-features
+        run: cargo rustdoc --all-features -- -D warnings

@@ -166,9 +166,9 @@ impl ClothRendering {
     }
 
     /// applies the rendering data to the mesh.
-    /// If [`Self::compute_normals`] is set to `true`, the vertices will be duplicated and vertex
-    /// normals will be computed and applied to the mesh.
-    /// Otherwise, only the vertex positions are applied.
+    ///
+    /// If [`Self::normal_computing`] is set to [`NormalComputing::FlatNormals`], the vertices will
+    /// be first be duplicated before the normals are computed
     pub fn apply(&self, mesh: &mut Mesh) {
         match self.normal_computing {
             NormalComputing::None => mesh.insert_attribute(
