@@ -15,6 +15,7 @@ documentation = "https://docs.rs/bevy_silk"
 [features]
 default = []
 debug = ["bevy-inspector-egui", "bevy"]
+rapier_collisions = ["bevy_rapier3d"]
 
 [dependencies]
 
@@ -42,6 +43,12 @@ version = "0.7"
 optional = true
 default-features = false
 
+[dependencies.bevy_rapier3d]
+version = "0.13"
+optional = true
+default-features = false
+features = ["dim3"]
+
 [dev-dependencies]
 smooth-bevy-cameras = "0.4"
 bevy-inspector-egui = "0.11"
@@ -62,3 +69,7 @@ required-features = ["debug"]
 [[example]]
 name = "moving_example"
 required-features = ["debug"]
+
+[[example]]
+name = "collision_example"
+required-features = ["debug", "rapier_collisions"]

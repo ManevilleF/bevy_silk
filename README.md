@@ -174,3 +174,7 @@ run `cargo run --example balloon_example --features debug`
 3. Moving example
 
 run `cargo run --example moving_example --features debug`
+
+4. Collision example
+
+run `cargo run --example collision_example --features "debug collision_rapier"`
