@@ -138,6 +138,11 @@ fn main() {
 
 You probably didn't specify any *fixed points*, meaning there are no vertices anchored to your entity's `GlobalTransform`.
 
+- `My cloth jitters a lot/ suddenly falls down/ has strange sudden behaviour`
+
+Gravity and winds are bu default smoothed out by the framerate, if the framerate drops suddenly gravity and wind get much stronger.
+If your simulation suffers from this you can specify a custom smooth value in `ClothConfig::acceleration_smoothing`.
+
 
 <!-- cargo-sync-readme end -->
 
@@ -149,6 +154,7 @@ You probably didn't specify any *fixed points*, meaning there are no vertices an
 - [x] dynamic flat normal mapping
 - [x] dynamic smooth normal mapping
 - [ ] Collision support
+- [ ] Overridden fixed positions
 - [ ] Cloth cutting maybe?
 
 ## Examples
@@ -166,3 +172,7 @@ run `cargo run --example balloon_example --features debug`
 3. Moving example
 
 run `cargo run --example moving_example --features debug`
+
+4. Collision example
+
+run `cargo run --example collision_example --features "debug collision_rapier"`

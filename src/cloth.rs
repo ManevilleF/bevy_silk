@@ -1,4 +1,3 @@
-use crate::config::ClothConfig;
 use crate::stick::{StickGeneration, StickLen};
 use bevy_ecs::prelude::{Component, ReflectComponent};
 use bevy_log::warn;
@@ -143,23 +142,20 @@ impl Cloth {
     /// * `transform_matrix` - the transform matrix of the associated `GlobalTransform`
     pub fn update(
         &mut self,
-        config: &ClothConfig,
-        delta_time: f32,
+        sticks_computation_depth: u8,
+        friction: f32,
+        acceleration: Vec3,
         transform_matrix: &Mat4,
-        wind_force: Vec3,
     ) {
         let position_cache = self.current_point_positions.clone();
-        self.update_points(delta_time, config, wind_force);
-        for _depth in 0..config.sticks_computation_depth {
+        self.update_points(friction, acceleration);
+        for _depth in 0..sticks_computation_depth {
             self.update_sticks(transform_matrix);
         }
         self.previous_point_positions = position_cache;
     }
 
-    fn update_points(&mut self, delta_time: f32, config: &ClothConfig, wind_force: Vec3) {
-        let acceleration = (config.gravity + wind_force) * delta_time * delta_time;
-        let friction = config.friction_coefficient();
-
+    fn update_points(&mut self, friction: f32, acceleration: Vec3) {
         for (i, point) in self.current_point_positions.iter_mut().enumerate() {
             if !self.fixed_points.contains(&i) {
                 let velocity = self
