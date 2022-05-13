@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use bevy_cloth::prelude::*;
 use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
+use bevy_silk::prelude::*;
 use smooth_bevy_cameras::{
     controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
     LookTransformPlugin,

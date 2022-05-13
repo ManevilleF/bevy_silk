@@ -1,11 +1,14 @@
 <!-- cargo-sync-readme start -->
 
-# Bevy Cloth
+# Bevy Silk
 
-[![workflow](https://github.com/ManevilleF/bevy_cloth/actions/workflows/rust.yml/badge.svg)](https://github.com/ManevilleF/bevy_cloth/actions/workflows/rust.yml)
+[![workflow](https://github.com/ManevilleF/bevy_silk/actions/workflows/rust.yml/badge.svg)](https://github.com/ManevilleF/bevy_silk/actions/workflows/rust.yml)
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
+[![Crates.io](https://img.shields.io/crates/v/bevy_silk.svg)](https://crates.io/crates/bevy_silk)
+[![Docs.rs](https://docs.rs/bevy_silk/badge.svg)](https://docs.rs/bevy_silk)
+[![dependency status](https://deps.rs/crate/bevy_silk/0.1.0/status.svg)](https://deps.rs/crate/bevy_silk)
 
 CPU driven Cloth engine for Bevy using Verlet integration.
 
@@ -15,9 +18,13 @@ by [Félix Lescaudey de Maneville](https://linktree.com/ManevilleF)
 
 ### Dependency
 
-Add `bevy_cloth` as a dependency in the `Cargo.toml`
+Add `bevy_silk` as a dependency in the `Cargo.toml`
 
-`bevy_cloth = { git = "https://github.com/ManevilleF/bevy_cloth" }`
+`bevy_silk = "0.1"`
+
+Or follow the main git branch
+
+`bevy_silk = { git = "https://github.com/ManevilleF/bevy_silk" }`
 
 ### Plugin
 
@@ -25,7 +32,7 @@ Add the `ClothPlugin` to your bevy app
 
 ```rust no_run
 use bevy::prelude::*;
-use bevy_cloth::prelude::*;
+use bevy_silk::prelude::*;
 
 fn main() {
   App::new()
@@ -46,7 +53,7 @@ cloth data which will be populated automatically from the associated `Handle<Mes
 
 ```rust
 use bevy::prelude::*;
-use bevy_cloth::prelude::*;
+use bevy_silk::prelude::*;
 
 fn spawn(mut commands: Commands) {
     commands.spawn_bundle(PbrBundle {
@@ -72,7 +79,7 @@ You can customize the global cloth physics by inserting the `ClothConfig` resour
 
 ```rust no_run
 use bevy::prelude::*;
-use bevy_cloth::prelude::*;
+use bevy_silk::prelude::*;
 
 fn main() {
   App::new()
@@ -100,7 +107,7 @@ You may add wind forces to the simulation for a more dynamic clothing effect, fo
 
 ```rust no_run
 use bevy::prelude::*;
-use bevy_cloth::prelude::*;
+use bevy_silk::prelude::*;
 
 fn main() {
   App::new()
@@ -123,7 +130,7 @@ fn main() {
 
 ## Mesh utils
 
-`bevy_cloth` provides a plane mesh generation function `rectangle_mesh` useful for classic cloth uses like flags or capes
+`bevy_silk` provides a plane mesh generation function `rectangle_mesh` useful for classic cloth uses like flags or capes
 
 ## Q&A
 
