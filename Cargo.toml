@@ -16,6 +16,7 @@ documentation = "https://docs.rs/bevy_silk"
 default = []
 debug = ["bevy-inspector-egui", "bevy"]
 heron_collisions = ["heron"]
+rapier_collisions = ["bevy_rapier3d"]
 
 [dependencies]
 
@@ -53,6 +54,8 @@ features = ["dim3"]
 version = "3.0"
 optional = true
 features = ["3d"]
+# TODO: remove this line
+path = "../heron"
 
 [dev-dependencies]
 smooth-bevy-cameras = "0.4"
@@ -77,4 +80,4 @@ required-features = ["debug"]
 
 [[example]]
 name = "collision_example"
-required-features = ["debug", "heron_collisions"]
+required-features = ["debug", "rapier_collisions"]

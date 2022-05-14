@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use bevy_core::FixedTimestep;
-use bevy_inspector_egui::InspectorPlugin;
+use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
+use bevy_rapier3d::prelude::*;
 use bevy_silk::prelude::*;
-use heron::prelude::*;
 use smooth_bevy_cameras::{
     controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
     LookTransformPlugin,
@@ -16,9 +16,9 @@ fn main() {
             brightness: 1.0,
         })
         .add_plugins(DefaultPlugins)
-        .add_plugin(PhysicsPlugin::default())
-        .insert_resource(Gravity::from(Vec3::Y * ClothConfig::DEFAULT_GRAVITY)) // heron physics
+        .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugin(InspectorPlugin::<ClothConfig>::new())
+        .add_plugin(WorldInspectorPlugin::default())
         .add_plugin(LookTransformPlugin)
         .add_plugin(OrbitCameraPlugin::default())
         .add_plugin(ClothPlugin)
@@ -95,8 +95,9 @@ fn spawn_cloth(
             transform: Transform::from_xyz(20.0, 20.0, 10.0),
             ..Default::default()
         })
-        .insert(RigidBody::Sensor)
-        .insert(CollisionShape::default())
+        .insert(RigidBody::Fixed)
+        .insert(Sensor(true))
+        .insert(Collider::cuboid(0.0, 0.0, 0.0))
         .insert(cloth)
         .insert(Name::new("Cloth"));
 }
@@ -120,7 +121,8 @@ fn shoot_balls(
             transform: Transform::from_xyz(0.0, 0.0, -10.0),
             ..Default::default()
         })
-        .insert(Velocity::from_linear(Vec3::new(0.0, 10.0, 10.0)))
+        .insert(Velocity::linear(Vec3::new(0.0, 10.0, 10.0)))
         .insert(RigidBody::Dynamic)
-        .insert(CollisionShape::Sphere { radius });
+        .insert(Collider::ball(radius))
+        .insert(Name::new("Ball"));
 }
