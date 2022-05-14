@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
-use bevy_render::mesh::VertexAttributeValues;
 use bevy_silk::prelude::*;
 use smooth_bevy_cameras::{
     controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
@@ -118,6 +117,7 @@ fn spawn_cloth(
         .insert(cloth)
         .insert(Name::new("Regular Flat Flag"));
 
+    // TODO: enable when bevy releases vertex color support
     // color flag
     // let mut mesh = mesh;
     // if let Some(VertexAttributeValues::Float32x3(positions)) =

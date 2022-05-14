@@ -137,7 +137,7 @@ impl ClothBuilder {
     pub fn pinned_vertex_ids(&self, mesh: &Mesh) -> HashSet<usize> {
         let mut res = self.pinned_vertex_ids.clone();
         if !self.pinned_vertex_colors.is_empty() {
-            let colors: Option<Vec<Color>> =
+            let vertex_colors: Option<Vec<Color>> =
                 mesh.attribute(Mesh::ATTRIBUTE_COLOR)
                     .and_then(|attr| match attr {
                         VertexAttributeValues::Float32x3(v) => {
@@ -151,16 +151,18 @@ impl ClothBuilder {
                                 .map(|c| Color::rgba_u8(c[0], c[1], c[2], c[3]))
                                 .collect(),
                         ),
-                        _ => {
-                            warn!("ClothBuilder has pinned colors but the associated mesh doesn't have a valid `ATTRIBUTE_COLOR` attribute");
-                            None
-                        },
+                        _ => None,
                     });
-            if let Some(colors) = colors {
-                for (i, color) in colors.into_iter().enumerate() {
-                    if self.pinned_vertex_colors.contains(&color) {
-                        res.insert(i);
-                    }
+            match vertex_colors {
+                Some(colors) => res.extend(
+                    colors
+                        .into_iter()
+                        .enumerate()
+                        .filter(|(_, color)| self.pinned_vertex_colors.contains(color))
+                        .map(|(i, _)| i),
+                ),
+                None => {
+                    warn!("ClothBuilder has pinned colors but the associated mesh doesn't have a valid Vertex_Color attribute");
                 }
             }
         }

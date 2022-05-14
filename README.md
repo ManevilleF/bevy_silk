@@ -62,8 +62,6 @@ fn spawn(mut commands: Commands) {
     }).insert(ClothBuilder::new()
         // Define pinned vertices ids using an Iterator
         .with_pinned_vertex_ids(0..9)
-        // Define pinned vertices colors using an Iterator
-        .with_pinned_vertex_colors(vec![Color::WHITE, Color::RED])
         // Define the stick generation mode
         .with_stick_generation(StickGeneration::Quads)
         // Defines the sticks target length option
