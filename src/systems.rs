@@ -38,11 +38,12 @@ pub fn update_cloth(
     for (mut cloth, mut rendering, transform, handle, custom_config) in query.iter_mut() {
         if let Some(mesh) = meshes.get_mut(handle) {
             let matrix = transform.compute_matrix();
+            let config: &ClothConfig = custom_config.unwrap_or(&config);
             cloth.update(
-                custom_config.unwrap_or(&config),
-                delta_time,
+                config.sticks_computation_depth,
+                config.friction_coefficient(),
+                config.smoothed_acceleration(wind_force + config.gravity, delta_time),
                 &matrix,
-                wind_force,
             );
             rendering.update_positions(cloth.compute_vertex_positions(&matrix));
             rendering.apply(mesh);
@@ -66,7 +67,7 @@ pub fn init_cloth(
             let cloth = Cloth::new(
                 &rendering.vertex_positions,
                 &rendering.indices,
-                builder.fixed_points.clone(),
+                builder.pinned_vertex_ids(mesh),
                 builder.stick_generation,
                 builder.stick_length,
                 &matrix,

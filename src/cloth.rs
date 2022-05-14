@@ -1,4 +1,3 @@
-use crate::config::ClothConfig;
 use crate::stick::{StickGeneration, StickLen};
 use bevy_ecs::prelude::{Component, ReflectComponent};
 use bevy_log::warn;
@@ -7,14 +6,14 @@ use bevy_reflect::Reflect;
 use bevy_utils::{HashMap, HashSet};
 
 macro_rules! get_point {
-    ($id:expr, $points:expr, $fixed_points:expr, $matrix:expr) => {
+    ($id:expr, $points:expr, $pinned_points:expr, $matrix:expr) => {
         match $points.get($id) {
             None => {
                 warn!("Failed to retrieve a Cloth point at index {}", $id);
                 continue;
             }
             Some(p) => {
-                if $fixed_points.contains(&$id) {
+                if $pinned_points.contains(&$id) {
                     ($matrix.transform_point3(*p), true)
                 } else {
                     (*p, false)
@@ -30,7 +29,7 @@ macro_rules! get_point {
 #[must_use]
 pub struct Cloth {
     /// cloth points unaffected by physics and following the attached `GlobalTransform`.
-    pub fixed_points: HashSet<usize>,
+    pub pinned_points: HashSet<usize>,
     /// Current Cloth points 3D positions in world space
     ///
     /// Note: this field will be automatically populated from mesh data
@@ -62,7 +61,7 @@ impl Cloth {
             .iter()
             .enumerate()
             .map(|(i, p)| {
-                if self.fixed_points.contains(&i) {
+                if self.pinned_points.contains(&i) {
                     *p
                 } else {
                     matrix.transform_point3(*p)
@@ -79,14 +78,14 @@ impl Cloth {
     ///
     /// * `vertex_positions` - the mesh vertex positions
     /// * `indices` - the mesh indices
-    /// * `fixed_points` - the fixed vertex position indices
+    /// * `pinned_points` - the pinned vertex position indices
     /// * `stick_generation` - The stick generation mode
     /// * `stick_len` - The stick length option
     /// * `transform_matrix` - the transform matrix of the associated `GlobalTransform`
     pub fn new(
         vertex_positions: &[Vec3],
         indices: &[u32],
-        fixed_points: HashSet<usize>,
+        pinned_points: HashSet<usize>,
         stick_generation: StickGeneration,
         stick_len: StickLen,
         transform_matrix: &Mat4,
@@ -101,7 +100,7 @@ impl Cloth {
             .iter()
             .enumerate()
             .map(|(i, p)| {
-                if fixed_points.contains(&i) {
+                if pinned_points.contains(&i) {
                     *p
                 } else {
                     transform_matrix.transform_point3(*p)
@@ -127,7 +126,7 @@ impl Cloth {
             }
         }
         Self {
-            fixed_points,
+            pinned_points,
             current_point_positions: positions.clone(),
             previous_point_positions: positions,
             sticks,
@@ -143,25 +142,22 @@ impl Cloth {
     /// * `transform_matrix` - the transform matrix of the associated `GlobalTransform`
     pub fn update(
         &mut self,
-        config: &ClothConfig,
-        delta_time: f32,
+        sticks_computation_depth: u8,
+        friction: f32,
+        acceleration: Vec3,
         transform_matrix: &Mat4,
-        wind_force: Vec3,
     ) {
         let position_cache = self.current_point_positions.clone();
-        self.update_points(delta_time, config, wind_force);
-        for _depth in 0..config.sticks_computation_depth {
+        self.update_points(friction, acceleration);
+        for _depth in 0..sticks_computation_depth {
             self.update_sticks(transform_matrix);
         }
         self.previous_point_positions = position_cache;
     }
 
-    fn update_points(&mut self, delta_time: f32, config: &ClothConfig, wind_force: Vec3) {
-        let acceleration = (config.gravity + wind_force) * delta_time * delta_time;
-        let friction = config.friction_coefficient();
-
+    fn update_points(&mut self, friction: f32, acceleration: Vec3) {
         for (i, point) in self.current_point_positions.iter_mut().enumerate() {
-            if !self.fixed_points.contains(&i) {
+            if !self.pinned_points.contains(&i) {
                 let velocity = self
                     .previous_point_positions
                     .get(i)
@@ -176,13 +172,13 @@ impl Cloth {
             let (position_a, fixed_a) = get_point!(
                 *id_a,
                 self.current_point_positions,
-                self.fixed_points,
+                self.pinned_points,
                 matrix
             );
             let (position_b, fixed_b) = get_point!(
                 *id_b,
                 self.current_point_positions,
-                self.fixed_points,
+                self.pinned_points,
                 matrix
             );
             if fixed_a && fixed_b {

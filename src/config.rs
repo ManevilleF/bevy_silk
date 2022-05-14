@@ -2,6 +2,23 @@ use bevy_ecs::prelude::{Component, ReflectComponent};
 use bevy_math::Vec3;
 use bevy_reflect::Reflect;
 
+/// Defines how verlet physics acceleration components like gravity and winds are smoothed
+/// through every frame.
+///
+/// By default, accelerations are multiplied by the squared value of the elapsed time since last frame
+/// (delta time) but if you notice some jittery behaviour a fixed coefficient can enforce a smooth simulation
+#[cfg_attr(feature = "debug", derive(bevy_inspector_egui::Inspectable))]
+#[derive(Debug, Copy, Clone, Reflect)]
+pub enum AccelerationSmoothing {
+    /// Default smoothing behaviour, accelerations are multiplied by the squared value of the
+    /// elapsed time since last frame (delta time)
+    SquaredDeltaTime,
+    /// Fixed smooth coefficient, applied to gravity and wind once per frame.
+    ///
+    /// Note: Pick a very small number (< 0.1)
+    FixedCoefficient(f32),
+}
+
 /// Cloth physics configuration.
 ///
 /// Used as a resource, it is used as a global configuration for every cloth entity.
@@ -20,6 +37,8 @@ pub struct ClothConfig {
     /// Sets the number of sticks computation iteration.
     /// The higher the value, the more precision and less elasticity for the sticks but the cost is increased
     pub sticks_computation_depth: u8,
+    /// Smoothing behaviour for gravity and winds
+    pub acceleration_smoothing: AccelerationSmoothing,
 }
 
 impl ClothConfig {
@@ -30,6 +49,22 @@ impl ClothConfig {
     #[inline]
     pub(crate) fn friction_coefficient(&self) -> f32 {
         1.0 - self.friction.clamp(0.0, 1.0)
+    }
+
+    /// Applies smoothing to a given `acceleration` value.
+    ///
+    /// # Arguments
+    ///
+    /// * `acceleration`- the acceleration vector to smooth
+    /// * `delta_time` - elapsed time since last frame in seconds
+    #[inline]
+    #[must_use]
+    pub fn smoothed_acceleration(&self, acceleration: Vec3, delta_time: f32) -> Vec3 {
+        acceleration
+            * match self.acceleration_smoothing {
+                AccelerationSmoothing::SquaredDeltaTime => delta_time * delta_time,
+                AccelerationSmoothing::FixedCoefficient(coef) => coef,
+            }
     }
 
     /// Initializes a cloth config with no gravity force
@@ -43,12 +78,19 @@ impl ClothConfig {
     }
 }
 
+impl Default for AccelerationSmoothing {
+    fn default() -> Self {
+        Self::SquaredDeltaTime
+    }
+}
+
 impl Default for ClothConfig {
     fn default() -> Self {
         Self {
             gravity: Vec3::Y * Self::DEFAULT_GRAVITY,
             friction: 0.05,
             sticks_computation_depth: 5,
+            acceleration_smoothing: Default::default(),
         }
     }
 }
