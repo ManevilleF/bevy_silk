@@ -67,7 +67,7 @@ pub fn init_cloth(
             let cloth = Cloth::new(
                 &rendering.vertex_positions,
                 &rendering.indices,
-                builder.fixed_points.clone(),
+                builder.pinned_vertex_ids(mesh),
                 builder.stick_generation,
                 builder.stick_length,
                 &matrix,

@@ -1,6 +1,9 @@
 use crate::prelude::*;
 use bevy_ecs::prelude::{Component, ReflectComponent};
+use bevy_log::warn;
 use bevy_reflect::Reflect;
+use bevy_render::mesh::VertexAttributeValues;
+use bevy_render::prelude::{Color, Mesh};
 use bevy_utils::HashSet;
 
 /// Builder component for cloth behaviour, defines every available option for cloth generation and rendering.
@@ -10,8 +13,10 @@ use bevy_utils::HashSet;
 #[reflect(Component)]
 #[must_use]
 pub struct ClothBuilder {
-    /// cloth points unaffected by physics and following the attached `GlobalTransform`.
-    pub fixed_points: HashSet<usize>,
+    /// cloth vertex ids unaffected by physics and following the attached `GlobalTransform`.
+    pub pinned_vertex_ids: HashSet<usize>,
+    /// cloth vertex colors unaffected by physics and following the attached `GlobalTransform`.
+    pub pinned_vertex_colors: Vec<Color>,
     /// How cloth sticks get generated
     pub stick_generation: StickGeneration,
     /// Define cloth sticks target length
@@ -28,14 +33,41 @@ impl ClothBuilder {
         Self::default()
     }
 
-    /// Sets fixed points for the cloth
+    /// Sets pinned points for the cloth
     ///
     /// # Arguments
     ///
     /// * `fixed_points` - Iterator on the vertex indexes that should be attached to the associated `GlobalTransform`
     #[inline]
+    #[doc(hidden)]
+    #[deprecated]
     pub fn with_fixed_points(mut self, fixed_points: impl Iterator<Item = usize>) -> Self {
-        self.fixed_points = fixed_points.collect();
+        self.pinned_vertex_ids = fixed_points.collect();
+        self
+    }
+
+    /// Sets pinned vertices for the cloth
+    ///
+    /// # Arguments
+    ///
+    /// * `pinned_ids` - Iterator on the vertex indexes that should be pinned to the associated `GlobalTransform`
+    #[inline]
+    pub fn with_pinned_vertex_ids(mut self, pinned_ids: impl Iterator<Item = usize>) -> Self {
+        self.pinned_vertex_ids = pinned_ids.collect();
+        self
+    }
+
+    /// Sets pinned vertices for the cloth
+    ///
+    /// # Arguments
+    ///
+    /// * `pinned_colors` - Iterator on the vertex colors that should be pinned to the associated `GlobalTransform`
+    #[inline]
+    pub fn with_pinned_vertex_colors(
+        mut self,
+        pinned_colors: impl IntoIterator<Item = Color>,
+    ) -> Self {
+        self.pinned_vertex_colors = pinned_colors.into_iter().collect();
         self
     }
 
@@ -78,5 +110,44 @@ impl ClothBuilder {
     pub fn with_flat_normal_computation(mut self) -> Self {
         self.normals_computing = NormalComputing::FlatNormals;
         self
+    }
+
+    /// Retrieves all pinned vertex ids using:
+    /// - [`Self::pinned_vertex_ids`] explicit ids
+    /// - [`Self::pinned_vertex_colors`] to find every vertex id in `mesh` matching a pinned color
+    ///
+    /// Note: pinned colors are ignored if the given `mesh` doesn't have vertex colors
+    #[must_use]
+    pub fn pinned_vertex_ids(&self, mesh: &Mesh) -> HashSet<usize> {
+        let mut res = self.pinned_vertex_ids.clone();
+        if !self.pinned_vertex_colors.is_empty() {
+            let colors: Option<Vec<Color>> =
+                mesh.attribute(Mesh::ATTRIBUTE_COLOR)
+                    .and_then(|attr| match attr {
+                        VertexAttributeValues::Float32x3(v) => {
+                            Some(v.iter().copied().map(Color::from).collect())
+                        }
+                        VertexAttributeValues::Float32x4(v) => {
+                            Some(v.iter().copied().map(Color::from).collect())
+                        }
+                        VertexAttributeValues::Uint8x4(v) => Some(
+                            v.iter()
+                                .map(|c| Color::rgba_u8(c[0], c[1], c[2], c[3]))
+                                .collect(),
+                        ),
+                        _ => {
+                            warn!("ClothBuilder has pinned colors but the associated mesh doesn't have a valid `ATTRIBUTE_COLOR` attribute");
+                            None
+                        },
+                    });
+            if let Some(colors) = colors {
+                for (i, color) in colors.into_iter().enumerate() {
+                    if self.pinned_vertex_colors.contains(&color) {
+                        res.insert(i);
+                    }
+                }
+            }
+        }
+        res
     }
 }

@@ -83,7 +83,7 @@ fn spawn_cloth(
     let flag_texture = asset_server.load("France.png");
     let (size_x, size_y) = (20, 40);
     let mesh = rectangle_mesh((size_x, size_y), (Vec3::X * 0.1, -Vec3::Y * 0.1), Vec3::Z);
-    let cloth = ClothBuilder::new().with_fixed_points(0..size_x);
+    let cloth = ClothBuilder::new().with_pinned_vertex_ids(0..size_x);
     let base_entity = Some(
         commands
             .spawn_bundle(TransformBundle {

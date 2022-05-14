@@ -58,8 +58,10 @@
 //!         // Add your mesh, material and your custom PBR data   
 //!         ..Default::default()
 //!     }).insert(ClothBuilder::new()
-//!         // Define fixed vertices using an Iterator
-//!         .with_fixed_points(0..9)
+//!         // Define pinned vertices ids using an Iterator
+//!         .with_pinned_vertex_ids(0..9)
+//!         // Define pinned vertices colors using an Iterator
+//!         .with_pinned_vertex_colors(vec![Color::WHITE, Color::RED])
 //!         // Define the stick generation mode
 //!         .with_stick_generation(StickGeneration::Quads)
 //!         // Defines the sticks target length option
@@ -85,7 +87,8 @@
 //!     .insert_resource(ClothConfig {
 //!         gravity: Vec3::new(0.0, -9.81, 0.0),
 //!         friction: 0.02,
-//!         sticks_computation_depth: 5
+//!         sticks_computation_depth: 5,
+//!         acceleration_smoothing: AccelerationSmoothing::default()
 //!     })
 //!     .add_plugin(ClothPlugin)
 //!     // ... Add your resources and systems
@@ -134,7 +137,7 @@
 //!
 //! - `My mesh falls immediately and infinitely when I add a Cloth component, how to fix it?`
 //!
-//! You probably didn't specify any *fixed points*, meaning there are no vertices anchored to your entity's `GlobalTransform`.
+//! You probably didn't specify any *pinned points*, meaning there are no vertices anchored to your entity's `GlobalTransform`.
 //!
 //! - `My cloth jitters a lot/ suddenly falls down/ has strange sudden behaviour`
 //!

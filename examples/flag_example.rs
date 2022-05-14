@@ -84,7 +84,7 @@ fn spawn_cloth(
     let flag_texture = asset_server.load("Bevy.png");
     let (size_x, size_y) = (30, 15);
     let mesh = rectangle_mesh((size_x, size_y), (Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
-    let cloth = ClothBuilder::new().with_fixed_points((0..size_y).map(|i| i * size_x));
+    let cloth = ClothBuilder::new().with_pinned_vertex_ids((0..size_y).map(|i| i * size_x));
     commands
         .spawn_bundle(PbrBundle {
             mesh: meshes.add(mesh),

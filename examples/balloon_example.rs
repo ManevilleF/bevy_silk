@@ -79,6 +79,6 @@ fn spawn_cloth(
             transform: Transform::from_xyz(0.0, 2.0, 0.0),
             ..Default::default()
         })
-        .insert(ClothBuilder::new().with_fixed_points(0..=0))
+        .insert(ClothBuilder::new().with_pinned_vertex_ids(0..=0))
         .insert(Name::new("Balloon"));
 }
