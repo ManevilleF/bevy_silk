@@ -40,7 +40,7 @@ impl ClothBuilder {
     /// * `fixed_points` - Iterator on the vertex indexes that should be attached to the associated `GlobalTransform`
     #[inline]
     #[doc(hidden)]
-    #[deprecated]
+    #[deprecated(note = "Use `with_pinned_vertex_ids` instead")]
     pub fn with_fixed_points(mut self, fixed_points: impl Iterator<Item = usize>) -> Self {
         self.pinned_vertex_ids = fixed_points.collect();
         self
@@ -101,13 +101,29 @@ impl ClothBuilder {
     }
 
     /// The cloth will compute smooth vertex normals
+    #[deprecated(note = "Use `with_smooth_normals` instead")]
+    #[doc(hidden)]
     pub fn with_smooth_normal_computation(mut self) -> Self {
         self.normals_computing = NormalComputing::SmoothNormals;
         self
     }
 
+    /// The cloth will compute smooth vertex normals
+    pub fn with_smooth_normals(mut self) -> Self {
+        self.normals_computing = NormalComputing::SmoothNormals;
+        self
+    }
+
     /// The cloth will compute flat vertex normals and duplicate shared vertices
+    #[deprecated(note = "Use `with_flat_normals` instead")]
+    #[doc(hidden)]
     pub fn with_flat_normal_computation(mut self) -> Self {
+        self.normals_computing = NormalComputing::FlatNormals;
+        self
+    }
+
+    /// The cloth will compute flat vertex normals and duplicate shared vertices
+    pub fn with_flat_normals(mut self) -> Self {
         self.normals_computing = NormalComputing::FlatNormals;
         self
     }

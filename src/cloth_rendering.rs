@@ -1,8 +1,8 @@
 use crate::Error;
 use bevy_ecs::prelude::Component;
-use bevy_log::warn;
 use bevy_math::Vec3;
 use bevy_reflect::Reflect;
+use bevy_render::color::Color;
 use bevy_render::mesh::{Indices, Mesh, VertexAttributeValues};
 use bevy_utils::HashMap;
 
@@ -30,7 +30,9 @@ pub struct ClothRendering {
     /// Mesh vertex positions
     pub vertex_positions: Vec<Vec3>,
     /// Mesh vertex UV positions
-    pub vertex_uvs: Vec<[f32; 2]>,
+    pub vertex_uvs: Option<Vec<[f32; 2]>>,
+    /// Mesh vertex colors
+    pub vertex_colors: Option<Vec<[f32; 4]>>,
     /// Mesh vertex indices
     pub indices: Vec<u32>,
     /// If set to true, the vertices will be duplicated and normals computed before updating the mesh
@@ -55,23 +57,53 @@ impl ClothRendering {
     pub fn init(mesh: &Mesh, normal_computing: NormalComputing) -> Result<Self, Error> {
         let vertex_positions = mesh
             .attribute(Mesh::ATTRIBUTE_POSITION)
-            .ok_or_else(|| Error::MissingMeshAttribute("ATTRIBUTE_POSITION".to_string()))?;
+            .ok_or_else(|| Error::MissingMeshAttribute("Vertex_Position".to_string()))?;
+        // Vertex positions
         let vertex_positions: Vec<Vec3> = match vertex_positions {
             VertexAttributeValues::Float32x3(v) => v.iter().copied().map(Vec3::from).collect(),
             _ => return Err(Error::UnsupportedVertexPositionAttribute),
         };
-        let vertex_uvs = match mesh
+        let vertex_count = vertex_positions.len();
+        // UVs
+        let vertex_uvs = mesh
             .attribute(Mesh::ATTRIBUTE_UV_0)
             .and_then(|attr| match attr {
                 VertexAttributeValues::Float32x2(v) => Some(v.clone()),
                 _ => None,
-            }) {
-            None => {
-                warn!("Mesh doesn't have a valid UV_0 attribute, using a default value");
-                (0..vertex_positions.len()).map(|_| [0.0; 2]).collect()
-            }
-            Some(attr) => attr,
-        };
+            });
+        // Assertion
+        let attr_count = vertex_uvs.as_ref().map_or(vertex_count, Vec::len);
+        if attr_count != vertex_count {
+            return Err(Error::InvalidMeshAttribute {
+                attribute: "Vertex_Uv".to_string(),
+                message: format!("Expected {vertex_count} values, got {attr_count}"),
+            });
+        }
+        // Colors
+        let vertex_colors = mesh
+            .attribute(Mesh::ATTRIBUTE_COLOR)
+            .and_then(|attr| match attr {
+                VertexAttributeValues::Float32x4(v) => Some(v.clone()),
+                VertexAttributeValues::Float32x3(v) => {
+                    Some(v.iter().copied().map(|[r, g, b]| [r, g, b, 1.0]).collect())
+                }
+                VertexAttributeValues::Uint8x4(v) => Some(
+                    v.iter()
+                        .copied()
+                        .map(|[r, g, b, a]| Color::rgba_u8(r, g, b, a).as_rgba_f32())
+                        .collect(),
+                ),
+                _ => None,
+            });
+        // Assertion
+        let attr_count = vertex_colors.as_ref().map_or(vertex_count, Vec::len);
+        if attr_count != vertex_count {
+            return Err(Error::InvalidMeshAttribute {
+                attribute: "Vertex_Color".to_string(),
+                message: format!("Expected {vertex_count} values, got {attr_count}"),
+            });
+        }
+
         let indices = match mesh.indices() {
             None => return Err(Error::MissingIndices),
             Some(i) => match i {
@@ -82,6 +114,7 @@ impl ClothRendering {
         Ok(Self {
             vertex_positions,
             vertex_uvs,
+            vertex_colors,
             indices,
             normal_computing,
         })
@@ -102,25 +135,26 @@ impl ClothRendering {
     #[must_use]
     #[allow(clippy::cast_possible_truncation)]
     pub fn duplicated_self(&self) -> Self {
-        let ((vertex_positions, vertex_uvs), indices): ((Vec<_>, Vec<_>), Vec<_>) = self
-            .indices
-            .iter()
-            .enumerate()
-            .map(|(i, indice)| {
-                (
+        let ((vertex_positions, indices), (vertex_uvs, vertex_colors)): ((_, _), (Vec<_>, Vec<_>)) =
+            self.indices
+                .iter()
+                .enumerate()
+                .map(|(i, indice)| {
                     (
-                        self.vertex_positions[*indice as usize],
-                        self.vertex_uvs[*indice as usize],
-                    ),
-                    i as u32,
-                )
-            })
-            .unzip();
+                        (self.vertex_positions[*indice as usize], i as u32),
+                        (
+                            self.vertex_uvs.as_ref().map(|v| v[*indice as usize]),
+                            self.vertex_colors.as_ref().map(|v| v[*indice as usize]),
+                        ),
+                    )
+                })
+                .unzip();
         Self {
             vertex_positions,
             indices,
             normal_computing: self.normal_computing,
-            vertex_uvs,
+            vertex_uvs: vertex_uvs.into_iter().collect(),
+            vertex_colors: vertex_colors.into_iter().collect(),
         }
     }
 
@@ -192,7 +226,12 @@ impl ClothRendering {
                     Mesh::ATTRIBUTE_POSITION,
                     Self::vec3_vertex_attr(&new_self.vertex_positions),
                 );
-                mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, new_self.vertex_uvs.clone());
+                if let Some(ref attr) = new_self.vertex_uvs {
+                    mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, attr.clone());
+                }
+                if let Some(ref attr) = new_self.vertex_colors {
+                    mesh.insert_attribute(Mesh::ATTRIBUTE_COLOR, attr.clone());
+                }
                 let vertex_normals = new_self.compute_flat_normals();
                 mesh.insert_attribute(
                     Mesh::ATTRIBUTE_NORMAL,

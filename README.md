@@ -69,7 +69,7 @@ fn spawn(mut commands: Commands) {
         // Defines the sticks target length option
         .with_stick_length(StickLen::Auto)
         // The cloth will compute flat mesh normals
-        .with_flat_normal_computation()
+        .with_flat_normals()
         // ...
     );
 }
@@ -157,7 +157,7 @@ If your simulation suffers from this you can specify a custom smooth value in `C
 - [x] dynamic flat normal mapping
 - [x] dynamic smooth normal mapping
 - [ ] Collision support
-- [ ] Vertex color pinning
+- [x] Vertex color pinning
 - [ ] Overridden pinned positions
 - [ ] Cloth cutting maybe?
 

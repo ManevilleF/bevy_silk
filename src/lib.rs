@@ -67,7 +67,7 @@
 //!         // Defines the sticks target length option
 //!         .with_stick_length(StickLen::Auto)
 //!         // The cloth will compute flat mesh normals
-//!         .with_flat_normal_computation()
+//!         .with_flat_normals()
 //!         // ...
 //!     );
 //! }
