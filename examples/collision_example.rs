@@ -1,6 +1,8 @@
 use bevy::prelude::*;
+use bevy_core::FixedTimestep;
 use bevy_inspector_egui::InspectorPlugin;
 use bevy_silk::prelude::*;
+use heron::prelude::*;
 use smooth_bevy_cameras::{
     controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
     LookTransformPlugin,
@@ -14,6 +16,8 @@ fn main() {
             brightness: 1.0,
         })
         .add_plugins(DefaultPlugins)
+        .add_plugin(PhysicsPlugin::default())
+        .insert_resource(Gravity::from(Vec3::Y * ClothConfig::DEFAULT_GRAVITY)) // heron physics
         .add_plugin(InspectorPlugin::<ClothConfig>::new())
         .add_plugin(LookTransformPlugin)
         .add_plugin(OrbitCameraPlugin::default())
@@ -25,6 +29,11 @@ fn main() {
         })
         .add_startup_system(spawn_cloth)
         .add_startup_system(setup)
+        .add_system_set(
+            SystemSet::new()
+                .with_run_criteria(FixedTimestep::step(2.0))
+                .with_system(shoot_balls),
+        )
         .run();
 }
 
@@ -40,7 +49,7 @@ fn setup(
     commands.spawn_bundle(OrbitCameraBundle::new(
         OrbitCameraController::default(),
         PerspectiveCameraBundle::default(),
-        Vec3::new(20.0, 20.0, 20.0),
+        Vec3::new(20.0, 20.0, -20.0),
         Vec3::ZERO,
     ));
     let mesh_handle = meshes.add(shape::Cube::new(1.0).into());
@@ -72,7 +81,7 @@ fn spawn_cloth(
 ) {
     let flag_texture = asset_server.load("Bevy.png");
     let (size_x, size_y) = (80, 40);
-    let mesh = rectangle_mesh((size_x, size_y), (Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
+    let mesh = rectangle_mesh((size_x, size_y), (-Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
     let cloth = ClothBuilder::new().with_fixed_points(0..size_x);
     commands
         .spawn_bundle(PbrBundle {
@@ -83,9 +92,35 @@ fn spawn_cloth(
                 double_sided: true, // Option required to render back faces correctly
                 ..Default::default()
             }),
-            transform: Transform::from_xyz(-20.0, 20.0, 0.0),
+            transform: Transform::from_xyz(20.0, 20.0, 10.0),
             ..Default::default()
         })
+        .insert(RigidBody::Sensor)
+        .insert(CollisionShape::default())
         .insert(cloth)
         .insert(Name::new("Cloth"));
+}
+
+fn shoot_balls(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    let radius = 1.0;
+    commands
+        .spawn_bundle(PbrBundle {
+            mesh: meshes.add(
+                shape::Icosphere {
+                    radius,
+                    subdivisions: 5,
+                }
+                .into(),
+            ),
+            material: materials.add(Color::WHITE.into()),
+            transform: Transform::from_xyz(0.0, 0.0, -10.0),
+            ..Default::default()
+        })
+        .insert(Velocity::from_linear(Vec3::new(0.0, 10.0, 10.0)))
+        .insert(RigidBody::Dynamic)
+        .insert(CollisionShape::Sphere { radius });
 }

@@ -120,6 +120,10 @@ impl ClothRendering {
         })
     }
 
+    pub fn bounds(&self) -> (Vec3, Vec3) {
+        todo!()
+    }
+
     /// Updates the vertex positions from the cloth point values
     ///
     /// # Panics

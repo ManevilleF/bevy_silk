@@ -139,7 +139,7 @@
 //!
 //! - `My cloth jitters a lot/ suddenly falls down/ has strange sudden behaviour`
 //!
-//! Gravity and winds are bu default smoothed out by the framerate, if the framerate drops suddenly gravity and wind get much stronger.
+//! Gravity and winds are by default smoothed out by the framerate, if the framerate drops suddenly gravity and wind get much stronger.
 //! If your simulation suffers from this you can specify a custom smooth value in `ClothConfig::acceleration_smoothing`.
 //!
 //! - `My cloth jitters a lot/ suddenly falls down/ has strange sudden behaviour`
@@ -173,6 +173,8 @@ pub mod config;
 pub mod error;
 /// mesh module
 pub mod mesh;
+#[cfg(feature = "rapier_collisions")]
+mod rapier_collisions;
 /// stick module
 pub mod stick;
 /// systems module
