@@ -14,23 +14,10 @@ documentation = "https://docs.rs/bevy_silk"
 
 [features]
 default = []
-debug = ["bevy-inspector-egui", "bevy"]
-heron_collisions = ["heron"]
+debug = ["bevy-inspector-egui"]
 rapier_collisions = ["bevy_rapier3d"]
 
 [dependencies]
-
-# Bevy dependencies
-bevy_app = "0.7"
-bevy_utils = "0.7"
-bevy_ecs = "0.7"
-bevy_render = "0.7"
-bevy_math = "0.7"
-bevy_log = "0.7"
-bevy_transform = "0.7"
-bevy_core = "0.7"
-bevy_asset = "0.7"
-bevy_reflect = "0.7"
 
 # Error handling
 thiserror = "1.0"
@@ -41,21 +28,14 @@ optional = true
 
 [dependencies.bevy]
 version = "0.7"
-optional = true
 default-features = false
+features = ["bevy_render"]
 
 [dependencies.bevy_rapier3d]
 version = "0.13"
 optional = true
 default-features = false
 features = ["dim3"]
-
-[dependencies.heron]
-version = "3.0"
-optional = true
-features = ["3d"]
-# TODO: remove this line
-path = "../heron"
 
 [dev-dependencies]
 smooth-bevy-cameras = "0.4"

@@ -1,5 +1,5 @@
-use bevy_math::Vec3;
-use bevy_reflect::Reflect;
+use bevy::math::Vec3;
+use bevy::reflect::Reflect;
 
 /// Defines how the cloth will compute sticks from mesh indices.
 #[derive(Debug, Copy, Clone, Reflect)]

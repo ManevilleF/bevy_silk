@@ -1,10 +1,10 @@
 use crate::Error;
-use bevy_ecs::prelude::Component;
-use bevy_math::Vec3;
-use bevy_reflect::Reflect;
-use bevy_render::color::Color;
-use bevy_render::mesh::{Indices, Mesh, VertexAttributeValues};
-use bevy_utils::HashMap;
+use bevy::ecs::prelude::Component;
+use bevy::math::Vec3;
+use bevy::reflect::Reflect;
+use bevy::render::color::Color;
+use bevy::render::mesh::{Indices, Mesh, VertexAttributeValues};
+use bevy::utils::HashMap;
 
 /// Defines the cloth computation mode of vertex normals
 #[derive(Debug, Copy, Clone, Reflect)]

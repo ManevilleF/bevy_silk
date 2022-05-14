@@ -9,13 +9,13 @@ use crate::cloth_rendering::ClothRendering;
 use crate::config::ClothConfig;
 use crate::wind::Winds;
 use crate::ClothBuilder;
-use bevy_asset::{Assets, Handle};
-use bevy_core::Time;
-use bevy_ecs::prelude::*;
-use bevy_log::{debug, warn};
-use bevy_math::Vec3;
-use bevy_render::prelude::Mesh;
-use bevy_transform::prelude::GlobalTransform;
+use bevy::asset::{Assets, Handle};
+use bevy::core::Time;
+use bevy::ecs::prelude::*;
+use bevy::log::{debug, warn};
+use bevy::math::Vec3;
+use bevy::render::prelude::Mesh;
+use bevy::transform::prelude::GlobalTransform;
 
 #[allow(clippy::cast_possible_truncation)]
 pub fn update_cloth(

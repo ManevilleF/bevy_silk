@@ -1,10 +1,10 @@
 use crate::prelude::*;
-use bevy_ecs::prelude::{Component, ReflectComponent};
-use bevy_log::warn;
-use bevy_reflect::Reflect;
-use bevy_render::mesh::VertexAttributeValues;
-use bevy_render::prelude::{Color, Mesh};
-use bevy_utils::HashSet;
+use bevy::ecs::prelude::{Component, ReflectComponent};
+use bevy::log::warn;
+use bevy::reflect::Reflect;
+use bevy::render::mesh::VertexAttributeValues;
+use bevy::render::prelude::{Color, Mesh};
+use bevy::utils::HashSet;
 
 /// Builder component for cloth behaviour, defines every available option for cloth generation and rendering.
 ///

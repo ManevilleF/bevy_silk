@@ -184,8 +184,8 @@ pub mod wind;
 
 use crate::cloth::Cloth;
 use crate::prelude::*;
-use bevy_app::{App, Plugin};
-use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
+use bevy::app::{App, Plugin};
+use bevy::ecs::schedule::ParallelSystemDescriptorCoercion;
 
 /// Prelude module, providing every public type of the lib
 pub mod prelude {

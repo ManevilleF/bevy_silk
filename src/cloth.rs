@@ -1,9 +1,9 @@
 use crate::stick::{StickGeneration, StickLen};
-use bevy_ecs::prelude::{Component, ReflectComponent};
-use bevy_log::warn;
-use bevy_math::{Mat4, Vec3};
-use bevy_reflect::Reflect;
-use bevy_utils::{HashMap, HashSet};
+use bevy::ecs::prelude::{Component, ReflectComponent};
+use bevy::log::warn;
+use bevy::math::{Mat4, Vec3};
+use bevy::reflect::Reflect;
+use bevy::utils::{HashMap, HashSet};
 
 macro_rules! get_point {
     ($id:expr, $points:expr, $pinned_points:expr, $matrix:expr) => {
@@ -218,7 +218,7 @@ mod tests {
     mod init_from_mesh {
         use super::*;
         use crate::cloth_rendering::ClothRendering;
-        use bevy_transform::prelude::Transform;
+        use bevy::transform::prelude::Transform;
 
         fn expected_stick_len(
             len: usize,

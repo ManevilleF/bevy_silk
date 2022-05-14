@@ -1,7 +1,6 @@
 use crate::Cloth;
-use bevy_ecs::prelude::*;
-use bevy_ecs::query::QueryEntityError;
-use bevy_log::error;
+use bevy::ecs::prelude::*;
+use bevy::log::error;
 use bevy_rapier3d::prelude::*;
 
 pub fn handle_collisions(

@@ -1,6 +1,6 @@
-use bevy_ecs::prelude::{Component, ReflectComponent};
-use bevy_math::Vec3;
-use bevy_reflect::Reflect;
+use bevy::ecs::prelude::{Component, ReflectComponent};
+use bevy::math::Vec3;
+use bevy::reflect::Reflect;
 
 /// Defines how verlet physics acceleration components like gravity and winds are smoothed
 /// through every frame.
