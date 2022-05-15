@@ -114,9 +114,9 @@ fn move_cloth(
 ) {
     let delta_time = time.delta_seconds();
     for mut transform in query.iter_mut() {
-        movement.t += delta_time;
-        transform.translation.z += movement.sign * delta_time;
-        if movement.t > 20.0 {
+        movement.t += delta_time * 2.0;
+        transform.translation.z += movement.sign * delta_time * 2.0;
+        if movement.t > 25.0 {
             movement.t = 0.0;
             movement.sign = -movement.sign;
         }

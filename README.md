@@ -200,7 +200,7 @@ run `cargo run --example moving --features debug`
 
 4. [Rapier] Collision example
 
-run `cargo run --example rapier_collision --features "debug rapier_collisions" --release`
+run `cargo run --example rapier_collision --features "debug rapier_collisions"`
 
 [Rapier]: https://github.com/dimforge/bevy_rapier
 [Heron]: https://github.com/jcornaz/heron

@@ -165,7 +165,7 @@ impl Cloth {
                     .previous_point_positions
                     .get(i)
                     .map_or(Vec3::ZERO, |prev| *point - *prev);
-                *point += (velocity + acceleration) * friction;
+                *point += velocity * friction + acceleration;
             }
         }
         self.previous_point_positions = position_cache;
