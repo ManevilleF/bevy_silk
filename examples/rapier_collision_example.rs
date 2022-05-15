@@ -31,16 +31,11 @@ fn main() {
         .add_plugin(OrbitCameraPlugin::default())
         .add_plugin(ClothPlugin)
         .insert_resource(ClothMovement { sign: -1.0, t: 0.0 })
-        .insert_resource(ClothConfig {
-            sticks_computation_depth: 4,
-            acceleration_smoothing: AccelerationSmoothing::FixedCoefficient(0.005),
-            ..Default::default()
-        })
         .add_startup_system(spawn_cloth)
         .add_startup_system(setup)
         .add_system_set(
             SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(1.0))
+                .with_run_criteria(FixedTimestep::step(5.0))
                 .with_system(shoot_balls),
         )
         .add_system(move_cloth)
@@ -62,7 +57,7 @@ fn setup(
         Vec3::new(30.0, 40.0, -30.0),
         Vec3::Y * 10.0,
     ));
-    let mesh_handle = meshes.add(shape::Cube::new(1.0).into());
+    let mesh_handle = meshes.add(shape::Cube::new(2.0).into());
     [
         (Color::BLUE, [-10.0, 0.0]),
         (Color::GREEN, [10.0, 0.0]),
@@ -81,7 +76,7 @@ fn setup(
                 }),
                 ..Default::default()
             })
-            .insert(Collider::cuboid(0.5, 0.5, 0.5));
+            .insert(Collider::cuboid(1.0, 1.0, 1.0));
     });
 }
 
@@ -104,7 +99,7 @@ fn spawn_cloth(
                 double_sided: true, // Option required to render back faces correctly
                 ..Default::default()
             }),
-            transform: Transform::from_xyz(15.0, 25.0, 15.0),
+            transform: Transform::from_xyz(15.0, 15.0, 15.0),
             ..Default::default()
         })
         .insert(cloth)

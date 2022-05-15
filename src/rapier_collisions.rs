@@ -4,7 +4,7 @@
     clippy::option_if_let_else
 )]
 use crate::cloth_rendering::ClothRendering;
-use crate::{Cloth, ClothCollider};
+use crate::{Cloth, ClothCollider, ClothConfig};
 use bevy::log::error;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
@@ -15,16 +15,19 @@ pub fn handle_collisions(
         &mut Cloth,
         &mut ClothRendering,
         &ClothCollider,
+        Option<&ClothConfig>,
     )>,
     rapier_context: Res<RapierContext>,
     colliders_query: Query<(&Collider, &GlobalTransform, Option<&Velocity>)>,
     time: Res<Time>,
+    config: Res<ClothConfig>,
 ) {
     let delta_time = time.delta_seconds();
-    for (transform, mut cloth, mut rendering, collider) in cloth_query.iter_mut() {
+    for (transform, mut cloth, mut rendering, collider, custom_config) in cloth_query.iter_mut() {
         let matrix: Mat4 = transform.compute_matrix();
         let mut collided = false;
         let (center, extents): (Vec3, Vec3) = rendering.compute_aabb();
+        let config: &ClothConfig = custom_config.unwrap_or(&config);
         rapier_context.intersections_with_shape(
             matrix.transform_point3(center),
             Quat::IDENTITY,
@@ -44,9 +47,11 @@ pub fn handle_collisions(
                     other_collider
                         .contains_point(coll_transform.translation, coll_transform.rotation, *point)
                         .then(|| {
-                            let dir = *point - coll_transform.translation;
+                            let dir = (*point - coll_transform.translation).normalize();
                             dir * (1.0
-                                + velocity.map_or(0.0, |v| v.linvel.length_squared() * delta_time))
+                                + velocity.map_or(0.0, |v| {
+                                    v.linvel.length_squared() * config.smooth_value(delta_time)
+                                }))
                         })
                 });
                 true

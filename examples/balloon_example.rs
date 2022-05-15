@@ -20,7 +20,7 @@ fn main() {
         .add_plugin(OrbitCameraPlugin::default())
         .add_plugin(ClothPlugin)
         .insert_resource(ClothConfig {
-            friction: 0.7, // SLows down the motions
+            friction: 0.1,
             ..Default::default()
         })
         .add_startup_system(spawn_cloth)
