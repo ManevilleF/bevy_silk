@@ -127,6 +127,26 @@
 //!
 //! > Check the flag example for simple wind effect.
 //!
+//! ## Collisions
+//!
+//! Enabling the `rapier_collisions` features enable cloth interaction with other colliders. Add a `ClothCollider` to your entity to enable collisions:
+//!
+//! ```rust
+//! use bevy::prelude::*;
+//! use bevy_silk::prelude::*;
+//!
+//! fn spawn(mut commands: Commands) {
+//!     commands.spawn_bundle(PbrBundle {
+//!         // Add your mesh, material and your custom PBR data   
+//!         ..Default::default()
+//!     })
+//!     .insert(ClothBuilder::new())
+//!     .insert(ClothCollider::default());
+//! }
+//! ```
+//!
+//! You can customize the `interaction_groups` the cloth checks. (See the [rapier docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
+//!
 //! ## Mesh utils
 //!
 //! `bevy_silk` provides a plane mesh generation function `rectangle_mesh` useful for classic cloth uses like flags or capes
@@ -167,6 +187,9 @@ pub mod cloth;
 pub mod cloth_builder;
 /// cloth rendering module
 pub mod cloth_rendering;
+/// collider module
+#[cfg(feature = "rapier_collisions")]
+pub mod collider;
 /// config module
 pub mod config;
 /// error module
@@ -189,6 +212,8 @@ use bevy::ecs::schedule::ParallelSystemDescriptorCoercion;
 
 /// Prelude module, providing every public type of the lib
 pub mod prelude {
+    #[cfg(feature = "rapier_collisions")]
+    pub use crate::collider::ClothCollider;
     pub use crate::{
         cloth_builder::ClothBuilder,
         cloth_rendering::NormalComputing,

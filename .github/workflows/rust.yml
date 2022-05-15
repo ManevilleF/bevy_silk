@@ -31,11 +31,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: build baloon example
-        run: cargo clippy --all-features --example balloon_example
+        run: cargo clippy --all-features --example balloon
       - name: build flag example
-        run: cargo clippy --all-features --example flag_example
+        run: cargo clippy --all-features --example flag
       - name: build moving example
-        run: cargo clippy --all-features --example moving_example
+        run: cargo clippy --all-features --example moving
+      - name: build rapier example
+        run: cargo clippy --all-features --example rapier_collision
 
   test:
     runs-on: ubuntu-latest

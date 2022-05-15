@@ -2,11 +2,17 @@ use bevy::core::FixedTimestep;
 use bevy::prelude::*;
 use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
 use bevy_rapier3d::prelude::*;
+use bevy_silk::cloth::Cloth;
 use bevy_silk::prelude::*;
 use smooth_bevy_cameras::{
     controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
     LookTransformPlugin,
 };
+
+struct ClothMovement {
+    sign: f32,
+    t: f32,
+}
 
 fn main() {
     App::new()
@@ -23,6 +29,7 @@ fn main() {
         .add_plugin(LookTransformPlugin)
         .add_plugin(OrbitCameraPlugin::default())
         .add_plugin(ClothPlugin)
+        .insert_resource(ClothMovement { sign: -1.0, t: 0.0 })
         .insert_resource(ClothConfig {
             sticks_computation_depth: 4,
             acceleration_smoothing: AccelerationSmoothing::FixedCoefficient(0.005),
@@ -35,6 +42,7 @@ fn main() {
                 .with_run_criteria(FixedTimestep::step(2.0))
                 .with_system(shoot_balls),
         )
+        .add_system(move_cloth)
         .run();
 }
 
@@ -50,7 +58,7 @@ fn setup(
     commands.spawn_bundle(OrbitCameraBundle::new(
         OrbitCameraController::default(),
         PerspectiveCameraBundle::default(),
-        Vec3::new(20.0, 20.0, -20.0),
+        Vec3::new(30.0, 30.0, -30.0),
         Vec3::ZERO,
     ));
     let mesh_handle = meshes.add(shape::Cube::new(1.0).into());
@@ -61,16 +69,18 @@ fn setup(
         (Color::RED, [0.0, 10.0]),
     ]
     .map(|(color, [x, z])| {
-        commands.spawn_bundle(PbrBundle {
-            mesh: mesh_handle.clone(),
-            transform: Transform::from_xyz(x, 0.0, z),
-            material: materials.add(StandardMaterial {
-                base_color: color,
-                double_sided: true,
+        commands
+            .spawn_bundle(PbrBundle {
+                mesh: mesh_handle.clone(),
+                transform: Transform::from_xyz(x, 0.0, z),
+                material: materials.add(StandardMaterial {
+                    base_color: color,
+                    double_sided: true,
+                    ..Default::default()
+                }),
                 ..Default::default()
-            }),
-            ..Default::default()
-        });
+            })
+            .insert(Collider::cuboid(0.5, 0.5, 0.5));
     });
 }
 
@@ -81,7 +91,7 @@ fn spawn_cloth(
     asset_server: Res<AssetServer>,
 ) {
     let flag_texture = asset_server.load("Bevy.png");
-    let (size_x, size_y) = (80, 40);
+    let (size_x, size_y) = (60, 40);
     let mesh = rectangle_mesh((size_x, size_y), (-Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
     let cloth = ClothBuilder::new().with_pinned_vertex_ids(0..size_x);
     commands
@@ -93,13 +103,28 @@ fn spawn_cloth(
                 double_sided: true, // Option required to render back faces correctly
                 ..Default::default()
             }),
-            transform: Transform::from_xyz(20.0, 20.0, 10.0),
+            transform: Transform::from_xyz(15.0, 25.0, 15.0),
             ..Default::default()
         })
-        .insert(Sensor(true))
-        .insert(Collider::cuboid(0.0, 0.0, 0.0))
         .insert(cloth)
+        .insert(ClothCollider::default())
         .insert(Name::new("Cloth"));
+}
+
+fn move_cloth(
+    time: Res<Time>,
+    mut query: Query<&mut Transform, With<Cloth>>,
+    mut movement: ResMut<ClothMovement>,
+) {
+    let delta_time = time.delta_seconds();
+    for mut transform in query.iter_mut() {
+        movement.t += delta_time;
+        transform.translation.z += movement.sign * delta_time;
+        if movement.t > 20.0 {
+            movement.t = 0.0;
+            movement.sign = -movement.sign;
+        }
+    }
 }
 
 fn shoot_balls(
@@ -118,10 +143,10 @@ fn shoot_balls(
                 .into(),
             ),
             material: materials.add(Color::WHITE.into()),
-            transform: Transform::from_xyz(0.0, 0.0, -10.0),
+            transform: Transform::from_xyz(0.0, 0.0, -20.0),
             ..Default::default()
         })
-        .insert(Velocity::linear(Vec3::new(0.0, 10.0, 10.0)))
+        .insert(Velocity::linear(Vec3::new(0.0, 10.0, 20.0)))
         .insert(RigidBody::Dynamic)
         .insert(Collider::ball(radius))
         .insert(Name::new("Ball"));
