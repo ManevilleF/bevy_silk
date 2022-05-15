@@ -1,7 +1,11 @@
+#![allow(
+    clippy::needless_pass_by_value,
+    clippy::type_complexity,
+    clippy::option_if_let_else
+)]
 use crate::cloth_rendering::ClothRendering;
 use crate::Cloth;
 use bevy::ecs::prelude::*;
-use bevy::ecs::query::QueryEntityError;
 use bevy::log::error;
 use bevy::math::{Quat, Vec3};
 use bevy::prelude::GlobalTransform;
@@ -19,7 +23,7 @@ pub fn handle_collisions(
         With<Sensor>,
     >,
     rapier_context: Res<RapierContext>,
-    colliders_query: Query<&Collider, Without<Cloth>>,
+    colliders_query: Query<(&Collider, &GlobalTransform, Option<&Velocity>), Without<Cloth>>,
 ) {
     for (entity, transform, mut cloth, mut rendering, mut collider) in cloth_query.iter_mut() {
         let matrix = transform.compute_matrix();
@@ -28,14 +32,25 @@ pub fn handle_collisions(
                 continue;
             }
             let other_entity = if coll_a == entity { coll_b } else { coll_a };
-            let collider = match colliders_query.get(other_entity) {
-                Ok(c) => c,
-                Err(_) => {
+            let (collider, coll_transform, velocity) =
+                if let Ok(c) = colliders_query.get(other_entity) {
+                    c
+                } else {
                     error!("Couldn't find collider on entity {:?}", other_entity);
                     continue;
-                }
-            };
-            // println!("COLLISION");
+                };
+            cloth.constraint_points(|point| {
+                let inside = collider.contains_point(
+                    coll_transform.translation,
+                    coll_transform.rotation,
+                    *point,
+                );
+                (
+                    inside,
+                    (*point - coll_transform.translation)
+                        * velocity.map_or(Vec3::ONE, |v| v.linvel),
+                )
+            });
         }
         rendering.update_positions(cloth.compute_vertex_positions(&matrix));
         let (center, half_extents): (Vec3, Vec3) = rendering.compute_aabb();

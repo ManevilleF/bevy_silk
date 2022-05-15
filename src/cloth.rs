@@ -155,6 +155,21 @@ impl Cloth {
         self.previous_point_positions = position_cache;
     }
 
+    pub(crate) fn constraint_points(&mut self, project_point: impl Fn(&Vec3) -> (bool, Vec3)) {
+        for (point, dir) in self
+            .current_point_positions
+            .iter_mut()
+            .enumerate()
+            .filter(|(i, _p)| !self.pinned_points.contains(i))
+            .filter_map(|(_i, p)| {
+                let (inside, dir) = project_point(p);
+                inside.then(|| (p, dir))
+            })
+        {
+            *point += dir;
+        }
+    }
+
     fn update_points(&mut self, friction: f32, acceleration: Vec3) {
         for (i, point) in self.current_point_positions.iter_mut().enumerate() {
             if !self.pinned_points.contains(&i) {
