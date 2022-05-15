@@ -1,7 +1,6 @@
-use crate::utils::f32_cmp;
 use crate::Error;
 use bevy::ecs::prelude::Component;
-use bevy::math::Vec3;
+use bevy::math::{const_vec3, Vec3};
 use bevy::reflect::Reflect;
 use bevy::render::color::Color;
 use bevy::render::mesh::{Indices, Mesh, VertexAttributeValues};
@@ -122,26 +121,19 @@ impl ClothRendering {
     }
 
     #[cfg(feature = "rapier_collisions")]
-    pub(crate) fn half_extents(&self) -> Vec3 {
-        let x = self
-            .vertex_positions
-            .iter()
-            .map(|p| p.x.abs())
-            .max_by(f32_cmp)
-            .unwrap();
-        let y = self
-            .vertex_positions
-            .iter()
-            .map(|p| p.y.abs())
-            .max_by(f32_cmp)
-            .unwrap();
-        let z = self
-            .vertex_positions
-            .iter()
-            .map(|p| p.z.abs())
-            .max_by(f32_cmp)
-            .unwrap();
-        Vec3::new(x, y, z)
+    pub(crate) fn compute_aabb(&self) -> (Vec3, Vec3) {
+        const VEC3_MIN: Vec3 = const_vec3!([std::f32::MIN, std::f32::MIN, std::f32::MIN]);
+        const VEC3_MAX: Vec3 = const_vec3!([std::f32::MAX, std::f32::MAX, std::f32::MAX]);
+
+        let mut minimum = VEC3_MAX;
+        let mut maximum = VEC3_MIN;
+        for p in &self.vertex_positions {
+            minimum = minimum.min(*p);
+            maximum = maximum.max(*p);
+        }
+        let center = 0.5 * (maximum + minimum);
+        let half_extents = 0.5 * (maximum - minimum);
+        (center, half_extents)
     }
 
     /// Updates the vertex positions from the cloth point values

@@ -3,6 +3,7 @@ use crate::Cloth;
 use bevy::ecs::prelude::*;
 use bevy::ecs::query::QueryEntityError;
 use bevy::log::error;
+use bevy::math::{Quat, Vec3};
 use bevy::prelude::GlobalTransform;
 use bevy_rapier3d::prelude::*;
 
@@ -37,7 +38,11 @@ pub fn handle_collisions(
             // println!("COLLISION");
         }
         rendering.update_positions(cloth.compute_vertex_positions(&matrix));
-        let ext = rendering.half_extents();
-        *collider = Collider::cuboid(ext.x, ext.y, ext.z);
+        let (center, half_extents): (Vec3, Vec3) = rendering.compute_aabb();
+        *collider = Collider::compound(vec![(
+            center,
+            Quat::IDENTITY,
+            Collider::cuboid(half_extents.x, half_extents.y, half_extents.z),
+        )]);
     }
 }
