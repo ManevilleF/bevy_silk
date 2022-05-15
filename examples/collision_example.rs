@@ -1,5 +1,5 @@
+use bevy::core::FixedTimestep;
 use bevy::prelude::*;
-use bevy_core::FixedTimestep;
 use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
 use bevy_rapier3d::prelude::*;
 use bevy_silk::prelude::*;
@@ -17,6 +17,7 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(InspectorPlugin::<ClothConfig>::new())
         .add_plugin(WorldInspectorPlugin::default())
         .add_plugin(LookTransformPlugin)
@@ -82,7 +83,7 @@ fn spawn_cloth(
     let flag_texture = asset_server.load("Bevy.png");
     let (size_x, size_y) = (80, 40);
     let mesh = rectangle_mesh((size_x, size_y), (-Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
-    let cloth = ClothBuilder::new().with_fixed_points(0..size_x);
+    let cloth = ClothBuilder::new().with_pinned_vertex_ids(0..size_x);
     commands
         .spawn_bundle(PbrBundle {
             mesh: meshes.add(mesh),
@@ -95,7 +96,6 @@ fn spawn_cloth(
             transform: Transform::from_xyz(20.0, 20.0, 10.0),
             ..Default::default()
         })
-        .insert(RigidBody::Fixed)
         .insert(Sensor(true))
         .insert(Collider::cuboid(0.0, 0.0, 0.0))
         .insert(cloth)

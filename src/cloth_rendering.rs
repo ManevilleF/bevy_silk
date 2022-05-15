@@ -1,3 +1,4 @@
+use crate::utils::f32_cmp;
 use crate::Error;
 use bevy::ecs::prelude::Component;
 use bevy::math::Vec3;
@@ -120,8 +121,27 @@ impl ClothRendering {
         })
     }
 
-    pub fn bounds(&self) -> (Vec3, Vec3) {
-        todo!()
+    #[cfg(feature = "rapier_collisions")]
+    pub(crate) fn half_extents(&self) -> Vec3 {
+        let x = self
+            .vertex_positions
+            .iter()
+            .map(|p| p.x.abs())
+            .max_by(f32_cmp)
+            .unwrap();
+        let y = self
+            .vertex_positions
+            .iter()
+            .map(|p| p.y.abs())
+            .max_by(f32_cmp)
+            .unwrap();
+        let z = self
+            .vertex_positions
+            .iter()
+            .map(|p| p.z.abs())
+            .max_by(f32_cmp)
+            .unwrap();
+        Vec3::new(x, y, z)
     }
 
     /// Updates the vertex positions from the cloth point values

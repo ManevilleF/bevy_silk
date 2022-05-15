@@ -179,6 +179,7 @@ mod rapier_collisions;
 pub mod stick;
 /// systems module
 mod systems;
+mod utils;
 /// wind module
 pub mod wind;
 

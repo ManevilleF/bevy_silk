@@ -40,6 +40,7 @@ features = ["dim3"]
 [dev-dependencies]
 smooth-bevy-cameras = "0.4"
 bevy-inspector-egui = "0.11"
+bevy_rapier3d = "0.13"
 
 [dev-dependencies.bevy]
 version = "0.7"
