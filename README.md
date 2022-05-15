@@ -149,6 +149,8 @@ fn spawn(mut commands: Commands) {
 
 You can customize the `interaction_groups` the cloth checks. (See the [rapier docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
 
+> Note: Collision support is crude and experimental for now and is not suited for production use
+
 ## Mesh utils
 
 `bevy_silk` provides a plane mesh generation function `rectangle_mesh` useful for classic cloth uses like flags or capes

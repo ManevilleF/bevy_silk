@@ -10,16 +10,18 @@ use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
 pub fn handle_collisions(
-    mut cloth_query: Query<
-        (&GlobalTransform, &mut Cloth, &mut ClothRendering),
-        With<ClothCollider>,
-    >,
+    mut cloth_query: Query<(
+        &GlobalTransform,
+        &mut Cloth,
+        &mut ClothRendering,
+        &ClothCollider,
+    )>,
     rapier_context: Res<RapierContext>,
     colliders_query: Query<(&Collider, &GlobalTransform, Option<&Velocity>)>,
     time: Res<Time>,
 ) {
     let delta_time = time.delta_seconds();
-    for (transform, mut cloth, mut rendering) in cloth_query.iter_mut() {
+    for (transform, mut cloth, mut rendering, collider) in cloth_query.iter_mut() {
         let matrix: Mat4 = transform.compute_matrix();
         let mut collided = false;
         let (center, extents): (Vec3, Vec3) = rendering.compute_aabb();
@@ -27,7 +29,7 @@ pub fn handle_collisions(
             matrix.transform_point3(center),
             Quat::IDENTITY,
             &Collider::cuboid(extents.x, extents.y, extents.z),
-            InteractionGroups::all(),
+            collider.interaction_groups,
             None,
             |entity| {
                 collided = true;

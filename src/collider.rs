@@ -7,13 +7,13 @@ use bevy_rapier3d::prelude::InteractionGroups;
 #[derive(Debug, Clone, Component)]
 pub struct ClothCollider {
     /// Collision interaction groups, all by default
-    pub interaction_group: InteractionGroups,
+    pub interaction_groups: InteractionGroups,
 }
 
 impl Default for ClothCollider {
     fn default() -> Self {
         Self {
-            interaction_group: InteractionGroups::all(),
+            interaction_groups: InteractionGroups::all(),
         }
     }
 }
