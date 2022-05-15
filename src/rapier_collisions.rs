@@ -27,32 +27,32 @@ pub fn handle_collisions(
 ) {
     for (entity, transform, mut cloth, mut rendering, mut collider) in cloth_query.iter_mut() {
         let matrix = transform.compute_matrix();
+        let mut collided = false;
         for (coll_a, coll_b, intersecting) in rapier_context.intersections_with(entity) {
             if !intersecting {
                 continue;
             }
+            collided = true;
             let other_entity = if coll_a == entity { coll_b } else { coll_a };
-            let (collider, coll_transform, velocity) =
+            let (other_collider, coll_transform, velocity) =
                 if let Ok(c) = colliders_query.get(other_entity) {
                     c
                 } else {
                     error!("Couldn't find collider on entity {:?}", other_entity);
                     continue;
                 };
-            cloth.constraint_points(|point| {
-                let inside = collider.contains_point(
-                    coll_transform.translation,
-                    coll_transform.rotation,
-                    *point,
-                );
-                (
-                    inside,
-                    (*point - coll_transform.translation)
-                        * velocity.map_or(Vec3::ONE, |v| v.linvel),
-                )
+            cloth.solve_collisions(|point| {
+                other_collider
+                    .contains_point(coll_transform.translation, coll_transform.rotation, *point)
+                    .then(|| {
+                        let dir = *point - coll_transform.translation;
+                        dir * velocity.map_or(1.0, |v| v.linvel.length())
+                    })
             });
         }
-        rendering.update_positions(cloth.compute_vertex_positions(&matrix));
+        if collided {
+            rendering.update_positions(cloth.compute_vertex_positions(&matrix));
+        }
         let (center, half_extents): (Vec3, Vec3) = rendering.compute_aabb();
         *collider = Collider::compound(vec![(
             center,

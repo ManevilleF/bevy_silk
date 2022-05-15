@@ -154,7 +154,8 @@ If your simulation suffers from this you can specify a custom smooth value in `C
 - [ ] Different stick behaviors (spring, stick, etc)
 - [x] dynamic flat normal mapping
 - [x] dynamic smooth normal mapping
-- [ ] Collision support
+- [x] [Rapier] Collision support
+- [ ] [Heron] Collision support
 - [x] Vertex color pinning
 - [ ] Overridden pinned positions
 - [ ] Cloth cutting maybe?
@@ -165,16 +166,19 @@ If your simulation suffers from this you can specify a custom smooth value in `C
 
 1. Flag example
 
-run `cargo run --example flag_example --features debug`
+run `cargo run --example flag --features debug`
 
 2. Balloon example
 
-run `cargo run --example balloon_example --features debug`
+run `cargo run --example balloon --features debug`
 
 3. Moving example
 
-run `cargo run --example moving_example --features debug`
+run `cargo run --example moving --features debug`
 
-4. Collision example
+4. [Rapier] Collision example
 
-run `cargo run --example collision_example --features "debug collision_rapier"`
+run `cargo run --example rapier_collision --features "debug rapier_collisions" --release`
+
+[Rapier]: https://github.com/dimforge/bevy_rapier
+[Heron]: https://github.com/jcornaz/heron

@@ -120,8 +120,15 @@ impl ClothRendering {
         })
     }
 
-    #[cfg(feature = "rapier_collisions")]
-    pub(crate) fn compute_aabb(&self) -> (Vec3, Vec3) {
+    ///  Compute the Axis-Aligned Bounding Box of the mesh vertices in model space
+    ///
+    /// # Returns
+    ///
+    /// A tuple value with:
+    /// - 0: The center of the bounding box
+    /// - 1: The half extents of the bounding box
+    #[must_use]
+    pub fn compute_aabb(&self) -> (Vec3, Vec3) {
         const VEC3_MIN: Vec3 = const_vec3!([std::f32::MIN, std::f32::MIN, std::f32::MIN]);
         const VEC3_MAX: Vec3 = const_vec3!([std::f32::MAX, std::f32::MAX, std::f32::MAX]);
 

@@ -39,12 +39,11 @@ pub fn update_cloth(
         if let Some(mesh) = meshes.get_mut(handle) {
             let matrix = transform.compute_matrix();
             let config: &ClothConfig = custom_config.unwrap_or(&config);
-            cloth.update(
-                config.sticks_computation_depth,
+            cloth.update_points(
                 config.friction_coefficient(),
                 config.smoothed_acceleration(wind_force + config.gravity, delta_time),
-                &matrix,
             );
+            cloth.update_sticks(&matrix, config.sticks_computation_depth);
             rendering.update_positions(cloth.compute_vertex_positions(&matrix));
             rendering.apply(mesh);
         } else {

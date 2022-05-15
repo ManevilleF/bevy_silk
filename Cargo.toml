@@ -41,6 +41,7 @@ features = ["dim3"]
 smooth-bevy-cameras = "0.4"
 bevy-inspector-egui = "0.11"
 bevy_rapier3d = "0.13"
+rand = "0.8"
 
 [dev-dependencies.bevy]
 version = "0.7"
@@ -48,17 +49,29 @@ features = ["render", "bevy_winit", "x11", "png"]
 default-features = false
 
 [[example]]
-name = "balloon_example"
+name = "balloon"
+path = "examples/balloon_example.rs"
 required-features = ["debug"]
 
 [[example]]
-name = "flag_example"
+name = "flag"
+path = "examples/flag_example.rs"
 required-features = ["debug"]
 
 [[example]]
-name = "moving_example"
+name = "moving"
+path = "examples/moving_example.rs"
 required-features = ["debug"]
 
 [[example]]
-name = "collision_example"
+name = "rapier_collision"
+path = "examples/rapier_collision_example.rs"
 required-features = ["debug", "rapier_collisions"]
+
+# Enable only a small amount of optimization in debug mode
+[profile.dev]
+opt-level = 1
+
+# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
+[profile.dev.package."*"]
+opt-level = 3
