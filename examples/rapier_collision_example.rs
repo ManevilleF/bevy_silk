@@ -4,6 +4,7 @@ use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
 use bevy_rapier3d::prelude::*;
 use bevy_silk::cloth::Cloth;
 use bevy_silk::prelude::*;
+use rand::{thread_rng, Rng};
 use smooth_bevy_cameras::{
     controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
     LookTransformPlugin,
@@ -39,7 +40,7 @@ fn main() {
         .add_startup_system(setup)
         .add_system_set(
             SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(2.0))
+                .with_run_criteria(FixedTimestep::step(1.0))
                 .with_system(shoot_balls),
         )
         .add_system(move_cloth)
@@ -58,8 +59,8 @@ fn setup(
     commands.spawn_bundle(OrbitCameraBundle::new(
         OrbitCameraController::default(),
         PerspectiveCameraBundle::default(),
-        Vec3::new(30.0, 30.0, -30.0),
-        Vec3::ZERO,
+        Vec3::new(30.0, 40.0, -30.0),
+        Vec3::Y * 10.0,
     ));
     let mesh_handle = meshes.add(shape::Cube::new(1.0).into());
     [
@@ -132,7 +133,8 @@ fn shoot_balls(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let radius = 1.0;
+    let mut rng = thread_rng();
+    let radius = rng.gen_range(1.0..3.0);
     commands
         .spawn_bundle(PbrBundle {
             mesh: meshes.add(
@@ -146,7 +148,11 @@ fn shoot_balls(
             transform: Transform::from_xyz(0.0, 0.0, -20.0),
             ..Default::default()
         })
-        .insert(Velocity::linear(Vec3::new(0.0, 10.0, 20.0)))
+        .insert(Velocity::linear(Vec3::new(
+            rng.gen_range(-5.0..5.0),
+            rng.gen_range(10.0..15.0),
+            rng.gen_range(15.0..25.0),
+        )))
         .insert(RigidBody::Dynamic)
         .insert(Collider::ball(radius))
         .insert(Name::new("Ball"));

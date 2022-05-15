@@ -166,11 +166,6 @@ You probably didn't specify any *pinned points*, meaning there are no vertices a
 Gravity and winds are by default smoothed out by the framerate, if the framerate drops suddenly gravity and wind get much stronger.
 If your simulation suffers from this you can specify a custom smooth value in `ClothConfig::acceleration_smoothing`.
 
-- `My cloth jitters a lot/ suddenly falls down/ has strange sudden behaviour`
-
-Gravity and winds are bu default smoothed out by the framerate, if the framerate drops suddenly gravity and wind get much stronger.
-If your simulation suffers from this you can specify a custom smooth value in `ClothConfig::acceleration_smoothing`.
-
 
 <!-- cargo-sync-readme end -->
 
