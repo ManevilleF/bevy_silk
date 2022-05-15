@@ -46,7 +46,7 @@ jobs:
       - name: tests
         run: cargo test --tests
       - name: doc tests
-        run: cargo test --doc
+        run: cargo test --all-features --doc
 
   fmt:
     runs-on: ubuntu-latest
