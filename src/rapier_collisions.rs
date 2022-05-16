@@ -14,7 +14,7 @@ pub fn handle_collisions(
     mut cloth_query: Query<(
         &GlobalTransform,
         &mut Cloth,
-        &mut ClothRendering,
+        &ClothRendering,
         &ClothCollider,
     )>,
     rapier_context: Res<RapierContext>,
@@ -22,9 +22,8 @@ pub fn handle_collisions(
     time: Res<Time>,
 ) {
     let delta_time = time.delta_seconds();
-    for (transform, mut cloth, mut rendering, collider) in cloth_query.iter_mut() {
+    for (transform, mut cloth, rendering, collider) in cloth_query.iter_mut() {
         let matrix: Mat4 = transform.compute_matrix();
-        let mut collided = false;
         let (center, extents): (Vec3, Vec3) = rendering.compute_aabb(Some(collider.offset));
         rapier_context.intersections_with_shape(
             matrix.transform_point3(center),
@@ -33,7 +32,6 @@ pub fn handle_collisions(
             collider.interaction_groups,
             None,
             |entity| {
-                collided = true;
                 let (other_collider, coll_transform, velocity) =
                     if let Ok(c) = colliders_query.get_mut(entity) {
                         c
@@ -73,8 +71,5 @@ pub fn handle_collisions(
                 true
             },
         );
-        if collided {
-            rendering.update_positions(cloth.compute_vertex_positions(&matrix));
-        }
     }
 }

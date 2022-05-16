@@ -237,7 +237,12 @@ impl Plugin for ClothPlugin {
             .register_type::<Cloth>();
         app.add_system(systems::init_cloth.label("CLOTH_INIT"));
         app.add_system(systems::update_cloth.label("CLOTH_UPDATE"));
+        app.add_system(
+            systems::render_cloth
+                .label("CLOTH_RENDER")
+                .after("CLOTH_UPDATE"),
+        );
         #[cfg(feature = "rapier_collisions")]
-        app.add_system(rapier_collisions::handle_collisions.after("CLOTH_UPDATE"));
+        app.add_system(rapier_collisions::handle_collisions.before("CLOTH_RENDER"));
     }
 }

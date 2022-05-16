@@ -24,7 +24,7 @@ impl Default for ClothCollider {
     fn default() -> Self {
         Self {
             interaction_groups: InteractionGroups::all(),
-            offset: 0.2,
+            offset: 0.25,
             velocity_coefficient: 1.0,
             dampen_others: None,
         }

@@ -80,12 +80,12 @@ fn setup(
     });
     commands
         .spawn_bundle(PbrBundle {
-            mesh: meshes.add(shape::Cube { size: 30.0 }.into()),
+            mesh: meshes.add(shape::Cube { size: 24.0 }.into()),
             material: materials.add(Color::WHITE.into()),
-            transform: Transform::from_xyz(0.0, -15.0, 0.0),
+            transform: Transform::from_xyz(0.0, -12.0, 0.0),
             ..Default::default()
         })
-        .insert(Collider::cuboid(15.0, 15.0, 15.0));
+        .insert(Collider::cuboid(12.0, 12.0, 12.0));
 }
 
 fn spawn_cloth(
@@ -112,7 +112,7 @@ fn spawn_cloth(
         })
         .insert(cloth)
         .insert(ClothCollider {
-            dampen_others: Some(0.015),
+            dampen_others: Some(0.02),
             ..Default::default()
         })
         .insert(Name::new("Cloth"));
@@ -155,7 +155,7 @@ fn shoot_balls(
             ..Default::default()
         })
         .insert(Velocity::linear(Vec3::new(
-            rng.gen_range(-10.0..10.0),
+            rng.gen_range(-5.0..5.0),
             rng.gen_range(10.0..15.0),
             rng.gen_range(20.0..30.0),
         )))
