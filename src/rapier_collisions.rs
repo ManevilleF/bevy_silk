@@ -57,7 +57,9 @@ pub fn handle_collisions(
                         .unwrap_or(Vec3::Y);
                     if projected_point.is_inside {
                         Some(projected_point.point + (normal * collider.offset) + (normal * vel))
-                    } else if point.distance(projected_point.point) < collider.offset {
+                    } else if point.distance_squared(projected_point.point)
+                        < collider.offset * collider.offset
+                    {
                         Some(projected_point.point - (normal * collider.offset))
                     } else {
                         None
