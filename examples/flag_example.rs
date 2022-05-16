@@ -22,12 +22,12 @@ fn main() {
         .insert_resource(Winds::from(vec![
             Wind::SinWave {
                 max_velocity: Vec3::new(15.0, 10.0, 0.0),
-                frequency: 2.0,
+                frequency: 1.0,
                 normalize: true,
                 abs: false,
             },
             Wind::SinWave {
-                max_velocity: Vec3::new(0.0, 0.0, 30.0),
+                max_velocity: Vec3::new(0.0, 0.0, 15.0),
                 frequency: 2.0,
                 normalize: false,
                 abs: false,

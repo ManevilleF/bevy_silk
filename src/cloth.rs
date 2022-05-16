@@ -1,9 +1,9 @@
 use crate::stick::{StickGeneration, StickLen};
-use bevy_ecs::prelude::{Component, ReflectComponent};
-use bevy_log::warn;
-use bevy_math::{Mat4, Vec3};
-use bevy_reflect::Reflect;
-use bevy_utils::{HashMap, HashSet};
+use bevy::ecs::prelude::{Component, ReflectComponent};
+use bevy::log::warn;
+use bevy::math::{Mat4, Vec3};
+use bevy::reflect::Reflect;
+use bevy::utils::{HashMap, HashSet};
 
 macro_rules! get_point {
     ($id:expr, $points:expr, $pinned_points:expr, $matrix:expr) => {
@@ -133,29 +133,31 @@ impl Cloth {
         }
     }
 
-    /// Updates the cloth
+    /// Solves cloth points collisions, moving them outside of colliders
     ///
     /// # Arguments
     ///
-    /// * `config` - the current configuration for the cloth physics
-    /// * `delta_time` - the time since last update
-    /// * `transform_matrix` - the transform matrix of the associated `GlobalTransform`
-    pub fn update(
-        &mut self,
-        sticks_computation_depth: u8,
-        friction: f32,
-        acceleration: Vec3,
-        transform_matrix: &Mat4,
-    ) {
-        let position_cache = self.current_point_positions.clone();
-        self.update_points(friction, acceleration);
-        for _depth in 0..sticks_computation_depth {
-            self.update_sticks(transform_matrix);
+    /// * `solve_point` - function taking a cloth point and returning the new solved point
+    pub fn solve_collisions(&mut self, solve_point: impl Fn(&Vec3) -> Option<Vec3>) {
+        for (point, new_point) in self
+            .current_point_positions
+            .iter_mut()
+            .enumerate()
+            .filter(|(i, _p)| !self.pinned_points.contains(i))
+            .filter_map(|(_i, p)| solve_point(p).map(|np| (p, np)))
+        {
+            *point = new_point;
         }
-        self.previous_point_positions = position_cache;
     }
 
-    fn update_points(&mut self, friction: f32, acceleration: Vec3) {
+    /// Updates the cloth points according to their own velocity and external friction and acceleration
+    ///
+    /// # Arguments
+    ///
+    /// * `friction` - Friction to apply to the points velocity
+    /// * `acceleration` - Global acceleration force (gravity, wind, etc)
+    pub fn update_points(&mut self, friction: f32, acceleration: Vec3) {
+        let position_cache = self.current_point_positions.clone();
         for (i, point) in self.current_point_positions.iter_mut().enumerate() {
             if !self.pinned_points.contains(&i) {
                 let velocity = self
@@ -165,46 +167,55 @@ impl Cloth {
                 *point += velocity * friction + acceleration;
             }
         }
+        self.previous_point_positions = position_cache;
     }
 
-    fn update_sticks(&mut self, matrix: &Mat4) {
-        for ((id_a, id_b), target_len) in &self.sticks {
-            let (position_a, fixed_a) = get_point!(
-                *id_a,
-                self.current_point_positions,
-                self.pinned_points,
-                matrix
-            );
-            let (position_b, fixed_b) = get_point!(
-                *id_b,
-                self.current_point_positions,
-                self.pinned_points,
-                matrix
-            );
-            if fixed_a && fixed_b {
-                continue;
-            }
-            let center = (position_b + position_a) / 2.0;
-            let direction = match (position_b - position_a).try_normalize() {
-                None => {
-                    warn!("Failed handle stick between points {} and {} which are too close to each other", *id_a, *id_b);
+    /// Applies the cloth sticks constraints
+    ///
+    /// # Arguments
+    ///
+    /// * `matrix` - the transform matrix of the associated `GlobalTransform`
+    /// * `depth` - Number of sticks constraint iterations
+    pub fn update_sticks(&mut self, matrix: &Mat4, depth: u8) {
+        for _ in 0..depth {
+            for ((id_a, id_b), target_len) in &self.sticks {
+                let (position_a, fixed_a) = get_point!(
+                    *id_a,
+                    self.current_point_positions,
+                    self.pinned_points,
+                    matrix
+                );
+                let (position_b, fixed_b) = get_point!(
+                    *id_b,
+                    self.current_point_positions,
+                    self.pinned_points,
+                    matrix
+                );
+                if fixed_a && fixed_b {
                     continue;
                 }
-                Some(dir) => dir * *target_len / 2.0,
-            };
-            if !fixed_a {
-                self.current_point_positions[*id_a] = if fixed_b {
-                    position_b - direction * 2.0
-                } else {
-                    center - direction
+                let center = (position_b + position_a) / 2.0;
+                let direction = match (position_b - position_a).try_normalize() {
+                    None => {
+                        warn!("Failed handle stick between points {} and {} which are too close to each other", *id_a, *id_b);
+                        continue;
+                    }
+                    Some(dir) => dir * *target_len / 2.0,
                 };
-            }
-            if !fixed_b {
-                self.current_point_positions[*id_b] = if fixed_a {
-                    position_a + direction * 2.0
-                } else {
-                    center + direction
-                };
+                if !fixed_a {
+                    self.current_point_positions[*id_a] = if fixed_b {
+                        position_b - direction * 2.0
+                    } else {
+                        center - direction
+                    };
+                }
+                if !fixed_b {
+                    self.current_point_positions[*id_b] = if fixed_a {
+                        position_a + direction * 2.0
+                    } else {
+                        center + direction
+                    };
+                }
             }
         }
     }
@@ -218,7 +229,7 @@ mod tests {
     mod init_from_mesh {
         use super::*;
         use crate::cloth_rendering::ClothRendering;
-        use bevy_transform::prelude::Transform;
+        use bevy::transform::prelude::Transform;
 
         fn expected_stick_len(
             len: usize,

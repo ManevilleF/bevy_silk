@@ -1,10 +1,10 @@
 use crate::Error;
-use bevy_ecs::prelude::Component;
-use bevy_math::Vec3;
-use bevy_reflect::Reflect;
-use bevy_render::color::Color;
-use bevy_render::mesh::{Indices, Mesh, VertexAttributeValues};
-use bevy_utils::HashMap;
+use bevy::ecs::prelude::Component;
+use bevy::math::{const_vec3, Vec3};
+use bevy::reflect::Reflect;
+use bevy::render::color::Color;
+use bevy::render::mesh::{Indices, Mesh, VertexAttributeValues};
+use bevy::utils::HashMap;
 
 /// Defines the cloth computation mode of vertex normals
 #[derive(Debug, Copy, Clone, Reflect)]
@@ -118,6 +118,29 @@ impl ClothRendering {
             indices,
             normal_computing,
         })
+    }
+
+    ///  Compute the Axis-Aligned Bounding Box of the mesh vertices in model space
+    ///
+    /// # Returns
+    ///
+    /// A tuple value with:
+    /// - 0: The center of the bounding box
+    /// - 1: The half extents of the bounding box
+    #[must_use]
+    pub fn compute_aabb(&self, offset: Option<f32>) -> (Vec3, Vec3) {
+        const VEC3_MIN: Vec3 = const_vec3!([std::f32::MIN, std::f32::MIN, std::f32::MIN]);
+        const VEC3_MAX: Vec3 = const_vec3!([std::f32::MAX, std::f32::MAX, std::f32::MAX]);
+
+        let mut minimum = VEC3_MAX;
+        let mut maximum = VEC3_MIN;
+        for p in &self.vertex_positions {
+            minimum = minimum.min(*p);
+            maximum = maximum.max(*p);
+        }
+        let center = 0.5 * (maximum + minimum);
+        let half_extents = 0.5 * (maximum - minimum) + offset.unwrap_or(0.0);
+        (center, half_extents)
     }
 
     /// Updates the vertex positions from the cloth point values

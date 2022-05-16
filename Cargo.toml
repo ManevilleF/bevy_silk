@@ -14,21 +14,10 @@ documentation = "https://docs.rs/bevy_silk"
 
 [features]
 default = []
-debug = ["bevy-inspector-egui", "bevy"]
+debug = ["bevy-inspector-egui"]
+rapier_collisions = ["bevy_rapier3d"]
 
 [dependencies]
-
-# Bevy dependencies
-bevy_app = "0.7"
-bevy_utils = "0.7"
-bevy_ecs = "0.7"
-bevy_render = "0.7"
-bevy_math = "0.7"
-bevy_log = "0.7"
-bevy_transform = "0.7"
-bevy_core = "0.7"
-bevy_asset = "0.7"
-bevy_reflect = "0.7"
 
 # Error handling
 thiserror = "1.0"
@@ -39,12 +28,20 @@ optional = true
 
 [dependencies.bevy]
 version = "0.7"
+default-features = false
+features = ["bevy_render"]
+
+[dependencies.bevy_rapier3d]
+version = "0.13"
 optional = true
 default-features = false
+features = ["dim3"]
 
 [dev-dependencies]
 smooth-bevy-cameras = "0.4"
 bevy-inspector-egui = "0.11"
+bevy_rapier3d = "0.13"
+rand = "0.8"
 
 [dev-dependencies.bevy]
 version = "0.7"
@@ -52,13 +49,29 @@ features = ["render", "bevy_winit", "x11", "png"]
 default-features = false
 
 [[example]]
-name = "balloon_example"
+name = "balloon"
+path = "examples/balloon_example.rs"
 required-features = ["debug"]
 
 [[example]]
-name = "flag_example"
+name = "flag"
+path = "examples/flag_example.rs"
 required-features = ["debug"]
 
 [[example]]
-name = "moving_example"
+name = "moving"
+path = "examples/moving_example.rs"
 required-features = ["debug"]
+
+[[example]]
+name = "rapier_collision"
+path = "examples/rapier_collision_example.rs"
+required-features = ["debug", "rapier_collisions"]
+
+# Enable only a small amount of optimization in debug mode
+[profile.dev]
+opt-level = 1
+
+# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
+[profile.dev.package."*"]
+opt-level = 3

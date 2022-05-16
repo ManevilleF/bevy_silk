@@ -1,6 +1,6 @@
-use bevy_ecs::prelude::{Component, ReflectComponent};
-use bevy_math::Vec3;
-use bevy_reflect::Reflect;
+use bevy::ecs::prelude::{Component, ReflectComponent};
+use bevy::math::Vec3;
+use bevy::reflect::Reflect;
 
 /// Defines how verlet physics acceleration components like gravity and winds are smoothed
 /// through every frame.
@@ -60,11 +60,21 @@ impl ClothConfig {
     #[inline]
     #[must_use]
     pub fn smoothed_acceleration(&self, acceleration: Vec3, delta_time: f32) -> Vec3 {
-        acceleration
-            * match self.acceleration_smoothing {
-                AccelerationSmoothing::SquaredDeltaTime => delta_time * delta_time,
-                AccelerationSmoothing::FixedCoefficient(coef) => coef,
-            }
+        acceleration * self.smooth_value(delta_time)
+    }
+
+    /// Retrieves the current smooth value
+    ///
+    /// # Arguments
+    ///
+    /// * `delta_time` - elapsed time since last frame in seconds
+    #[inline]
+    #[must_use]
+    pub fn smooth_value(&self, delta_time: f32) -> f32 {
+        match self.acceleration_smoothing {
+            AccelerationSmoothing::SquaredDeltaTime => delta_time * delta_time,
+            AccelerationSmoothing::FixedCoefficient(coef) => coef,
+        }
     }
 
     /// Initializes a cloth config with no gravity force
@@ -88,7 +98,7 @@ impl Default for ClothConfig {
     fn default() -> Self {
         Self {
             gravity: Vec3::Y * Self::DEFAULT_GRAVITY,
-            friction: 0.05,
+            friction: 0.02,
             sticks_computation_depth: 5,
             acceleration_smoothing: Default::default(),
         }

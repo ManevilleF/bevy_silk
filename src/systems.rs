@@ -9,42 +9,42 @@ use crate::cloth_rendering::ClothRendering;
 use crate::config::ClothConfig;
 use crate::wind::Winds;
 use crate::ClothBuilder;
-use bevy_asset::{Assets, Handle};
-use bevy_core::Time;
-use bevy_ecs::prelude::*;
-use bevy_log::{debug, warn};
-use bevy_math::Vec3;
-use bevy_render::prelude::Mesh;
-use bevy_transform::prelude::GlobalTransform;
+use bevy::asset::{Assets, Handle};
+use bevy::core::Time;
+use bevy::ecs::prelude::*;
+use bevy::log::{debug, warn};
+use bevy::math::Vec3;
+use bevy::render::prelude::Mesh;
+use bevy::transform::prelude::GlobalTransform;
 
-#[allow(clippy::cast_possible_truncation)]
 pub fn update_cloth(
-    mut query: Query<(
-        &mut Cloth,
-        &mut ClothRendering,
-        &GlobalTransform,
-        &Handle<Mesh>,
-        Option<&ClothConfig>,
-    )>,
+    mut query: Query<(&mut Cloth, &GlobalTransform, Option<&ClothConfig>)>,
     config: Res<ClothConfig>,
     wind: Option<Res<Winds>>,
     time: Res<Time>,
-    mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let delta_time = time.delta_seconds();
     let wind_force = wind.map_or(Vec3::ZERO, |w| {
         w.current_velocity(time.time_since_startup().as_secs_f32())
     });
-    for (mut cloth, mut rendering, transform, handle, custom_config) in query.iter_mut() {
+    for (mut cloth, transform, custom_config) in query.iter_mut() {
+        let matrix = transform.compute_matrix();
+        let config: &ClothConfig = custom_config.unwrap_or(&config);
+        cloth.update_points(
+            config.friction_coefficient(),
+            config.smoothed_acceleration(wind_force + config.gravity, delta_time),
+        );
+        cloth.update_sticks(&matrix, config.sticks_computation_depth);
+    }
+}
+
+pub fn render_cloth(
+    mut query: Query<(&Cloth, &mut ClothRendering, &GlobalTransform, &Handle<Mesh>)>,
+    mut meshes: ResMut<Assets<Mesh>>,
+) {
+    for (cloth, mut rendering, transform, handle) in query.iter_mut() {
         if let Some(mesh) = meshes.get_mut(handle) {
             let matrix = transform.compute_matrix();
-            let config: &ClothConfig = custom_config.unwrap_or(&config);
-            cloth.update(
-                config.sticks_computation_depth,
-                config.friction_coefficient(),
-                config.smoothed_acceleration(wind_force + config.gravity, delta_time),
-                &matrix,
-            );
             rendering.update_positions(cloth.compute_vertex_positions(&matrix));
             rendering.apply(mesh);
         } else {
@@ -53,7 +53,6 @@ pub fn update_cloth(
     }
 }
 
-#[allow(clippy::cast_possible_truncation)]
 pub fn init_cloth(
     mut commands: Commands,
     query: Query<(Entity, &ClothBuilder, &GlobalTransform, &Handle<Mesh>), Without<Cloth>>,

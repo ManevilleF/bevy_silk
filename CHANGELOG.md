@@ -2,8 +2,17 @@
 
 # Unreleased
 
+## Added
+
+* [bevy_rapier](https://github.com/dimforge/bevy_rapier) collision support:
+  * Added `rapier_collisions` feature
+  * Added `rapier_collision` example
+  * Added `ClothCollider` component
 * Added `AccelerationSmoothing` enum, defining gravity/winds acceleration smoothing
-* Added related `acceleration_smoothing` field to `ClothConfig` 
+  * Added related `acceleration_smoothing` field to `ClothConfig`
+
+## API changes
+
 * (**BREAKING**) Renamed `ClothBuilder::fixed_points` to `pinned_vertex_ids`
 * Added `ClothBuilder::with_pinned_vertex_ids` method
 * Deprecated `ClothBuilder::with_fixed_points` in favor of `ClothBuilder::with_pinned_vertex_ids`

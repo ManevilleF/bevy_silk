@@ -129,6 +129,28 @@ fn main() {
 
 > Check the flag example for simple wind effect.
 
+## Collisions
+
+Enabling the `rapier_collisions` features enable cloth interaction with other colliders. Add a `ClothCollider` to your entity to enable collisions:
+
+```rust
+use bevy::prelude::*;
+use bevy_silk::prelude::*;
+
+fn spawn(mut commands: Commands) {
+    commands.spawn_bundle(PbrBundle {
+        // Add your mesh, material and your custom PBR data   
+        ..Default::default()
+    })
+    .insert(ClothBuilder::new())
+    .insert(ClothCollider::default());
+}
+```
+
+You can customize the `interaction_groups` the cloth checks. (See the [rapier docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
+
+> Note: Collision support is crude and experimental for now and is not suited for production use
+
 ## Mesh utils
 
 `bevy_silk` provides a plane mesh generation function `rectangle_mesh` useful for classic cloth uses like flags or capes
@@ -141,7 +163,7 @@ You probably didn't specify any *pinned points*, meaning there are no vertices a
 
 - `My cloth jitters a lot/ suddenly falls down/ has strange sudden behaviour`
 
-Gravity and winds are bu default smoothed out by the framerate, if the framerate drops suddenly gravity and wind get much stronger.
+Gravity and winds are by default smoothed out by the framerate, if the framerate drops suddenly gravity and wind get much stronger.
 If your simulation suffers from this you can specify a custom smooth value in `ClothConfig::acceleration_smoothing`.
 
 
@@ -154,7 +176,8 @@ If your simulation suffers from this you can specify a custom smooth value in `C
 - [ ] Different stick behaviors (spring, stick, etc)
 - [x] dynamic flat normal mapping
 - [x] dynamic smooth normal mapping
-- [ ] Collision support
+- [x] [Rapier] Collision support
+- [ ] [Heron] Collision support
 - [x] Vertex color pinning
 - [ ] Overridden pinned positions
 - [ ] Cloth cutting maybe?
@@ -165,12 +188,19 @@ If your simulation suffers from this you can specify a custom smooth value in `C
 
 1. Flag example
 
-run `cargo run --example flag_example --features debug`
+run `cargo run --example flag --features debug`
 
 2. Balloon example
 
-run `cargo run --example balloon_example --features debug`
+run `cargo run --example balloon --features debug`
 
 3. Moving example
 
-run `cargo run --example moving_example --features debug`
+run `cargo run --example moving --features debug`
+
+4. [Rapier] Collision example
+
+run `cargo run --example rapier_collision --features "debug rapier_collisions"`
+
+[Rapier]: https://github.com/dimforge/bevy_rapier
+[Heron]: https://github.com/jcornaz/heron

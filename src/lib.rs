@@ -127,6 +127,28 @@
 //!
 //! > Check the flag example for simple wind effect.
 //!
+//! ## Collisions
+//!
+//! Enabling the `rapier_collisions` features enable cloth interaction with other colliders. Add a `ClothCollider` to your entity to enable collisions:
+//!
+//! ```rust
+//! use bevy::prelude::*;
+//! use bevy_silk::prelude::*;
+//!
+//! fn spawn(mut commands: Commands) {
+//!     commands.spawn_bundle(PbrBundle {
+//!         // Add your mesh, material and your custom PBR data   
+//!         ..Default::default()
+//!     })
+//!     .insert(ClothBuilder::new())
+//!     .insert(ClothCollider::default());
+//! }
+//! ```
+//!
+//! You can customize the `interaction_groups` the cloth checks. (See the [rapier docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
+//!
+//! > Note: Collision support is crude and experimental for now and is not suited for production use
+//!
 //! ## Mesh utils
 //!
 //! `bevy_silk` provides a plane mesh generation function `rectangle_mesh` useful for classic cloth uses like flags or capes
@@ -139,7 +161,7 @@
 //!
 //! - `My cloth jitters a lot/ suddenly falls down/ has strange sudden behaviour`
 //!
-//! Gravity and winds are bu default smoothed out by the framerate, if the framerate drops suddenly gravity and wind get much stronger.
+//! Gravity and winds are by default smoothed out by the framerate, if the framerate drops suddenly gravity and wind get much stronger.
 //! If your simulation suffers from this you can specify a custom smooth value in `ClothConfig::acceleration_smoothing`.
 //!
 #![forbid(unsafe_code)]
@@ -162,12 +184,17 @@ pub mod cloth;
 pub mod cloth_builder;
 /// cloth rendering module
 pub mod cloth_rendering;
+/// collider module
+#[cfg(feature = "rapier_collisions")]
+pub mod collider;
 /// config module
 pub mod config;
 /// error module
 pub mod error;
 /// mesh module
 pub mod mesh;
+#[cfg(feature = "rapier_collisions")]
+mod rapier_collisions;
 /// stick module
 pub mod stick;
 /// systems module
@@ -177,11 +204,13 @@ pub mod wind;
 
 use crate::cloth::Cloth;
 use crate::prelude::*;
-use bevy_app::{App, Plugin};
-use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
+use bevy::app::{App, Plugin};
+use bevy::ecs::schedule::ParallelSystemDescriptorCoercion;
 
 /// Prelude module, providing every public type of the lib
 pub mod prelude {
+    #[cfg(feature = "rapier_collisions")]
+    pub use crate::collider::ClothCollider;
     pub use crate::{
         cloth_builder::ClothBuilder,
         cloth_rendering::NormalComputing,
@@ -208,5 +237,12 @@ impl Plugin for ClothPlugin {
             .register_type::<Cloth>();
         app.add_system(systems::init_cloth.label("CLOTH_INIT"));
         app.add_system(systems::update_cloth.label("CLOTH_UPDATE"));
+        app.add_system(
+            systems::render_cloth
+                .label("CLOTH_RENDER")
+                .after("CLOTH_UPDATE"),
+        );
+        #[cfg(feature = "rapier_collisions")]
+        app.add_system(rapier_collisions::handle_collisions.before("CLOTH_RENDER"));
     }
 }

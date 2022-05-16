@@ -1,5 +1,5 @@
-use bevy_math::Vec3;
-use bevy_reflect::{FromReflect, Reflect};
+use bevy::math::Vec3;
+use bevy::reflect::{FromReflect, Reflect};
 
 /// Wind definition for cloth physics
 #[cfg_attr(feature = "debug", derive(bevy_inspector_egui::Inspectable))]
