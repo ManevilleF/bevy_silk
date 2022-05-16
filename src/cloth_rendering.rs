@@ -128,7 +128,7 @@ impl ClothRendering {
     /// - 0: The center of the bounding box
     /// - 1: The half extents of the bounding box
     #[must_use]
-    pub fn compute_aabb(&self) -> (Vec3, Vec3) {
+    pub fn compute_aabb(&self, offset: Option<f32>) -> (Vec3, Vec3) {
         const VEC3_MIN: Vec3 = const_vec3!([std::f32::MIN, std::f32::MIN, std::f32::MIN]);
         const VEC3_MAX: Vec3 = const_vec3!([std::f32::MAX, std::f32::MAX, std::f32::MAX]);
 
@@ -139,7 +139,7 @@ impl ClothRendering {
             maximum = maximum.max(*p);
         }
         let center = 0.5 * (maximum + minimum);
-        let half_extents = 0.5 * (maximum - minimum);
+        let half_extents = 0.5 * (maximum - minimum) + offset.unwrap_or(0.0);
         (center, half_extents)
     }
 

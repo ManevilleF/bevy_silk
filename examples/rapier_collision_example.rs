@@ -35,7 +35,7 @@ fn main() {
         .add_startup_system(setup)
         .add_system_set(
             SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(5.0))
+                .with_run_criteria(FixedTimestep::step(6.0))
                 .with_system(shoot_balls),
         )
         .add_system(move_cloth)
@@ -68,7 +68,7 @@ fn setup(
         commands
             .spawn_bundle(PbrBundle {
                 mesh: mesh_handle.clone(),
-                transform: Transform::from_xyz(x, 0.0, z),
+                transform: Transform::from_xyz(x, 1.0, z),
                 material: materials.add(StandardMaterial {
                     base_color: color,
                     double_sided: true,
@@ -78,6 +78,14 @@ fn setup(
             })
             .insert(Collider::cuboid(1.0, 1.0, 1.0));
     });
+    commands
+        .spawn_bundle(PbrBundle {
+            mesh: meshes.add(shape::Cube { size: 30.0 }.into()),
+            material: materials.add(Color::WHITE.into()),
+            transform: Transform::from_xyz(0.0, -15.0, 0.0),
+            ..Default::default()
+        })
+        .insert(Collider::cuboid(15.0, 15.0, 15.0));
 }
 
 fn spawn_cloth(
@@ -103,7 +111,10 @@ fn spawn_cloth(
             ..Default::default()
         })
         .insert(cloth)
-        .insert(ClothCollider::default())
+        .insert(ClothCollider {
+            dampen_others: Some(0.015),
+            ..Default::default()
+        })
         .insert(Name::new("Cloth"));
 }
 
@@ -116,7 +127,7 @@ fn move_cloth(
     for mut transform in query.iter_mut() {
         movement.t += delta_time * 2.0;
         transform.translation.z += movement.sign * delta_time * 2.0;
-        if movement.t > 25.0 {
+        if movement.t > 30.0 {
             movement.t = 0.0;
             movement.sign = -movement.sign;
         }
@@ -144,9 +155,9 @@ fn shoot_balls(
             ..Default::default()
         })
         .insert(Velocity::linear(Vec3::new(
-            rng.gen_range(-5.0..5.0),
+            rng.gen_range(-10.0..10.0),
             rng.gen_range(10.0..15.0),
-            rng.gen_range(15.0..25.0),
+            rng.gen_range(20.0..30.0),
         )))
         .insert(RigidBody::Dynamic)
         .insert(Collider::ball(radius))

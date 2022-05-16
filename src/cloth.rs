@@ -137,17 +137,16 @@ impl Cloth {
     ///
     /// # Arguments
     ///
-    /// * `solve_point` - function taking a cloth point and returning the direction to apply to the point
-    /// if if collides
+    /// * `solve_point` - function taking a cloth point and returning the new solved point
     pub fn solve_collisions(&mut self, solve_point: impl Fn(&Vec3) -> Option<Vec3>) {
-        for (point, dir) in self
+        for (point, new_point) in self
             .current_point_positions
             .iter_mut()
             .enumerate()
             .filter(|(i, _p)| !self.pinned_points.contains(i))
-            .filter_map(|(_i, p)| solve_point(p).map(|dir| (p, dir)))
+            .filter_map(|(_i, p)| solve_point(p).map(|np| (p, np)))
         {
-            *point += dir;
+            *point = new_point;
         }
     }
 
