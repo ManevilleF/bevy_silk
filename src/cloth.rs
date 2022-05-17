@@ -25,7 +25,7 @@ pub struct Cloth {
     /// cloth points unaffected by physics and following an anchor
     /// The key is the point index and the value is a tuple with:
     /// - 0: The [`VertexAnchor`] anchor
-    /// - 1: The inital local space vertex position
+    /// - 1: The initial local space vertex position
     pub anchored_points: HashMap<usize, (VertexAnchor, Vec3)>,
     /// Current Cloth points 3D positions in world space
     pub current_point_positions: Vec<Vec3>,
@@ -144,7 +144,7 @@ impl Cloth {
     /// # Arguments
     ///
     /// * `transform` - The `GlobalTransform` associated to the cloth entity
-    /// * `anchor_query` - A function allowing to retreive the `GlobalTransform` of a given entity
+    /// * `anchor_query` - A function allowing to retrieve the `GlobalTransform` of a given entity
     pub fn update_anchored_points<'a>(
         &mut self,
         transform: &GlobalTransform,
@@ -180,7 +180,6 @@ impl Cloth {
     ///
     /// # Arguments
     ///
-    /// * `matrix` - the transform matrix of the associated `GlobalTransform`
     /// * `depth` - Number of sticks constraint iterations
     pub fn update_sticks(&mut self, depth: u8) {
         for _ in 0..depth {

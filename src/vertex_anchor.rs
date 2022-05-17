@@ -10,25 +10,20 @@ pub struct VertexAnchor {
     /// optional custom offset. If not set the base vertex position will be used
     pub custom_offset: Option<Vec3>,
     /// If set to true, the base vertex position will be ignored.
-    /// If [`custom_offset`] is defined, it will then override the vertex position
+    /// If [`Self::custom_offset`] is defined, it will then override the vertex position
     pub ignore_vertex_position: bool,
     /// Is the anchoring in world space
     pub world_space: bool,
 }
 
 impl VertexAnchor {
-    /// Tries to get the anchor world space position.
-    ///
-    /// Will return `None`:
-    /// - if the anchor doesn't have an [`VertexAnchorOffset`] set, which is an expected behaviour
-    /// defaulting to the base vertex position `original_pos`.
-    ///- if the query can't find the target's global transform which is unexpected.
+    /// Retrieves the anchor world space position.
     ///
     /// # Arguments
     ///
     /// * `original_pos` - the original local space vertex position
-    /// * `self_transform` - the `GlobalTransform` associated with the cloth entity use in case of [`VertexAnchorTarget::SelfTransform`]
-    /// * `transform_query` - ECS query used in case of [`VertexAnchorTarget::CustomTransform`]
+    /// * `self_transform` - the `GlobalTransform` associated with the cloth entity used without a custom target entity
+    /// * `transform_query` - ECS query used in case of a set [`Self::custom_target`]
     #[inline]
     #[must_use]
     pub fn get_position<'a>(
