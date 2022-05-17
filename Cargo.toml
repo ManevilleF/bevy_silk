@@ -68,6 +68,11 @@ name = "rapier_collision"
 path = "examples/rapier_collision_example.rs"
 required-features = ["debug", "rapier_collisions"]
 
+[[example]]
+name = "anchors"
+path = "examples/anchors_example.rs"
+required-features = ["debug"]
+
 # Enable only a small amount of optimization in debug mode
 [profile.dev]
 opt-level = 1

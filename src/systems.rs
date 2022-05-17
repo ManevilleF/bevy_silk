@@ -12,13 +12,14 @@ use crate::ClothBuilder;
 use bevy::asset::{Assets, Handle};
 use bevy::core::Time;
 use bevy::ecs::prelude::*;
-use bevy::log::{debug, warn};
+use bevy::log::{debug, error, warn};
 use bevy::math::Vec3;
 use bevy::render::prelude::Mesh;
 use bevy::transform::prelude::GlobalTransform;
 
 pub fn update_cloth(
     mut query: Query<(&mut Cloth, &GlobalTransform, Option<&ClothConfig>)>,
+    anchor_query: Query<&GlobalTransform, Without<Cloth>>,
     config: Res<ClothConfig>,
     wind: Option<Res<Winds>>,
     time: Res<Time>,
@@ -28,24 +29,30 @@ pub fn update_cloth(
         w.current_velocity(time.time_since_startup().as_secs_f32())
     });
     for (mut cloth, transform, custom_config) in query.iter_mut() {
-        let matrix = transform.compute_matrix();
         let config: &ClothConfig = custom_config.unwrap_or(&config);
         cloth.update_points(
             config.friction_coefficient(),
             config.smoothed_acceleration(wind_force + config.gravity, delta_time),
         );
-        cloth.update_sticks(&matrix, config.sticks_computation_depth);
+        cloth.update_anchored_points(transform, |entity| {
+            if let Ok(t) = anchor_query.get(entity) {
+                Some(t)
+            } else {
+                error!("Could not find cloth anchor target entity {:?}", entity);
+                None
+            }
+        });
+        cloth.update_sticks(config.sticks_computation_depth);
     }
 }
 
 pub fn render_cloth(
-    mut query: Query<(&Cloth, &mut ClothRendering, &GlobalTransform, &Handle<Mesh>)>,
+    mut cloth_query: Query<(&Cloth, &mut ClothRendering, &GlobalTransform, &Handle<Mesh>)>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    for (cloth, mut rendering, transform, handle) in query.iter_mut() {
+    for (cloth, mut rendering, transform, handle) in cloth_query.iter_mut() {
         if let Some(mesh) = meshes.get_mut(handle) {
-            let matrix = transform.compute_matrix();
-            rendering.update_positions(cloth.compute_vertex_positions(&matrix));
+            rendering.update_positions(cloth.compute_vertex_positions(transform));
             rendering.apply(mesh);
         } else {
             warn!("A Cloth has a `ClothRendering` component without a loaded mesh");
@@ -61,12 +68,12 @@ pub fn init_cloth(
     for (entity, builder, transform, handle) in query.iter() {
         if let Some(mesh) = meshes.get(handle) {
             let matrix = transform.compute_matrix();
-            debug!("Initializing Cloth");
+            debug!("Initializing Cloth entity {:?}", entity);
             let rendering = ClothRendering::init(mesh, builder.normals_computing).unwrap();
             let cloth = Cloth::new(
                 &rendering.vertex_positions,
                 &rendering.indices,
-                builder.pinned_vertex_ids(mesh),
+                builder.anchored_vertex_ids(mesh),
                 builder.stick_generation,
                 builder.stick_length,
                 &matrix,
