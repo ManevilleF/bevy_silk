@@ -28,7 +28,7 @@ Or follow the main git branch
 
 ### Supported Bevy Versions
 
-| bevy_silk | bevy |
+| `bevy_silk` | `bevy` |
 |------|------------|
 | 0.1.0  | 0.7  |
 
@@ -207,6 +207,10 @@ run `cargo run --example moving --features debug`
 4. [Rapier] Collision example
 
 run `cargo run --example rapier_collision --features "debug rapier_collisions"`
+
+5. Anchors example
+
+run `cargo run --example anchors --features debug`
 
 [Rapier]: https://github.com/dimforge/bevy_rapier
 [Heron]: https://github.com/jcornaz/heron

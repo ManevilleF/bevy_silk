@@ -38,6 +38,8 @@ jobs:
         run: cargo clippy --all-features --example moving
       - name: build rapier example
         run: cargo clippy --all-features --example rapier_collision
+      - name: build anchors example
+        run: cargo clippy --all-features --example anchors
 
   test:
     runs-on: ubuntu-latest

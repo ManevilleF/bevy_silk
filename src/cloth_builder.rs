@@ -33,7 +33,7 @@ impl ClothBuilder {
         Self::default()
     }
 
-    /// Sets pinned points for the cloth
+    /// Adds pinned points for the cloth
     ///
     /// # Arguments
     ///
@@ -47,7 +47,7 @@ impl ClothBuilder {
         self
     }
 
-    /// Sets pinned vertex ids for the cloth. The vertices will be pinned to the associated `GlobalTransform`
+    /// Adds pinned vertex ids for the cloth. The vertices will be pinned to the associated `GlobalTransform`
     ///
     /// # Arguments
     ///
@@ -59,7 +59,7 @@ impl ClothBuilder {
         self
     }
 
-    /// Sets custom anchored vertex ids for the cloth
+    /// Adds custom anchored vertex ids for the cloth
     ///
     /// # Arguments
     ///
@@ -76,7 +76,23 @@ impl ClothBuilder {
         self
     }
 
-    /// Sets pinned vertex colors for the cloth
+    /// Adds a custom anchored vertex id for the cloth
+    ///
+    /// # Arguments
+    ///
+    /// * `vertex_id` - vertex index that should be anchored
+    /// * `vertex_anchor` - Vertex anchor definition
+    #[inline]
+    pub fn with_anchored_vertex_id(
+        mut self,
+        vertex_id: usize,
+        vertex_anchor: VertexAnchor,
+    ) -> Self {
+        self.anchored_vertex_ids.insert(vertex_id, vertex_anchor);
+        self
+    }
+
+    /// Adds pinned vertex colors for the cloth
     ///
     /// # Arguments
     ///
@@ -88,7 +104,7 @@ impl ClothBuilder {
         self
     }
 
-    /// Sets custom anchored vertex colors the cloth
+    /// Adds custom anchored vertex colors the cloth
     ///
     /// # Arguments
     ///
@@ -102,6 +118,23 @@ impl ClothBuilder {
     ) -> Self {
         self.anchored_vertex_colors
             .extend(vertex_colors.map(|c| (c, vertex_anchor)));
+        self
+    }
+
+    /// Adds a custom anchored vertex color the cloth
+    ///
+    /// # Arguments
+    ///
+    /// * `vertex_color` - vertex color that should be anchored
+    /// * `vertex_anchor` - Vertex anchor definition
+    #[inline]
+    pub fn with_anchored_vertex_color(
+        mut self,
+        vertex_color: Color,
+        vertex_anchor: VertexAnchor,
+    ) -> Self {
+        self.anchored_vertex_colors
+            .push((vertex_color, vertex_anchor));
         self
     }
 

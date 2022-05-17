@@ -225,7 +225,7 @@ pub mod prelude {
         error::Error,
         mesh::rectangle_mesh,
         stick::{StickGeneration, StickLen},
-        vertex_anchor::{VertexAnchor, VertexAnchorOffset, VertexAnchorTarget},
+        vertex_anchor::VertexAnchor,
         wind::{Wind, Winds},
         ClothPlugin,
     };

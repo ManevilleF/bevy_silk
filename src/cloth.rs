@@ -70,6 +70,10 @@ impl Cloth {
     /// * `stick_generation` - The stick generation mode
     /// * `stick_len` - The stick length option
     /// * `transform_matrix` - the transform matrix of the associated `GlobalTransform`
+    ///
+    /// # Panics
+    ///
+    /// May panic if `anchored_points` contains an out of bounds vertex id.
     pub fn new(
         vertex_positions: &[Vec3],
         indices: &[u32],
@@ -80,7 +84,12 @@ impl Cloth {
     ) -> Self {
         let anchored_points = anchored_points
             .into_iter()
-            .map(|(i, anchor)| (i, (anchor, vertex_positions[i])))
+            .map(|(i, anchor)| {
+                let pos = vertex_positions
+                    .get(i)
+                    .unwrap_or_else(|| panic!("Anchored vertex id {i} is out of bounds"));
+                (i, (anchor, *pos))
+            })
             .collect();
         let positions: Vec<Vec3> = vertex_positions
             .iter()
@@ -141,13 +150,9 @@ impl Cloth {
         transform: &GlobalTransform,
         anchor_query: impl Fn(Entity) -> Option<GlobalTransform> + Copy,
     ) {
-        let matrix = transform.compute_matrix();
         for (i, (anchor, inital_pos)) in &self.anchored_points {
-            if let Some(pos) = anchor.get_offset_position(transform, anchor_query) {
-                self.current_point_positions[*i] = pos;
-            } else {
-                self.current_point_positions[*i] = matrix.transform_point3(*inital_pos);
-            }
+            self.current_point_positions[*i] =
+                anchor.get_position(*inital_pos, transform, anchor_query);
         }
     }
 
