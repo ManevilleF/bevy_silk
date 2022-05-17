@@ -68,7 +68,7 @@ pub fn init_cloth(
     for (entity, builder, transform, handle) in query.iter() {
         if let Some(mesh) = meshes.get(handle) {
             let matrix = transform.compute_matrix();
-            debug!("Initializing Cloth");
+            debug!("Initializing Cloth entity {:?}", entity);
             let rendering = ClothRendering::init(mesh, builder.normals_computing).unwrap();
             let cloth = Cloth::new(
                 &rendering.vertex_positions,

@@ -48,6 +48,20 @@ impl VertexAnchorOffset {
             VertexAnchorOffset::World { offset } => transform.translation + *offset,
         }
     }
+
+    /// Sets up a new [`Self::Local`] with the given `offset` value  
+    #[inline]
+    #[must_use]
+    pub const fn local_offset(offset: Vec3) -> Self {
+        Self::Local { offset }
+    }
+
+    /// Sets up a new [`Self::World`] with the given `offset` value
+    #[inline]
+    #[must_use]
+    pub const fn world_offset(offset: Vec3) -> Self {
+        Self::World { offset }
+    }
 }
 
 impl VertexAnchor {

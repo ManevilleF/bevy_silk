@@ -250,5 +250,6 @@ impl Plugin for ClothPlugin {
         );
         #[cfg(feature = "rapier_collisions")]
         app.add_system(rapier_collisions::handle_collisions.before("CLOTH_RENDER"));
+        bevy::log::info!("Loaded Cloth Plugin");
     }
 }
