@@ -162,11 +162,11 @@ impl ClothBuilder {
         self
     }
 
-    /// Retrieves all pinned vertex ids using:
-    /// - [`Self::pinned_vertex_ids`] explicit ids
-    /// - [`Self::pinned_vertex_colors`] to find every vertex id in `mesh` matching a pinned color
+    /// Retrieves all anchored vertex ids using:
+    /// - [`Self::anchored_vertex_ids`] explicit ids
+    /// - [`Self::anchored_vertex_colors`] to find every vertex id in `mesh` matching a pinned color
     ///
-    /// Note: pinned colors are ignored if the given `mesh` doesn't have vertex colors
+    /// Note: anchored vertex colors are ignored if the given `mesh` doesn't have vertex colors
     #[must_use]
     pub fn anchored_vertex_ids(&self, mesh: &Mesh) -> HashMap<usize, VertexAnchor> {
         let mut res = self.anchored_vertex_ids.clone();
@@ -197,7 +197,7 @@ impl ClothBuilder {
                     }));
                 }
                 None => {
-                    warn!("ClothBuilder has pinned colors but the associated mesh doesn't have a valid Vertex_Color attribute");
+                    warn!("ClothBuilder has anchored vertex colors but the associated mesh doesn't have a valid Vertex_Color attribute");
                 }
             }
         }

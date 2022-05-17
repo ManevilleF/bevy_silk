@@ -7,19 +7,13 @@ use bevy::prelude::{Entity, GlobalTransform};
 use bevy::utils::HashMap;
 
 macro_rules! get_point {
-    ($id:expr, $points:expr, $pinned_points:expr, $matrix:expr) => {
+    ($id:expr, $points:expr, $anchored_points:expr) => {
         match $points.get($id) {
             None => {
                 warn!("Failed to retrieve a Cloth point at index {}", $id);
                 continue;
             }
-            Some(p) => {
-                if $pinned_points.contains_key(&$id) {
-                    ($matrix.transform_point3(*p), true)
-                } else {
-                    (*p, false)
-                }
-            }
+            Some(p) => (*p, $anchored_points.contains_key(&$id)),
         }
     };
 }
@@ -29,14 +23,13 @@ macro_rules! get_point {
 #[must_use]
 pub struct Cloth {
     /// cloth points unaffected by physics and following an anchor
-    pub anchored_points: HashMap<usize, VertexAnchor>,
+    /// The key is the point index and the value is a tuple with:
+    /// - 0: The [`VertexAnchor`] anchor
+    /// - 1: The inital local space vertex position
+    pub anchored_points: HashMap<usize, (VertexAnchor, Vec3)>,
     /// Current Cloth points 3D positions in world space
-    ///
-    /// Note: this field will be automatically populated from mesh data
     pub current_point_positions: Vec<Vec3>,
     /// Old Cloth points 3D positions in world space
-    ///
-    /// Note: this field will be automatically populated from mesh data
     pub previous_point_positions: Vec<Vec3>,
     /// Cloth sticks linking points
     ///
@@ -48,32 +41,20 @@ pub struct Cloth {
 }
 
 impl Cloth {
-    /// Computes the new vertex positions of the cloth mesh
+    /// Computes the new local vertex positions of the cloth mesh
     ///
     /// # Arguments
     ///
     /// * `transform` - the `GlobalTransform` associated to the cloth entity
     #[must_use]
-    pub fn compute_vertex_positions(
-        &self,
-        transform: &GlobalTransform,
-        anchor_query: impl Fn(Entity) -> Option<GlobalTransform> + Copy,
-    ) -> Vec<Vec3> {
+    pub fn compute_vertex_positions(&self, transform: &GlobalTransform) -> Vec<Vec3> {
         let matrix = transform.compute_matrix().inverse();
 
+        // World space positions..
         self.current_point_positions
             .iter()
-            .enumerate()
-            .map(|(i, p)| {
-                self.anchored_points.get(&i).map_or_else(
-                    || matrix.transform_point3(*p),
-                    |anchor| {
-                        anchor
-                            .get_position(transform, anchor_query)
-                            .map_or(*p, |pos| matrix.transform_point3(pos))
-                    },
-                )
-            })
+            // ..computed to local space
+            .map(|p| matrix.transform_point3(*p))
             .collect()
     }
 
@@ -97,29 +78,21 @@ impl Cloth {
         stick_len: StickLen,
         transform_matrix: &Mat4,
     ) -> Self {
-        // World space positions used to compute stick lengths
-        let world_positions: Vec<Vec3> = vertex_positions
+        let anchored_points = anchored_points
+            .into_iter()
+            .map(|(i, anchor)| (i, (anchor, vertex_positions[i])))
+            .collect();
+        let positions: Vec<Vec3> = vertex_positions
             .iter()
             .map(|p| transform_matrix.transform_point3(*p))
             .collect();
-        // World and local positions to store in cloth
-        let positions: Vec<Vec3> = vertex_positions
-            .iter()
-            .enumerate()
-            .map(|(i, p)| {
-                if anchored_points.contains_key(&i) {
-                    *p
-                } else {
-                    transform_matrix.transform_point3(*p)
-                }
-            })
-            .collect();
         let indices: Vec<usize> = indices.iter().map(|i| *i as usize).collect();
+        // TODO: compute sticklen to get capacity
         let mut sticks = HashMap::new();
 
         for truple in indices.chunks_exact(3) {
             let [a, b, c] = [truple[0], truple[1], truple[2]];
-            let (p_a, p_b, p_c) = (world_positions[a], world_positions[b], world_positions[c]);
+            let (p_a, p_b, p_c) = (positions[a], positions[b], positions[c]);
             if !sticks.contains_key(&(b, a)) {
                 sticks.insert((a, b), stick_len.get_stick_len(p_a, p_b));
             }
@@ -157,6 +130,27 @@ impl Cloth {
         }
     }
 
+    /// Updates the cloth anchored points
+    ///
+    /// # Arguments
+    ///
+    /// * `transform` - The `GlobalTransform` associated to the cloth entity
+    /// * `anchor_query` - A function allowing to retreive the `GlobalTransform` of a given entity
+    pub fn update_anchored_points(
+        &mut self,
+        transform: &GlobalTransform,
+        anchor_query: impl Fn(Entity) -> Option<GlobalTransform> + Copy,
+    ) {
+        let matrix = transform.compute_matrix();
+        for (i, (anchor, inital_pos)) in &self.anchored_points {
+            if let Some(pos) = anchor.get_offset_position(transform, anchor_query) {
+                self.current_point_positions[*i] = pos;
+            } else {
+                self.current_point_positions[*i] = matrix.transform_point3(*inital_pos);
+            }
+        }
+    }
+
     /// Updates the cloth points according to their own velocity and external friction and acceleration
     ///
     /// # Arguments
@@ -183,21 +177,13 @@ impl Cloth {
     ///
     /// * `matrix` - the transform matrix of the associated `GlobalTransform`
     /// * `depth` - Number of sticks constraint iterations
-    pub fn update_sticks(&mut self, matrix: &Mat4, depth: u8) {
+    pub fn update_sticks(&mut self, depth: u8) {
         for _ in 0..depth {
             for ((id_a, id_b), target_len) in &self.sticks {
-                let (position_a, fixed_a) = get_point!(
-                    *id_a,
-                    self.current_point_positions,
-                    self.anchored_points,
-                    matrix
-                );
-                let (position_b, fixed_b) = get_point!(
-                    *id_b,
-                    self.current_point_positions,
-                    self.anchored_points,
-                    matrix
-                );
+                let (position_a, fixed_a) =
+                    get_point!(*id_a, self.current_point_positions, self.anchored_points);
+                let (position_b, fixed_b) =
+                    get_point!(*id_b, self.current_point_positions, self.anchored_points);
                 if fixed_a && fixed_b {
                     continue;
                 }

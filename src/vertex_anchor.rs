@@ -65,17 +65,20 @@ impl VertexAnchorOffset {
 }
 
 impl VertexAnchor {
-    /// Tries to get the anchor world space position.
+    /// Tries to get the anchor world space offset position.
+    ///
+    /// Will return `None`:
+    /// - if the anchor doesn't have an [`VertexAnchorOffset`] set, which is an expected behaviour
+    /// defaulting to the base vertex position.
+    ///- if the query can't find the target's global transform which is unexpected.
     ///
     /// # Arguments
     ///
     /// * `self_transform` - the `GlobalTransform` associated with the cloth entity use in case of [`VertexAnchorTarget::SelfTransform`]
     /// * `transform_query` - ECS query used in case of [`VertexAnchorTarget::CustomTransform`]
-    ///
-    /// Can return `None` if the target transform cannot be found
     #[inline]
     #[must_use]
-    pub fn get_position(
+    pub fn get_offset_position(
         &self,
         self_transform: &GlobalTransform,
         query: impl Fn(Entity) -> Option<GlobalTransform>,
@@ -84,9 +87,8 @@ impl VertexAnchor {
             VertexAnchorTarget::SelfTransform => Some(*self_transform),
             VertexAnchorTarget::CustomTransform(entity) => query(entity),
         }?;
-        Some(self.custom_offset.map_or(transform.translation, |offset| {
-            offset.get_position(&transform)
-        }))
+        self.custom_offset
+            .map(|offset| offset.get_position(&transform))
     }
 }
 

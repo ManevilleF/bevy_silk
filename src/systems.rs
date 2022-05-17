@@ -19,6 +19,7 @@ use bevy::transform::prelude::GlobalTransform;
 
 pub fn update_cloth(
     mut query: Query<(&mut Cloth, &GlobalTransform, Option<&ClothConfig>)>,
+    anchor_query: Query<&GlobalTransform, Without<Cloth>>,
     config: Res<ClothConfig>,
     wind: Option<Res<Winds>>,
     time: Res<Time>,
@@ -28,31 +29,30 @@ pub fn update_cloth(
         w.current_velocity(time.time_since_startup().as_secs_f32())
     });
     for (mut cloth, transform, custom_config) in query.iter_mut() {
-        let matrix = transform.compute_matrix();
         let config: &ClothConfig = custom_config.unwrap_or(&config);
         cloth.update_points(
             config.friction_coefficient(),
             config.smoothed_acceleration(wind_force + config.gravity, delta_time),
         );
-        cloth.update_sticks(&matrix, config.sticks_computation_depth);
+        cloth.update_anchored_points(transform, |entity| {
+            if let Ok(t) = anchor_query.get(entity) {
+                Some(*t)
+            } else {
+                error!("Could not find cloth anchor target entity {:?}", entity);
+                None
+            }
+        });
+        cloth.update_sticks(config.sticks_computation_depth);
     }
 }
 
 pub fn render_cloth(
     mut cloth_query: Query<(&Cloth, &mut ClothRendering, &GlobalTransform, &Handle<Mesh>)>,
-    anchor_query: Query<&GlobalTransform, Without<Cloth>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     for (cloth, mut rendering, transform, handle) in cloth_query.iter_mut() {
         if let Some(mesh) = meshes.get_mut(handle) {
-            rendering.update_positions(cloth.compute_vertex_positions(transform, |entity| {
-                if let Ok(t) = anchor_query.get(entity) {
-                    Some(*t)
-                } else {
-                    error!("Could not find cloth anchor target entity {:?}", entity);
-                    None
-                }
-            }));
+            rendering.update_positions(cloth.compute_vertex_positions(transform));
             rendering.apply(mesh);
         } else {
             warn!("A Cloth has a `ClothRendering` component without a loaded mesh");
