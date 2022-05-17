@@ -4,8 +4,7 @@
     clippy::option_if_let_else,
     clippy::suboptimal_flops
 )]
-use crate::cloth_rendering::ClothRendering;
-use crate::{Cloth, ClothCollider};
+use crate::{cloth::Cloth, cloth_rendering::ClothRendering, ClothCollider};
 use bevy::log::error;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;

@@ -12,7 +12,7 @@ use crate::ClothBuilder;
 use bevy::asset::{Assets, Handle};
 use bevy::core::Time;
 use bevy::ecs::prelude::*;
-use bevy::log::{debug, warn};
+use bevy::log::{debug, error, warn};
 use bevy::math::Vec3;
 use bevy::render::prelude::Mesh;
 use bevy::transform::prelude::GlobalTransform;
@@ -39,13 +39,20 @@ pub fn update_cloth(
 }
 
 pub fn render_cloth(
-    mut query: Query<(&Cloth, &mut ClothRendering, &GlobalTransform, &Handle<Mesh>)>,
+    mut cloth_query: Query<(&Cloth, &mut ClothRendering, &GlobalTransform, &Handle<Mesh>)>,
+    anchor_query: Query<&GlobalTransform, Without<Cloth>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    for (cloth, mut rendering, transform, handle) in query.iter_mut() {
+    for (cloth, mut rendering, transform, handle) in cloth_query.iter_mut() {
         if let Some(mesh) = meshes.get_mut(handle) {
-            let matrix = transform.compute_matrix();
-            rendering.update_positions(cloth.compute_vertex_positions(&matrix));
+            rendering.update_positions(cloth.compute_vertex_positions(transform, |entity| {
+                if let Ok(t) = anchor_query.get(entity) {
+                    Some(*t)
+                } else {
+                    error!("Could not find cloth anchor target entity {:?}", entity);
+                    None
+                }
+            }));
             rendering.apply(mesh);
         } else {
             warn!("A Cloth has a `ClothRendering` component without a loaded mesh");
@@ -66,7 +73,7 @@ pub fn init_cloth(
             let cloth = Cloth::new(
                 &rendering.vertex_positions,
                 &rendering.indices,
-                builder.pinned_vertex_ids(mesh),
+                builder.anchored_vertex_ids(mesh),
                 builder.stick_generation,
                 builder.stick_length,
                 &matrix,

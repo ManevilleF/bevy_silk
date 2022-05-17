@@ -26,6 +26,12 @@ Or follow the main git branch
 
 `bevy_silk = { git = "https://github.com/ManevilleF/bevy_silk" }`
 
+### Supported Bevy Versions
+
+| bevy_silk | bevy |
+|------|------------|
+| 0.1.0  | 0.7  |
+
 ### Plugin
 
 Add the `ClothPlugin` to your bevy app

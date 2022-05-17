@@ -24,6 +24,12 @@
 //!
 //! `bevy_silk = { git = "https://github.com/ManevilleF/bevy_silk" }`
 //!
+//! ### Supported Bevy Versions
+//!
+//! | `bevy_silk` | `bevy` |
+//! |------|------------|
+//! | 0.1.0  | 0.7  |
+//!
 //! ### Plugin
 //!
 //! Add the `ClothPlugin` to your bevy app
@@ -199,10 +205,11 @@ mod rapier_collisions;
 pub mod stick;
 /// systems module
 mod systems;
+/// vertex anchor module
+pub mod vertex_anchor;
 /// wind module
 pub mod wind;
 
-use crate::cloth::Cloth;
 use crate::prelude::*;
 use bevy::app::{App, Plugin};
 use bevy::ecs::schedule::ParallelSystemDescriptorCoercion;
@@ -218,6 +225,7 @@ pub mod prelude {
         error::Error,
         mesh::rectangle_mesh,
         stick::{StickGeneration, StickLen},
+        vertex_anchor::{VertexAnchor, VertexAnchorOffset, VertexAnchorTarget},
         wind::{Wind, Winds},
         ClothPlugin,
     };
@@ -232,9 +240,7 @@ impl Plugin for ClothPlugin {
         app.init_resource::<ClothConfig>();
         app.register_type::<ClothConfig>()
             .register_type::<Wind>()
-            .register_type::<Winds>()
-            .register_type::<ClothBuilder>()
-            .register_type::<Cloth>();
+            .register_type::<Winds>();
         app.add_system(systems::init_cloth.label("CLOTH_INIT"));
         app.add_system(systems::update_cloth.label("CLOTH_UPDATE"));
         app.add_system(

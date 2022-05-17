@@ -1,9 +1,10 @@
 use crate::stick::{StickGeneration, StickLen};
-use bevy::ecs::prelude::{Component, ReflectComponent};
+use crate::vertex_anchor::VertexAnchor;
+use bevy::ecs::prelude::Component;
 use bevy::log::warn;
 use bevy::math::{Mat4, Vec3};
-use bevy::reflect::Reflect;
-use bevy::utils::{HashMap, HashSet};
+use bevy::prelude::{Entity, GlobalTransform};
+use bevy::utils::HashMap;
 
 macro_rules! get_point {
     ($id:expr, $points:expr, $pinned_points:expr, $matrix:expr) => {
@@ -13,7 +14,7 @@ macro_rules! get_point {
                 continue;
             }
             Some(p) => {
-                if $pinned_points.contains(&$id) {
+                if $pinned_points.contains_key(&$id) {
                     ($matrix.transform_point3(*p), true)
                 } else {
                     (*p, false)
@@ -24,12 +25,11 @@ macro_rules! get_point {
 }
 
 /// Cloth component
-#[derive(Debug, Clone, Component, Default, Reflect)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Component, Default)]
 #[must_use]
 pub struct Cloth {
-    /// cloth points unaffected by physics and following the attached `GlobalTransform`.
-    pub pinned_points: HashSet<usize>,
+    /// cloth points unaffected by physics and following an anchor
+    pub anchored_points: HashMap<usize, VertexAnchor>,
     /// Current Cloth points 3D positions in world space
     ///
     /// Note: this field will be automatically populated from mesh data
@@ -52,20 +52,27 @@ impl Cloth {
     ///
     /// # Arguments
     ///
-    /// * `transform_matrix` - the transform matrix of the associated `GlobalTransform`
+    /// * `transform` - the `GlobalTransform` associated to the cloth entity
     #[must_use]
-    pub fn compute_vertex_positions(&self, transform_matrix: &Mat4) -> Vec<Vec3> {
-        let matrix = transform_matrix.inverse();
+    pub fn compute_vertex_positions(
+        &self,
+        transform: &GlobalTransform,
+        anchor_query: impl Fn(Entity) -> Option<GlobalTransform> + Copy,
+    ) -> Vec<Vec3> {
+        let matrix = transform.compute_matrix().inverse();
 
         self.current_point_positions
             .iter()
             .enumerate()
             .map(|(i, p)| {
-                if self.pinned_points.contains(&i) {
-                    *p
-                } else {
-                    matrix.transform_point3(*p)
-                }
+                self.anchored_points.get(&i).map_or_else(
+                    || matrix.transform_point3(*p),
+                    |anchor| {
+                        anchor
+                            .get_position(transform, anchor_query)
+                            .map_or(*p, |pos| matrix.transform_point3(pos))
+                    },
+                )
             })
             .collect()
     }
@@ -78,14 +85,14 @@ impl Cloth {
     ///
     /// * `vertex_positions` - the mesh vertex positions
     /// * `indices` - the mesh indices
-    /// * `pinned_points` - the pinned vertex position indices
+    /// * `anchored_points` - the pinned vertex position indices
     /// * `stick_generation` - The stick generation mode
     /// * `stick_len` - The stick length option
     /// * `transform_matrix` - the transform matrix of the associated `GlobalTransform`
     pub fn new(
         vertex_positions: &[Vec3],
         indices: &[u32],
-        pinned_points: HashSet<usize>,
+        anchored_points: HashMap<usize, VertexAnchor>,
         stick_generation: StickGeneration,
         stick_len: StickLen,
         transform_matrix: &Mat4,
@@ -100,7 +107,7 @@ impl Cloth {
             .iter()
             .enumerate()
             .map(|(i, p)| {
-                if pinned_points.contains(&i) {
+                if anchored_points.contains_key(&i) {
                     *p
                 } else {
                     transform_matrix.transform_point3(*p)
@@ -126,7 +133,7 @@ impl Cloth {
             }
         }
         Self {
-            pinned_points,
+            anchored_points,
             current_point_positions: positions.clone(),
             previous_point_positions: positions,
             sticks,
@@ -143,7 +150,7 @@ impl Cloth {
             .current_point_positions
             .iter_mut()
             .enumerate()
-            .filter(|(i, _p)| !self.pinned_points.contains(i))
+            .filter(|(i, _p)| !self.anchored_points.contains_key(i))
             .filter_map(|(_i, p)| solve_point(p).map(|np| (p, np)))
         {
             *point = new_point;
@@ -159,7 +166,7 @@ impl Cloth {
     pub fn update_points(&mut self, friction: f32, acceleration: Vec3) {
         let position_cache = self.current_point_positions.clone();
         for (i, point) in self.current_point_positions.iter_mut().enumerate() {
-            if !self.pinned_points.contains(&i) {
+            if !self.anchored_points.contains_key(&i) {
                 let velocity = self
                     .previous_point_positions
                     .get(i)
@@ -182,13 +189,13 @@ impl Cloth {
                 let (position_a, fixed_a) = get_point!(
                     *id_a,
                     self.current_point_positions,
-                    self.pinned_points,
+                    self.anchored_points,
                     matrix
                 );
                 let (position_b, fixed_b) = get_point!(
                     *id_b,
                     self.current_point_positions,
-                    self.pinned_points,
+                    self.anchored_points,
                     matrix
                 );
                 if fixed_a && fixed_b {

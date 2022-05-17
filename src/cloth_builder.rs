@@ -1,22 +1,22 @@
 use crate::prelude::*;
-use bevy::ecs::prelude::{Component, ReflectComponent};
+use crate::vertex_anchor::VertexAnchor;
+use bevy::ecs::prelude::Component;
 use bevy::log::warn;
-use bevy::reflect::Reflect;
 use bevy::render::mesh::VertexAttributeValues;
 use bevy::render::prelude::{Color, Mesh};
-use bevy::utils::HashSet;
+use bevy::utils::HashMap;
 
 /// Builder component for cloth behaviour, defines every available option for cloth generation and rendering.
 ///
 /// Add this component to an entity with at least a `GlobalTransform` and a `Handle<Mesh>`
-#[derive(Debug, Clone, Default, Component, Reflect)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Default, Component)]
 #[must_use]
 pub struct ClothBuilder {
     /// cloth vertex ids unaffected by physics and following the attached `GlobalTransform`.
-    pub pinned_vertex_ids: HashSet<usize>,
+    pub anchored_vertex_ids: HashMap<usize, VertexAnchor>,
     /// cloth vertex colors unaffected by physics and following the attached `GlobalTransform`.
-    pub pinned_vertex_colors: Vec<Color>,
+    // TODO: convert to hashmap
+    pub anchored_vertex_colors: Vec<(Color, VertexAnchor)>,
     /// How cloth sticks get generated
     pub stick_generation: StickGeneration,
     /// Define cloth sticks target length
@@ -42,32 +42,66 @@ impl ClothBuilder {
     #[doc(hidden)]
     #[deprecated(note = "Use `with_pinned_vertex_ids` instead")]
     pub fn with_fixed_points(mut self, fixed_points: impl Iterator<Item = usize>) -> Self {
-        self.pinned_vertex_ids = fixed_points.collect();
+        self.anchored_vertex_ids
+            .extend(fixed_points.map(|id| (id, VertexAnchor::default())));
         self
     }
 
-    /// Sets pinned vertices for the cloth
+    /// Sets pinned vertex ids for the cloth. The vertices will be pinned to the associated `GlobalTransform`
     ///
     /// # Arguments
     ///
     /// * `pinned_ids` - Iterator on the vertex indexes that should be pinned to the associated `GlobalTransform`
     #[inline]
     pub fn with_pinned_vertex_ids(mut self, pinned_ids: impl Iterator<Item = usize>) -> Self {
-        self.pinned_vertex_ids = pinned_ids.collect();
+        self.anchored_vertex_ids
+            .extend(pinned_ids.map(|id| (id, VertexAnchor::default())));
         self
     }
 
-    /// Sets pinned vertices for the cloth
+    /// Sets custom anchored vertex ids for the cloth
     ///
     /// # Arguments
     ///
-    /// * `pinned_colors` - Iterator on the vertex colors that should be pinned to the associated `GlobalTransform`
+    /// * `vertex_ids` - Iterator on the vertex indexes that should be anchored
+    /// * `vertex_anchor` - Vertex anchor definition
     #[inline]
-    pub fn with_pinned_vertex_colors(
+    pub fn with_anchored_vertex_ids(
         mut self,
-        pinned_colors: impl IntoIterator<Item = Color>,
+        vertex_ids: impl Iterator<Item = usize>,
+        vertex_anchor: VertexAnchor,
     ) -> Self {
-        self.pinned_vertex_colors = pinned_colors.into_iter().collect();
+        self.anchored_vertex_ids
+            .extend(vertex_ids.map(|id| (id, vertex_anchor)));
+        self
+    }
+
+    /// Sets pinned vertex colors for the cloth
+    ///
+    /// # Arguments
+    ///
+    /// * `vertex_colors` - Iterator on the vertex colors that should be pinned to the associated `GlobalTransform`
+    #[inline]
+    pub fn with_pinned_vertex_colors(mut self, vertex_colors: impl Iterator<Item = Color>) -> Self {
+        self.anchored_vertex_colors
+            .extend(vertex_colors.map(|c| (c, VertexAnchor::default())));
+        self
+    }
+
+    /// Sets custom anchored vertex colors the cloth
+    ///
+    /// # Arguments
+    ///
+    /// * `vertex_colors` - Iterator on the vertex colors that should be anchored
+    /// * `vertex_anchor` - Vertex anchor definition
+    #[inline]
+    pub fn with_anchored_vertex_colors(
+        mut self,
+        vertex_colors: impl Iterator<Item = Color>,
+        vertex_anchor: VertexAnchor,
+    ) -> Self {
+        self.anchored_vertex_colors
+            .extend(vertex_colors.map(|c| (c, vertex_anchor)));
         self
     }
 
@@ -134,9 +168,9 @@ impl ClothBuilder {
     ///
     /// Note: pinned colors are ignored if the given `mesh` doesn't have vertex colors
     #[must_use]
-    pub fn pinned_vertex_ids(&self, mesh: &Mesh) -> HashSet<usize> {
-        let mut res = self.pinned_vertex_ids.clone();
-        if !self.pinned_vertex_colors.is_empty() {
+    pub fn anchored_vertex_ids(&self, mesh: &Mesh) -> HashMap<usize, VertexAnchor> {
+        let mut res = self.anchored_vertex_ids.clone();
+        if !self.anchored_vertex_colors.is_empty() {
             let vertex_colors: Option<Vec<Color>> =
                 mesh.attribute(Mesh::ATTRIBUTE_COLOR)
                     .and_then(|attr| match attr {
@@ -154,13 +188,14 @@ impl ClothBuilder {
                         _ => None,
                     });
             match vertex_colors {
-                Some(colors) => res.extend(
-                    colors
-                        .into_iter()
-                        .enumerate()
-                        .filter(|(_, color)| self.pinned_vertex_colors.contains(color))
-                        .map(|(i, _)| i),
-                ),
+                Some(colors) => {
+                    res.extend(colors.into_iter().enumerate().filter_map(|(i, color)| {
+                        self.anchored_vertex_colors
+                            .iter()
+                            .find(|(c, _)| *c == color)
+                            .map(|(_, anchor)| (i, *anchor))
+                    }));
+                }
                 None => {
                     warn!("ClothBuilder has pinned colors but the associated mesh doesn't have a valid Vertex_Color attribute");
                 }
