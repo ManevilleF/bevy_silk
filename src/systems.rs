@@ -36,7 +36,7 @@ pub fn update_cloth(
         );
         cloth.update_anchored_points(transform, |entity| {
             if let Ok(t) = anchor_query.get(entity) {
-                Some(*t)
+                Some(t)
             } else {
                 error!("Could not find cloth anchor target entity {:?}", entity);
                 None

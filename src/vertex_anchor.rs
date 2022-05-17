@@ -31,16 +31,13 @@ impl VertexAnchor {
     /// * `transform_query` - ECS query used in case of [`VertexAnchorTarget::CustomTransform`]
     #[inline]
     #[must_use]
-    pub fn get_position(
+    pub fn get_position<'a>(
         &self,
         original_pos: Vec3,
         self_transform: &GlobalTransform,
-        query: impl Fn(Entity) -> Option<GlobalTransform>,
+        query: &impl Fn(Entity) -> Option<&'a GlobalTransform>,
     ) -> Vec3 {
-        let transform = self
-            .custom_target
-            .and_then(query)
-            .unwrap_or(*self_transform);
+        let transform = self.custom_target.and_then(query).unwrap_or(self_transform);
         let local_pos = if self.ignore_vertex_position {
             Vec3::ZERO
         } else {

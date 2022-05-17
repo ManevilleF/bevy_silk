@@ -145,14 +145,14 @@ impl Cloth {
     ///
     /// * `transform` - The `GlobalTransform` associated to the cloth entity
     /// * `anchor_query` - A function allowing to retreive the `GlobalTransform` of a given entity
-    pub fn update_anchored_points(
+    pub fn update_anchored_points<'a>(
         &mut self,
         transform: &GlobalTransform,
-        anchor_query: impl Fn(Entity) -> Option<GlobalTransform> + Copy,
+        anchor_query: impl Fn(Entity) -> Option<&'a GlobalTransform>,
     ) {
         for (i, (anchor, inital_pos)) in &self.anchored_points {
             self.current_point_positions[*i] =
-                anchor.get_position(*inital_pos, transform, anchor_query);
+                anchor.get_position(*inital_pos, transform, &anchor_query);
         }
     }
 
