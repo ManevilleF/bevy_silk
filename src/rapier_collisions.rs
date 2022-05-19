@@ -5,7 +5,7 @@
     clippy::suboptimal_flops
 )]
 use crate::{cloth::Cloth, cloth_rendering::ClothRendering, ClothCollider};
-use bevy::log::error;
+use bevy::log::{debug, error};
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
@@ -94,6 +94,7 @@ pub fn init_cloth_collider(
 ) {
     for (entity, transform, rendering, collider) in cloth_query.iter() {
         let matrix = transform.compute_matrix();
+        debug!("Initializing Cloth collisions for {:?}", entity);
         commands
             .entity(entity)
             .insert(RigidBody::KinematicPositionBased)
