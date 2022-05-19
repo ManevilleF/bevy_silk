@@ -223,7 +223,7 @@
 //! - a `Collider` which will be updated every frame to follow the cloth bounds (AABB)
 //! - a `SolverGroup` set to 0 in everything, avoiding default collision solving.
 //!
-//! You can customize what collisions will be check through a `ContactGroup` (See the [rapier docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
+//! You can customize what collisions will be checked through a `CollisionGroups` (See the [rapier docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
 //!
 //! > Note: Collision support is still experimental for now and is not suited for production use. Feedback is welcome !
 //!
