@@ -55,7 +55,7 @@ pub fn render_cloth(
             rendering.update_positions(cloth.compute_vertex_positions(transform));
             rendering.apply(mesh);
         } else {
-            warn!("A Cloth has a `ClothRendering` component without a loaded mesh");
+            warn!("A Cloth has a `ClothRendering` component without a loaded mesh handle");
         }
     }
 }

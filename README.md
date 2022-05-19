@@ -220,9 +220,14 @@ fn spawn(mut commands: Commands) {
 }
 ```
 
-You can customize the `interaction_groups` the cloth checks. (See the [rapier docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
+Three [`bevy_rapier`](https://github.com/dimforge/bevy_rapier) components will be automatically inserted:
+- a `RigidBody::KinematicPositionBased`
+- a `Collider` which will be updated every frame to follow the cloth bounds (AABB)
+- a `SolverGroup` set to 0 in everything, avoiding default collision solving.
 
-> Note: Collision support is crude and experimental for now and is not suited for production use
+You can customize what collisions will be check through a `ContactGroup` (See the [rapier docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
+
+> Note: Collision support is still experimental for now and is not suited for production use. Feedback is welcome !
 
 ## Mesh utils
 
