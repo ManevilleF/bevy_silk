@@ -59,6 +59,18 @@ impl ClothBuilder {
         self
     }
 
+    /// Adds pinned a vertex id for the cloth. The vertex will be pinned to the associated `GlobalTransform`
+    ///
+    /// # Arguments
+    ///
+    /// * `pinned_id` - Vertex index that should be pinned to the associated `GlobalTransform`
+    #[inline]
+    pub fn with_pinned_vertex_id(mut self, pinned_id: usize) -> Self {
+        self.anchored_vertex_ids
+            .insert(pinned_id, VertexAnchor::default());
+        self
+    }
+
     /// Adds custom anchored vertex ids for the cloth
     ///
     /// # Arguments
@@ -101,6 +113,18 @@ impl ClothBuilder {
     pub fn with_pinned_vertex_colors(mut self, vertex_colors: impl Iterator<Item = Color>) -> Self {
         self.anchored_vertex_colors
             .extend(vertex_colors.map(|c| (c, VertexAnchor::default())));
+        self
+    }
+
+    /// Adds a pinned vertex color for the cloth
+    ///
+    /// # Arguments
+    ///
+    /// * `vertex_color` - Vertex colors that should be pinned to the associated `GlobalTransform`
+    #[inline]
+    pub fn with_pinned_vertex_color(mut self, vertex_color: Color) -> Self {
+        self.anchored_vertex_colors
+            .push((vertex_color, VertexAnchor::default()));
         self
     }
 

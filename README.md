@@ -79,6 +79,73 @@ fn spawn(mut commands: Commands) {
 }
 ```
 
+#### Vertex anchoring
+
+Specifying vertex anchors allows to pin some cloth vertices to various entities.
+The `ClothBuilder` has multiple methods allowing to anchor vertices through their id or color.
+
+For example you can pin some cloth vertices to the cloth entity's `GlobalTransform`:
+
+```rust
+use bevy::prelude::Color;
+use bevy_silk::prelude::*;
+
+let cloth = ClothBuilder::new()
+    // Adds pinned vertices ids using an Iterator
+    .with_pinned_vertex_ids(0..9)
+    // Adds a single pinned vertex id
+    .with_pinned_vertex_id(10)
+    // Adds pinned vertex colors using an Iterator
+    .with_pinned_vertex_colors([Color::WHITE, Color::BLACK].into_iter())
+    // Adds a single pinned vertex color
+    .with_pinned_vertex_color(Color::YELLOW);
+```
+
+For more anchoring options, for example to specify a custom entity to pin the vertices to:
+
+```rust
+use bevy::prelude::*;
+use bevy_silk::prelude::*;
+
+fn spawn(mut commands: Commands) {
+    // Spawn an entity and get its id
+    let entity_a = commands
+        .spawn()
+        // Add your components
+        // .insert_bundle(TransformBundle::default())
+        // ...
+        .id();
+    let anchor_to_a = VertexAnchor {
+        custom_target: Some(entity_a), // The anchor will pin the vertices to `entity_a`
+        custom_offset: Some(Vec3::new(1.0, 1.2, 0.0)),  // Specify an extra offset from the target's `GlobalTransform`
+        ..Default::default()
+    };
+    let anchor_to_self = VertexAnchor {
+        custom_target: None,  // The anchor will pin the cloth entity
+        custom_offset: Some(Vec3::new(-1.0, 0.0, -0.1)), // Specify an extra offset from the target's `GlobalTransform`
+        ..Default::default()
+    };
+   
+    let cloth = ClothBuilder::new()
+        // Adds pinned vertices ids using an Iterator
+        .with_anchored_vertex_ids(0..9, anchor_to_a)
+        // Adds a single pinned vertex id
+        .with_anchored_vertex_id(10, anchor_to_self)
+        // Adds pinned vertex colors using an Iterator
+        .with_anchored_vertex_colors([Color::WHITE, Color::BLACK].into_iter(), anchor_to_a)
+        // Adds a single pinned vertex color
+        .with_anchored_vertex_color(Color::YELLOW, anchor_to_self);
+}
+```
+
+Custom anchoring allows to :
+- pin vertices to various entities, like skeletal mesh joints
+- define custom offsets to customize the distance between the anchored vertices an the target
+- use world space pinning and ignore the target's rotation for example
+- override the vertex positions, using only the offset
+
+> Note: `bevy` 0.7.0 doesn't support vertex colors yet, resulting in potential crash if used
+
 ### Configuration
 
 You can customize the global cloth physics by inserting the `ClothConfig` resource to your app:

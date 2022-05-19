@@ -2,6 +2,9 @@ use bevy::math::Vec3;
 use bevy::prelude::{Entity, GlobalTransform};
 
 /// Defines a cloth vertex anchor through a `target` and `offset`
+///
+/// The default anchor will link the cloth vertices to the cloth entity's `GlobalTransform`,
+/// you can anchor them to a specific entity by defining a `custom_target`.
 #[derive(Debug, Copy, Clone, Default)]
 #[must_use]
 pub struct VertexAnchor {
