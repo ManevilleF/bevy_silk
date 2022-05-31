@@ -250,15 +250,8 @@ If your simulation suffers from this you can specify a custom smooth value in `C
 
 ## TODO list
 
-- [x] Wind
-- [x] Custom stick target length options
 - [ ] Different stick behaviors (spring, stick, etc)
-- [x] dynamic flat normal mapping
-- [x] dynamic smooth normal mapping
-- [x] [Rapier] Collision support
 - [ ] [Heron] Collision support
-- [x] Vertex color pinning
-- [ ] Overridden pinned positions
 - [ ] Cloth cutting maybe?
 
 ## Examples
