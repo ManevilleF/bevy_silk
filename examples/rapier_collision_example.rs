@@ -24,7 +24,6 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(InspectorPlugin::<ClothConfig>::new())
         .add_plugin(WorldInspectorPlugin::default())
         .add_plugin(LookTransformPlugin)
