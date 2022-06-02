@@ -18,7 +18,6 @@ debug = ["bevy-inspector-egui"]
 rapier_collisions = ["bevy_rapier3d"]
 
 [dependencies]
-
 # Error handling
 thiserror = "1.0"
 
@@ -32,7 +31,7 @@ default-features = false
 features = ["bevy_render"]
 
 [dependencies.bevy_rapier3d]
-version = "0.13"
+version = "0.14"
 optional = true
 default-features = false
 features = ["dim3"]

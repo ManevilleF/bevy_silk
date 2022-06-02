@@ -250,6 +250,8 @@ If your simulation suffers from this you can specify a custom smooth value in `C
 
 ## TODO list
 
+- [ ] World and per cloth simulation pause/ filter out cloth update
+- [ ] Cloth update batching
 - [ ] Different stick behaviors (spring, stick, etc)
 - [ ] [Heron] Collision support
 - [ ] Cloth cutting maybe?
