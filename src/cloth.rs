@@ -1,7 +1,7 @@
 use crate::stick::{StickGeneration, StickLen};
 use crate::vertex_anchor::VertexAnchor;
 use bevy::ecs::prelude::Component;
-use bevy::log::warn;
+use bevy::log;
 use bevy::math::{Mat4, Vec3};
 use bevy::prelude::{Entity, GlobalTransform};
 use bevy::utils::HashMap;
@@ -10,7 +10,7 @@ macro_rules! get_point {
     ($id:expr, $points:expr, $anchored_points:expr) => {
         match $points.get($id) {
             None => {
-                warn!("Failed to retrieve a Cloth point at index {}", $id);
+                log::warn!("Failed to retrieve a Cloth point at index {}", $id);
                 continue;
             }
             Some(p) => (*p, $anchored_points.contains_key(&$id)),
@@ -96,9 +96,10 @@ impl Cloth {
             .map(|p| transform_matrix.transform_point3(*p))
             .collect();
         let indices: Vec<usize> = indices.iter().map(|i| *i as usize).collect();
-        // TODO: compute sticklen to get capacity
-        let mut sticks = HashMap::new();
-
+        if indices.len() % 3 != 0 {
+            log::error!("Mesh indices count is not a multiple of 3, some indices will be skipped",);
+        }
+        let mut sticks = HashMap::with_capacity(indices.len() / 3);
         for truple in indices.chunks_exact(3) {
             let [a, b, c] = [truple[0], truple[1], truple[2]];
             let (p_a, p_b, p_c) = (positions[a], positions[b], positions[c]);
@@ -194,7 +195,7 @@ impl Cloth {
                 let center = (position_b + position_a) / 2.0;
                 let direction = match (position_b - position_a).try_normalize() {
                     None => {
-                        warn!("Failed handle stick between points {} and {} which are too close to each other", *id_a, *id_b);
+                        log::warn!("Failed handle stick between points {} and {} which are too close to each other", *id_a, *id_b);
                         continue;
                     }
                     Some(dir) => dir * *target_len / 2.0,

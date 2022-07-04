@@ -7,21 +7,16 @@ use bevy::render::mesh::{Indices, Mesh, VertexAttributeValues};
 use bevy::utils::HashMap;
 
 /// Defines the cloth computation mode of vertex normals
-#[derive(Debug, Copy, Clone, Reflect)]
+#[derive(Debug, Copy, Clone, Default, Reflect)]
 pub enum NormalComputing {
     /// The cloth won't compute any vertex normals, leaving the original ones
     None,
-    ///
+    #[default]
+    /// The cloth will compute smooth vertex normals
     SmoothNormals,
     /// The cloth will duplicate the vertex positions, avoiding shared vertices, and compute
     /// flat vertex normals
     FlatNormals,
-}
-
-impl Default for NormalComputing {
-    fn default() -> Self {
-        Self::SmoothNormals
-    }
 }
 
 /// Cloth rendering component. It allows mesh data extraction, vertex duplication and normal computation
