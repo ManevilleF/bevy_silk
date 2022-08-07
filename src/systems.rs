@@ -9,13 +9,9 @@ use crate::cloth_rendering::ClothRendering;
 use crate::config::ClothConfig;
 use crate::wind::Winds;
 use crate::ClothBuilder;
-use bevy::asset::{Assets, Handle};
-use bevy::core::Time;
-use bevy::ecs::prelude::*;
 use bevy::log::{debug, error, warn};
 use bevy::math::Vec3;
-use bevy::render::prelude::Mesh;
-use bevy::transform::prelude::GlobalTransform;
+use bevy::prelude::*;
 
 pub fn update_cloth(
     mut query: Query<(&mut Cloth, &GlobalTransform, Option<&ClothConfig>)>,

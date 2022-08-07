@@ -22,28 +22,27 @@ rapier_collisions = ["bevy_rapier3d"]
 thiserror = "1.0"
 
 [dependencies.bevy-inspector-egui]
-version = "0.11"
+version = "0.12"
 optional = true
 
 [dependencies.bevy]
-version = "0.7"
+version = "0.8"
 default-features = false
-features = ["bevy_render"]
+features = ["bevy_render", "bevy_asset"]
 
 [dependencies.bevy_rapier3d]
-version = "0.14"
+version = "0.16"
 optional = true
 default-features = false
 features = ["dim3"]
 
 [dev-dependencies]
-smooth-bevy-cameras = "0.4"
-bevy-inspector-egui = "0.11"
-bevy_rapier3d = "0.14"
+bevy-inspector-egui = "0.12"
+bevy_rapier3d = "0.16"
 rand = "0.8"
 
 [dev-dependencies.bevy]
-version = "0.7"
+version = "0.8"
 features = ["render", "bevy_winit", "x11", "png"]
 default-features = false
 
@@ -71,6 +70,11 @@ required-features = ["debug", "rapier_collisions"]
 name = "anchors"
 path = "examples/anchors_example.rs"
 required-features = ["debug"]
+
+[[example]]
+name = "camera_plugin"
+path = "examples/camera_plugin.rs"
+crate-type = ["staticlib"]
 
 # Enable only a small amount of optimization in debug mode
 [profile.dev]

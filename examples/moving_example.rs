@@ -1,10 +1,8 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::{Inspectable, InspectorPlugin, WorldInspectorPlugin};
 use bevy_silk::prelude::*;
-use smooth_bevy_cameras::{
-    controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
-    LookTransformPlugin,
-};
+
+mod camera_plugin;
 
 #[derive(Debug, Clone, Inspectable)]
 struct MovingAnimation {
@@ -33,8 +31,7 @@ fn main() {
         .add_plugin(WorldInspectorPlugin::default())
         .add_plugin(InspectorPlugin::<ClothConfig>::new())
         .add_plugin(InspectorPlugin::<MovingAnimation>::new())
-        .add_plugin(LookTransformPlugin)
-        .add_plugin(OrbitCameraPlugin::default())
+        .add_plugin(camera_plugin::CameraPlugin)
         .add_plugin(ClothPlugin)
         .add_startup_system(spawn_cloth)
         .add_startup_system(setup)
@@ -47,12 +44,6 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    commands.spawn_bundle(OrbitCameraBundle::new(
-        OrbitCameraController::default(),
-        PerspectiveCameraBundle::default(),
-        Vec3::new(20.0, 20.0, 20.0),
-        Vec3::ZERO,
-    ));
     let mesh_handle = meshes.add(shape::Cube::new(1.0).into());
     [
         (Color::BLUE, [-10.0, 0.0]),
@@ -86,8 +77,8 @@ fn spawn_cloth(
     let cloth = ClothBuilder::new().with_pinned_vertex_ids(0..size_x);
     let base_entity = Some(
         commands
-            .spawn_bundle(TransformBundle {
-                local: Transform::from_xyz(0.0, 3.0, 0.0),
+            .spawn_bundle(SpatialBundle {
+                transform: Transform::from_xyz(0.0, 3.0, 0.0),
                 ..Default::default()
             })
             .insert(Name::new("Cloth Controller"))
