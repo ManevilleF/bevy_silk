@@ -47,8 +47,8 @@ impl Wind {
     #[must_use]
     pub fn current_velocity(&self, elapsed_time: f32) -> Vec3 {
         match self {
-            Wind::ConstantWind { velocity } => *velocity,
-            Wind::SinWave {
+            Self::ConstantWind { velocity } => *velocity,
+            Self::SinWave {
                 max_velocity,
                 frequency,
                 normalize,
