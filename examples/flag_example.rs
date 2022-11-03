@@ -1,10 +1,8 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
 use bevy_silk::prelude::*;
-use smooth_bevy_cameras::{
-    controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
-    LookTransformPlugin,
-};
+
+mod camera_plugin;
 
 fn main() {
     App::new()
@@ -17,8 +15,7 @@ fn main() {
         .add_plugin(WorldInspectorPlugin::default())
         .add_plugin(InspectorPlugin::<Winds>::new())
         .add_plugin(InspectorPlugin::<ClothConfig>::new())
-        .add_plugin(LookTransformPlugin)
-        .add_plugin(OrbitCameraPlugin::default())
+        .add_plugin(camera_plugin::CameraPlugin)
         .insert_resource(Winds::from(vec![
             Wind::SinWave {
                 max_velocity: Vec3::new(15.0, 10.0, 0.0),
@@ -48,12 +45,6 @@ fn setup(
         transform: Transform::from_rotation(Quat::from_rotation_y(5.0)),
         ..Default::default()
     });
-    commands.spawn_bundle(OrbitCameraBundle::new(
-        OrbitCameraController::default(),
-        PerspectiveCameraBundle::default(),
-        Vec3::new(20.0, 20.0, 20.0),
-        Vec3::ZERO,
-    ));
     let mesh_handle = meshes.add(shape::Cube::new(1.0).into());
     [
         (Color::BLUE, [-10.0, 0.0]),

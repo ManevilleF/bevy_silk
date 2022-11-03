@@ -1,10 +1,8 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
 use bevy_silk::prelude::*;
-use smooth_bevy_cameras::{
-    controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
-    LookTransformPlugin,
-};
+
+mod camera_plugin;
 
 fn main() {
     App::new()
@@ -16,8 +14,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(WorldInspectorPlugin::default())
         .add_plugin(InspectorPlugin::<ClothConfig>::new())
-        .add_plugin(LookTransformPlugin)
-        .add_plugin(OrbitCameraPlugin::default())
+        .add_plugin(camera_plugin::CameraPlugin)
         .add_plugin(ClothPlugin)
         .insert_resource(ClothConfig {
             friction: 0.1,
@@ -34,12 +31,6 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     commands.spawn_bundle(DirectionalLightBundle::default());
-    commands.spawn_bundle(OrbitCameraBundle::new(
-        OrbitCameraController::default(),
-        PerspectiveCameraBundle::default(),
-        Vec3::new(20.0, 20.0, 20.0),
-        Vec3::ZERO,
-    ));
     let mesh_handle = meshes.add(shape::Cube::new(1.0).into());
     [
         (Color::BLUE, [-10.0, 0.0]),

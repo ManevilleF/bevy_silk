@@ -56,6 +56,7 @@ pub fn handle_collisions(
                 v.linvel.length_squared() * delta_time * delta_time * collider.velocity_coefficient
             });
             cloth.solve_collisions(|point| {
+                let other_transform = other_transform.compute_transform();
                 let projected_point = other_collider.project_point(
                     other_transform.translation,
                     other_transform.rotation,
@@ -99,7 +100,7 @@ pub fn init_cloth_collider(
             .entity(entity)
             .insert(RigidBody::KinematicPositionBased)
             .insert(get_collider(rendering, collider, Some(&matrix)))
-            .insert(SolverGroups::new(0, 0));
+            .insert(SolverGroups::new(Group::NONE, Group::NONE));
     }
 }
 

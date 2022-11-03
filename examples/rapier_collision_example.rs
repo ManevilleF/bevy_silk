@@ -1,14 +1,12 @@
-use bevy::core::FixedTimestep;
 use bevy::prelude::*;
+use bevy::time::FixedTimestep;
 use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
 use bevy_rapier3d::prelude::*;
 use bevy_silk::cloth::Cloth;
 use bevy_silk::prelude::*;
 use rand::{thread_rng, Rng};
-use smooth_bevy_cameras::{
-    controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
-    LookTransformPlugin,
-};
+
+mod camera_plugin;
 
 struct ClothMovement {
     sign: f32,
@@ -26,9 +24,8 @@ fn main() {
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugin(InspectorPlugin::<ClothConfig>::new())
         .add_plugin(WorldInspectorPlugin::default())
-        .add_plugin(LookTransformPlugin)
-        .add_plugin(OrbitCameraPlugin::default())
         .add_plugin(ClothPlugin)
+        .add_plugin(camera_plugin::CameraPlugin)
         .insert_resource(ClothMovement { sign: -1.0, t: 0.0 })
         .add_startup_system(spawn_cloth)
         .add_startup_system(setup)
@@ -50,12 +47,6 @@ fn setup(
         transform: Transform::from_rotation(Quat::from_rotation_y(5.0)),
         ..Default::default()
     });
-    commands.spawn_bundle(OrbitCameraBundle::new(
-        OrbitCameraController::default(),
-        PerspectiveCameraBundle::default(),
-        Vec3::new(30.0, 40.0, -30.0),
-        Vec3::Y * 10.0,
-    ));
     let mesh_handle = meshes.add(shape::Cube::new(2.0).into());
     [
         (Color::BLUE, [-10.0, 0.0]),
