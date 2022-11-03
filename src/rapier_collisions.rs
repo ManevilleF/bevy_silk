@@ -100,7 +100,7 @@ pub fn init_cloth_collider(
             .entity(entity)
             .insert(RigidBody::KinematicPositionBased)
             .insert(get_collider(rendering, collider, Some(&matrix)))
-            .insert(SolverGroups::new(0, 0));
+            .insert(SolverGroups::new(Group::NONE, Group::NONE));
     }
 }
 
