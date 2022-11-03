@@ -18,7 +18,7 @@
 //!
 //! Add `bevy_silk` as a dependency in the `Cargo.toml`
 //!
-//! `bevy_silk = "0.2"`
+//! `bevy_silk = "0.3"`
 //!
 //! Or follow the main git branch
 //!
@@ -27,9 +27,10 @@
 //! ### Supported Bevy Versions
 //!
 //! | `bevy_silk` | `bevy` |
-//! |------|------------|
+//! |-------------|--------|
 //! | 0.1.0  | 0.7  |
 //! | 0.2.0  | 0.7  |
+//! | 0.3.0  | 0.8  |
 //!
 //! ### Plugin
 //!
@@ -174,7 +175,7 @@
 //!
 //! You may add wind forces to the simulation for a more dynamic clothing effect, for each force you may choose from:
 //! - `Wind::Constant` for constant wind force
-//! - `Wind::SinWave` for a sinwave following wind intensity with custom force and frequency.
+//! - `Wind::SinWave` for a sin wave following wind intensity with custom force and frequency.
 //!
 //! `Wind` forces can be added as a resource to your app through the `Winds` container:
 //!
@@ -222,7 +223,7 @@
 //! Three [`bevy_rapier`](https://github.com/dimforge/bevy_rapier) components will be automatically inserted:
 //! - a `RigidBody::KinematicPositionBased`
 //! - a `Collider` which will be updated every frame to follow the cloth bounds (AABB)
-//! - a `SolverGroup` set to 0 in everything, avoiding default collision solving.
+//! - a `SolverGroup` set to 0 (`Group::NONE`) in everything, avoiding default collision solving.
 //!
 //! You can customize what collisions will be checked through a `CollisionGroups` (See the [rapier docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
 //!

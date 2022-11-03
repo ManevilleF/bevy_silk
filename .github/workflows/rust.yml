@@ -13,14 +13,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: build
         run: cargo build --verbose
 
   build_features:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: all features
         run: cargo build --verbose --all-features
       - name: no default features
@@ -29,7 +29,7 @@ jobs:
   build_examples:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: build baloon example
         run: cargo clippy --features debug --example balloon
       - name: build flag example
@@ -44,7 +44,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: tests
         run: cargo test --tests
       - name: doc tests
@@ -53,14 +53,14 @@ jobs:
   fmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Check Formatting
         run: cargo fmt --all -- --check
 
   clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Cargo clippy installation
         run: rustup component add clippy
       - name: Cargo clippy check
@@ -69,6 +69,6 @@ jobs:
   rustdoc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: rustdoc
         run: cargo rustdoc --all-features -- -D warnings

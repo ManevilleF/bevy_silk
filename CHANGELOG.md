@@ -1,5 +1,12 @@
 # Changelog
 
+# 0.3.0
+
+* Bump `bevy` to `0.8.x`
+* Bump `bevy_rapier` to `0.18.x`
+* Bump `bevy_inspector_egui` to `0.13.x`
+* Removed `smooth-bevy-cameras` dependency
+
 # 0.2.0
 
 ## Added
