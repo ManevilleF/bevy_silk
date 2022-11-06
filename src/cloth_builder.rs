@@ -244,19 +244,16 @@ impl ClothBuilder {
                         ),
                         _ => None,
                     });
-            match vertex_colors {
-                Some(colors) => {
-                    res.extend(colors.into_iter().enumerate().filter_map(|(i, color)| {
-                        self.anchored_vertex_colors
-                            .iter()
-                            .find(|(c, _)| *c == color)
-                            .map(|(_, anchor)| (i, *anchor))
-                    }));
-                }
-                None => {
-                    warn!("ClothBuilder has anchored vertex colors but the associated mesh doesn't have a valid Vertex_Color attribute");
-                }
-            }
+            vertex_colors.map_or_else(|| {
+                warn!("ClothBuilder has anchored vertex colors but the associated mesh doesn't have a valid Vertex_Color attribute");
+            }, |colors| {
+                res.extend(colors.into_iter().enumerate().filter_map(|(i, color)| {
+                    self.anchored_vertex_colors
+                        .iter()
+                        .find(|(c, _)| *c == color)
+                        .map(|(_, anchor)| (i, *anchor))
+                }));
+            });
         }
         res
     }

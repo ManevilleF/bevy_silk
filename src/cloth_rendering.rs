@@ -193,7 +193,7 @@ impl ClothRendering {
     /// Computes averaged vertex normals from indices, should be called without duplication as it requires shared vertices
     #[allow(clippy::cast_precision_loss)]
     pub(crate) fn compute_smooth_normals(&self) -> Vec<Vec3> {
-        let mut map = HashMap::with_capacity(self.vertex_positions.len());
+        let mut map: HashMap<_, Vec<_>> = HashMap::with_capacity(self.vertex_positions.len());
         for chunk in self.indices.chunks_exact(3) {
             let [a, b, c] = [chunk[0] as usize, chunk[1] as usize, chunk[2] as usize];
             let flat_normal = Self::face_normal(
@@ -201,9 +201,9 @@ impl ClothRendering {
                 self.vertex_positions[b],
                 self.vertex_positions[c],
             );
-            map.entry(a).or_insert(vec![]).push(flat_normal);
-            map.entry(b).or_insert(vec![]).push(flat_normal);
-            map.entry(c).or_insert(vec![]).push(flat_normal);
+            map.entry(a).or_default().push(flat_normal);
+            map.entry(b).or_default().push(flat_normal);
+            map.entry(c).or_default().push(flat_normal);
         }
         (0..self.vertex_positions.len())
             .map(|i| {
