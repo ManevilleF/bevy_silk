@@ -21,9 +21,7 @@ pub fn update_cloth(
     time: Res<Time>,
 ) {
     let delta_time = time.delta_seconds();
-    let wind_force = wind.map_or(Vec3::ZERO, |w| {
-        w.current_velocity(time.time_since_startup().as_secs_f32())
-    });
+    let wind_force = wind.map_or(Vec3::ZERO, |w| w.current_velocity(time.elapsed_seconds()));
     for (mut cloth, transform, custom_config) in query.iter_mut() {
         let config: &ClothConfig = custom_config.unwrap_or(&config);
         cloth.update_points(

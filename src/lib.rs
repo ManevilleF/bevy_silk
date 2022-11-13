@@ -286,7 +286,7 @@ pub mod wind;
 
 use crate::prelude::*;
 use bevy::app::{App, Plugin};
-use bevy::ecs::schedule::ParallelSystemDescriptorCoercion;
+use bevy::prelude::IntoSystemDescriptor;
 
 /// Prelude module, providing every public type of the lib
 pub mod prelude {
