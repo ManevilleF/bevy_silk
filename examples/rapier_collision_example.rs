@@ -8,6 +8,7 @@ use rand::{thread_rng, Rng};
 
 mod camera_plugin;
 
+#[derive(Debug, Resource)]
 struct ClothMovement {
     sign: f32,
     t: f32,
@@ -43,7 +44,7 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    commands.spawn_bundle(DirectionalLightBundle {
+    commands.spawn(DirectionalLightBundle {
         transform: Transform::from_rotation(Quat::from_rotation_y(5.0)),
         ..Default::default()
     });
@@ -55,8 +56,8 @@ fn setup(
         (Color::RED, [0.0, 10.0]),
     ]
     .map(|(color, [x, z])| {
-        commands
-            .spawn_bundle(PbrBundle {
+        commands.spawn((
+            PbrBundle {
                 mesh: mesh_handle.clone(),
                 transform: Transform::from_xyz(x, 1.0, z),
                 material: materials.add(StandardMaterial {
@@ -65,17 +66,19 @@ fn setup(
                     ..Default::default()
                 }),
                 ..Default::default()
-            })
-            .insert(Collider::cuboid(1.0, 1.0, 1.0));
+            },
+            Collider::cuboid(1.0, 1.0, 1.0),
+        ));
     });
-    commands
-        .spawn_bundle(PbrBundle {
+    commands.spawn((
+        PbrBundle {
             mesh: meshes.add(shape::Cube { size: 24.0 }.into()),
             material: materials.add(Color::WHITE.into()),
             transform: Transform::from_xyz(0.0, -12.0, 0.0),
             ..Default::default()
-        })
-        .insert(Collider::cuboid(12.0, 12.0, 12.0));
+        },
+        Collider::cuboid(12.0, 12.0, 12.0),
+    ));
 }
 
 fn spawn_cloth(
@@ -88,8 +91,8 @@ fn spawn_cloth(
     let (size_x, size_y) = (60, 40);
     let mesh = rectangle_mesh((size_x, size_y), (-Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
     let cloth = ClothBuilder::new().with_pinned_vertex_ids(0..size_x);
-    commands
-        .spawn_bundle(PbrBundle {
+    commands.spawn((
+        PbrBundle {
             mesh: meshes.add(mesh),
             material: materials.add(StandardMaterial {
                 base_color_texture: Some(flag_texture),
@@ -99,13 +102,14 @@ fn spawn_cloth(
             }),
             transform: Transform::from_xyz(15.0, 15.0, 15.0),
             ..Default::default()
-        })
-        .insert(cloth)
-        .insert(ClothCollider {
+        },
+        cloth,
+        ClothCollider {
             dampen_others: Some(0.02),
             ..Default::default()
-        })
-        .insert(Name::new("Cloth"));
+        },
+        Name::new("Cloth"),
+    ));
 }
 
 fn move_cloth(
@@ -131,8 +135,8 @@ fn shoot_balls(
 ) {
     let mut rng = thread_rng();
     let radius = rng.gen_range(1.0..3.0);
-    commands
-        .spawn_bundle(PbrBundle {
+    commands.spawn((
+        PbrBundle {
             mesh: meshes.add(
                 shape::Icosphere {
                     radius,
@@ -143,13 +147,14 @@ fn shoot_balls(
             material: materials.add(Color::WHITE.into()),
             transform: Transform::from_xyz(0.0, 0.0, -20.0),
             ..Default::default()
-        })
-        .insert(Velocity::linear(Vec3::new(
+        },
+        Velocity::linear(Vec3::new(
             rng.gen_range(-5.0..5.0),
             rng.gen_range(10.0..15.0),
             rng.gen_range(20.0..30.0),
-        )))
-        .insert(RigidBody::Dynamic)
-        .insert(Collider::ball(radius))
-        .insert(Name::new("Ball"));
+        )),
+        RigidBody::Dynamic,
+        Collider::ball(radius),
+        Name::new("Ball"),
+    ));
 }

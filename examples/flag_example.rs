@@ -41,7 +41,7 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    commands.spawn_bundle(DirectionalLightBundle {
+    commands.spawn(DirectionalLightBundle {
         transform: Transform::from_rotation(Quat::from_rotation_y(5.0)),
         ..Default::default()
     });
@@ -53,7 +53,7 @@ fn setup(
         (Color::RED, [0.0, 10.0]),
     ]
     .map(|(color, [x, z])| {
-        commands.spawn_bundle(PbrBundle {
+        commands.spawn(PbrBundle {
             mesh: mesh_handle.clone(),
             transform: Transform::from_xyz(x, 0.0, z),
             material: materials.add(StandardMaterial {
@@ -84,29 +84,31 @@ fn spawn_cloth(
 
     // Regular Smooth Flag
     let cloth = ClothBuilder::new().with_pinned_vertex_ids((0..size_y).map(|i| i * size_x));
-    commands
-        .spawn_bundle(PbrBundle {
+    commands.spawn((
+        PbrBundle {
             mesh: meshes.add(mesh.clone()),
             material: material.clone(),
             transform: Transform::from_xyz(0.0, 8.0, 5.0),
             ..Default::default()
-        })
-        .insert(cloth)
-        .insert(Name::new("Regular Smooth Flag"));
+        },
+        cloth,
+        Name::new("Regular Smooth Flag"),
+    ));
 
     // Regular Flat Flag
     let cloth = ClothBuilder::new()
         .with_pinned_vertex_ids((0..size_y).map(|i| i * size_x))
         .with_flat_normals();
-    commands
-        .spawn_bundle(PbrBundle {
+    commands.spawn((
+        PbrBundle {
             mesh: meshes.add(mesh.clone()),
             material: material.clone(),
             transform: Transform::from_xyz(0.0, 8.0, -5.0),
             ..Default::default()
-        })
-        .insert(cloth)
-        .insert(Name::new("Regular Flat Flag"));
+        },
+        cloth,
+        Name::new("Regular Flat Flag"),
+    ));
 
     // TODO: enable when bevy releases vertex color support
     // color flag
