@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+* Bump `bevy` to `0.9.x`
+* Bump `bevy_rapier` to `0.19.x`
+* Bump `bevy_inspector_egui` to `0.14.x`
+* Modules refactoring
+
 ## 0.3.0
 
 * Bump `bevy` to `0.8.x`
