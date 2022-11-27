@@ -4,16 +4,16 @@
     clippy::option_if_let_else
 )]
 
-use crate::cloth::Cloth;
-use crate::cloth_rendering::ClothRendering;
+use crate::components::cloth::Cloth;
+use crate::components::cloth_builder::ClothBuilder;
+use crate::components::cloth_rendering::ClothRendering;
 use crate::config::ClothConfig;
 use crate::wind::Winds;
-use crate::ClothBuilder;
 use bevy::log::{debug, error, warn};
 use bevy::math::Vec3;
 use bevy::prelude::*;
 
-pub fn update_cloth(
+pub fn update(
     mut query: Query<(&mut Cloth, &GlobalTransform, Option<&ClothConfig>)>,
     anchor_query: Query<&GlobalTransform, Without<Cloth>>,
     config: Res<ClothConfig>,
@@ -40,7 +40,7 @@ pub fn update_cloth(
     }
 }
 
-pub fn render_cloth(
+pub fn render(
     mut cloth_query: Query<(&Cloth, &mut ClothRendering, &GlobalTransform, &Handle<Mesh>)>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
@@ -54,7 +54,7 @@ pub fn render_cloth(
     }
 }
 
-pub fn init_cloth(
+pub fn init(
     mut commands: Commands,
     query: Query<(Entity, &ClothBuilder, &GlobalTransform, &Handle<Mesh>), Without<Cloth>>,
     meshes: Res<Assets<Mesh>>,

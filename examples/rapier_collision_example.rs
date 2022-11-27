@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use bevy::time::FixedTimestep;
 use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
 use bevy_rapier3d::prelude::*;
-use bevy_silk::cloth::Cloth;
 use bevy_silk::prelude::*;
 use rand::{thread_rng, Rng};
 

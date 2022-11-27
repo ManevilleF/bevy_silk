@@ -262,23 +262,14 @@
     clippy::module_name_repetitions,
     clippy::redundant_pub_crate
 )]
-/// cloth module
-pub mod cloth;
-/// cloth builder module
-pub mod cloth_builder;
-/// cloth rendering module
-pub mod cloth_rendering;
-/// collider module
-#[cfg(feature = "rapier_collisions")]
-pub mod collider;
+/// components module
+pub mod components;
 /// config module
 pub mod config;
 /// error module
 pub mod error;
 /// mesh module
 pub mod mesh;
-#[cfg(feature = "rapier_collisions")]
-mod rapier_collisions;
 /// stick module
 pub mod stick;
 /// systems module
@@ -295,10 +286,11 @@ use bevy::prelude::IntoSystemDescriptor;
 /// Prelude module, providing every public type of the lib
 pub mod prelude {
     #[cfg(feature = "rapier_collisions")]
-    pub use crate::collider::ClothCollider;
+    pub use crate::components::collider::ClothCollider;
     pub use crate::{
-        cloth_builder::ClothBuilder,
-        cloth_rendering::NormalComputing,
+        components::cloth::Cloth,
+        components::cloth_builder::ClothBuilder,
+        components::cloth_rendering::NormalComputing,
         config::{AccelerationSmoothing, ClothConfig},
         error::Error,
         mesh::rectangle_mesh,
@@ -319,16 +311,16 @@ impl Plugin for ClothPlugin {
         app.register_type::<ClothConfig>()
             .register_type::<Wind>()
             .register_type::<Winds>();
-        app.add_system(systems::init_cloth.label("CLOTH_INIT"));
-        app.add_system(systems::update_cloth.label("CLOTH_UPDATE"));
+        app.add_system(systems::cloth::init.label("CLOTH_INIT"));
+        app.add_system(systems::cloth::update.label("CLOTH_UPDATE"));
         app.add_system(
-            systems::render_cloth
+            systems::cloth::render
                 .label("CLOTH_RENDER")
                 .after("CLOTH_UPDATE"),
         );
         #[cfg(feature = "rapier_collisions")]
-        app.add_system(rapier_collisions::init_cloth_collider.after("CLOTH_INIT"))
-            .add_system(rapier_collisions::handle_collisions.before("CLOTH_RENDER"));
+        app.add_system(systems::collisions::init_cloth_collider.after("CLOTH_INIT"))
+            .add_system(systems::collisions::handle_collisions.before("CLOTH_RENDER"));
         bevy::log::info!("Loaded Cloth Plugin");
     }
 }
