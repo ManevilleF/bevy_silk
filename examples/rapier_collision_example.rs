@@ -16,7 +16,6 @@ struct ClothMovement {
 
 fn main() {
     App::new()
-        .insert_resource(WindowDescriptor::default())
         .insert_resource(AmbientLight {
             color: Color::WHITE,
             brightness: 1.0,

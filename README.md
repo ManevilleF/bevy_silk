@@ -8,7 +8,7 @@
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 [![Crates.io](https://img.shields.io/crates/v/bevy_silk.svg)](https://crates.io/crates/bevy_silk)
 [![Docs.rs](https://docs.rs/bevy_silk/badge.svg)](https://docs.rs/bevy_silk)
-[![dependency status](https://deps.rs/crate/bevy_silk/0.2.0/status.svg)](https://deps.rs/crate/bevy_silk)
+[![dependency status](https://deps.rs/crate/bevy_silk/0.4.0/status.svg)](https://deps.rs/crate/bevy_silk)
 
 CPU driven Cloth engine for Bevy using Verlet integration.
 
