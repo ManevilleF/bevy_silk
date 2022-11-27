@@ -96,11 +96,11 @@ pub fn init_cloth_collider(
     for (entity, transform, rendering, collider) in cloth_query.iter() {
         let matrix = transform.compute_matrix();
         debug!("Initializing Cloth collisions for {:?}", entity);
-        commands
-            .entity(entity)
-            .insert(RigidBody::KinematicPositionBased)
-            .insert(get_collider(rendering, collider, Some(&matrix)))
-            .insert(SolverGroups::new(Group::NONE, Group::NONE));
+        commands.entity(entity).insert((
+            RigidBody::KinematicPositionBased,
+            get_collider(rendering, collider, Some(&matrix)),
+            SolverGroups::new(Group::NONE, Group::NONE),
+        ));
     }
 }
 
