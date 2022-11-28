@@ -219,7 +219,7 @@ fn spawn(mut commands: Commands) {
         PbrBundle {
             // Add your mesh, material and your custom PBR data
             ..Default::default()
-        }),
+        },
         ClothBuilder::new(),
         ClothCollider::default()
     ));
