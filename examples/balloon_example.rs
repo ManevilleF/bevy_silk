@@ -6,7 +6,6 @@ mod camera_plugin;
 
 fn main() {
     App::new()
-        .insert_resource(WindowDescriptor::default())
         .insert_resource(AmbientLight {
             color: Color::WHITE,
             brightness: 1.0,
@@ -30,7 +29,7 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    commands.spawn_bundle(DirectionalLightBundle::default());
+    commands.spawn(DirectionalLightBundle::default());
     let mesh_handle = meshes.add(shape::Cube::new(1.0).into());
     [
         (Color::BLUE, [-10.0, 0.0]),
@@ -39,7 +38,7 @@ fn setup(
         (Color::RED, [0.0, 10.0]),
     ]
     .map(|(color, [x, z])| {
-        commands.spawn_bundle(PbrBundle {
+        commands.spawn(PbrBundle {
             mesh: mesh_handle.clone(),
             transform: Transform::from_xyz(x, 0.0, z),
             material: materials.add(StandardMaterial {
@@ -57,8 +56,8 @@ fn spawn_cloth(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    commands
-        .spawn_bundle(PbrBundle {
+    commands.spawn((
+        PbrBundle {
             mesh: meshes.add(
                 shape::Icosphere {
                     radius: 5.0,
@@ -69,7 +68,8 @@ fn spawn_cloth(
             material: materials.add(Color::YELLOW.into()),
             transform: Transform::from_xyz(0.0, 2.0, 0.0),
             ..Default::default()
-        })
-        .insert(ClothBuilder::new().with_pinned_vertex_ids(0..=0))
-        .insert(Name::new("Balloon"));
+        },
+        ClothBuilder::new().with_pinned_vertex_ids(0..=0),
+        Name::new("Balloon"),
+    ));
 }

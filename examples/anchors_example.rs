@@ -6,7 +6,6 @@ mod camera_plugin;
 
 fn main() {
     App::new()
-        .insert_resource(WindowDescriptor::default())
         .insert_resource(AmbientLight {
             color: Color::WHITE,
             brightness: 1.0,
@@ -26,7 +25,7 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    commands.spawn_bundle(DirectionalLightBundle {
+    commands.spawn(DirectionalLightBundle {
         transform: Transform::from_rotation(Quat::from_rotation_y(5.0)),
         ..Default::default()
     });
@@ -38,7 +37,7 @@ fn setup(
         (Color::RED, [0.0, 10.0]),
     ]
     .map(|(color, [x, z])| {
-        commands.spawn_bundle(PbrBundle {
+        commands.spawn(PbrBundle {
             mesh: mesh_handle.clone(),
             transform: Transform::from_xyz(x, 1.0, z),
             material: materials.add(StandardMaterial {
@@ -62,22 +61,26 @@ fn spawn_cloth(
 
     let anchor_mesh = meshes.add(shape::Cube::new(1.0).into());
     let entity_a = commands
-        .spawn_bundle(PbrBundle {
-            mesh: anchor_mesh.clone(),
-            material: materials.add(Color::RED.into()),
-            transform: Transform::from_xyz(15.0, 15.0, 15.0),
-            ..Default::default()
-        })
-        .insert(Name::new("Anchor RED"))
+        .spawn((
+            PbrBundle {
+                mesh: anchor_mesh.clone(),
+                material: materials.add(Color::RED.into()),
+                transform: Transform::from_xyz(15.0, 15.0, 15.0),
+                ..Default::default()
+            },
+            Name::new("Anchor RED"),
+        ))
         .id();
     let entity_b = commands
-        .spawn_bundle(PbrBundle {
-            mesh: anchor_mesh,
-            material: materials.add(Color::GREEN.into()),
-            transform: Transform::from_xyz(-15.0, 15.0, 15.0),
-            ..Default::default()
-        })
-        .insert(Name::new("Anchor GREEN"))
+        .spawn((
+            PbrBundle {
+                mesh: anchor_mesh,
+                material: materials.add(Color::GREEN.into()),
+                transform: Transform::from_xyz(-15.0, 15.0, 15.0),
+                ..Default::default()
+            },
+            Name::new("Anchor GREEN"),
+        ))
         .id();
 
     let mesh = rectangle_mesh((size_x, size_y), (-Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
@@ -97,8 +100,8 @@ fn spawn_cloth(
                 ..Default::default()
             },
         );
-    commands
-        .spawn_bundle(PbrBundle {
+    commands.spawn((
+        PbrBundle {
             mesh: meshes.add(mesh),
             material: materials.add(StandardMaterial {
                 base_color_texture: Some(flag_texture),
@@ -108,7 +111,8 @@ fn spawn_cloth(
             }),
             transform: Transform::from_xyz(15.0, 15.0, 15.0),
             ..Default::default()
-        })
-        .insert(cloth)
-        .insert(Name::new("Cloth"));
+        },
+        cloth,
+        Name::new("Cloth"),
+    ));
 }

@@ -4,7 +4,7 @@ use bevy_silk::prelude::*;
 
 mod camera_plugin;
 
-#[derive(Debug, Clone, Inspectable)]
+#[derive(Debug, Clone, Inspectable, Resource)]
 struct MovingAnimation {
     #[inspectable(collapse)]
     pub base_entity: Option<Entity>,
@@ -22,7 +22,6 @@ impl Default for MovingAnimation {
 
 fn main() {
     App::new()
-        .insert_resource(WindowDescriptor::default())
         .insert_resource(AmbientLight {
             color: Color::WHITE,
             brightness: 1.0,
@@ -52,7 +51,7 @@ fn setup(
         (Color::RED, [0.0, 10.0]),
     ]
     .map(|(color, [x, z])| {
-        commands.spawn_bundle(PbrBundle {
+        commands.spawn(PbrBundle {
             mesh: mesh_handle.clone(),
             transform: Transform::from_xyz(x, 0.0, z),
             material: materials.add(StandardMaterial {
@@ -77,33 +76,39 @@ fn spawn_cloth(
     let cloth = ClothBuilder::new().with_pinned_vertex_ids(0..size_x);
     let base_entity = Some(
         commands
-            .spawn_bundle(SpatialBundle {
-                transform: Transform::from_xyz(0.0, 3.0, 0.0),
-                ..Default::default()
-            })
-            .insert(Name::new("Cloth Controller"))
-            .with_children(|b| {
-                b.spawn_bundle(PbrBundle {
-                    mesh: meshes.add(shape::Cube::new(2.0).into()),
-                    material: materials.add(Color::WHITE.into()),
-                    transform: Transform::from_xyz(10.0, 0.0, 0.0),
+            .spawn((
+                SpatialBundle {
+                    transform: Transform::from_xyz(0.0, 3.0, 0.0),
                     ..Default::default()
-                })
-                .insert(Name::new("Cube"))
-                .with_children(|b2| {
-                    b2.spawn_bundle(PbrBundle {
-                        mesh: meshes.add(mesh),
-                        material: materials.add(StandardMaterial {
-                            base_color_texture: Some(flag_texture),
-                            cull_mode: None, // Option required to render back faces correctly
-                            double_sided: true, // Option required to render back faces correctly
-                            ..Default::default()
-                        }),
-                        transform: Transform::from_xyz(-1.0, 1.0, 1.01),
+                },
+                Name::new("Cloth Controller"),
+            ))
+            .with_children(|b| {
+                b.spawn((
+                    PbrBundle {
+                        mesh: meshes.add(shape::Cube::new(2.0).into()),
+                        material: materials.add(Color::WHITE.into()),
+                        transform: Transform::from_xyz(10.0, 0.0, 0.0),
                         ..Default::default()
-                    })
-                    .insert(cloth)
-                    .insert(Name::new("Cloth"));
+                    },
+                    Name::new("Cube"),
+                ))
+                .with_children(|b2| {
+                    b2.spawn((
+                        PbrBundle {
+                            mesh: meshes.add(mesh),
+                            material: materials.add(StandardMaterial {
+                                base_color_texture: Some(flag_texture),
+                                cull_mode: None, // Option required to render back faces correctly
+                                double_sided: true, // Option required to render back faces correctly
+                                ..Default::default()
+                            }),
+                            transform: Transform::from_xyz(-1.0, 1.0, 1.01),
+                            ..Default::default()
+                        },
+                        cloth,
+                        Name::new("Cloth"),
+                    ));
                 });
             })
             .id(),
@@ -122,6 +127,5 @@ fn animate_cube(
     let delta_time = time.delta_seconds();
     let mut base_transform = query.get_mut(animation.base_entity.unwrap()).unwrap();
     base_transform.rotate(Quat::from_rotation_y(delta_time * animation.rotation_speed));
-    base_transform.translation.y =
-        3.0 + (time.time_since_startup().as_secs_f32() * 3.0).sin() * 2.0;
+    base_transform.translation.y = 3.0 + (time.elapsed_seconds() * 3.0).sin() * 2.0;
 }

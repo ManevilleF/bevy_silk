@@ -186,6 +186,7 @@ impl ClothBuilder {
 
     /// The cloth won't re-compute the mesh normals. It's the fastest option but lighting will
     /// become inconsistent
+    #[inline]
     pub fn without_normal_computation(mut self) -> Self {
         self.normals_computing = NormalComputing::None;
         self
@@ -194,12 +195,14 @@ impl ClothBuilder {
     /// The cloth will compute smooth vertex normals
     #[deprecated(note = "Use `with_smooth_normals` instead")]
     #[doc(hidden)]
+    #[inline]
     pub fn with_smooth_normal_computation(mut self) -> Self {
         self.normals_computing = NormalComputing::SmoothNormals;
         self
     }
 
     /// The cloth will compute smooth vertex normals
+    #[inline]
     pub fn with_smooth_normals(mut self) -> Self {
         self.normals_computing = NormalComputing::SmoothNormals;
         self
@@ -208,12 +211,14 @@ impl ClothBuilder {
     /// The cloth will compute flat vertex normals and duplicate shared vertices
     #[deprecated(note = "Use `with_flat_normals` instead")]
     #[doc(hidden)]
+    #[inline]
     pub fn with_flat_normal_computation(mut self) -> Self {
         self.normals_computing = NormalComputing::FlatNormals;
         self
     }
 
     /// The cloth will compute flat vertex normals and duplicate shared vertices
+    #[inline]
     pub fn with_flat_normals(mut self) -> Self {
         self.normals_computing = NormalComputing::FlatNormals;
         self

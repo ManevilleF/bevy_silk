@@ -1,3 +1,4 @@
+use bevy::ecs::prelude::Resource;
 use bevy::math::Vec3;
 use bevy::reflect::{FromReflect, Reflect};
 
@@ -25,7 +26,7 @@ pub enum Wind {
 
 /// Wind forces resource for cloth physics
 #[cfg_attr(feature = "debug", derive(bevy_inspector_egui::Inspectable))]
-#[derive(Debug, Clone, Reflect, Default)]
+#[derive(Debug, Clone, Reflect, Resource, Default)]
 pub struct Winds {
     /// Array of wind forces
     pub wind_forces: Vec<Wind>,

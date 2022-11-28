@@ -4,16 +4,16 @@
     clippy::option_if_let_else
 )]
 
-use crate::cloth::Cloth;
-use crate::cloth_rendering::ClothRendering;
+use crate::components::cloth::Cloth;
+use crate::components::cloth_builder::ClothBuilder;
+use crate::components::cloth_rendering::ClothRendering;
 use crate::config::ClothConfig;
 use crate::wind::Winds;
-use crate::ClothBuilder;
 use bevy::log::{debug, error, warn};
 use bevy::math::Vec3;
 use bevy::prelude::*;
 
-pub fn update_cloth(
+pub fn update(
     mut query: Query<(&mut Cloth, &GlobalTransform, Option<&ClothConfig>)>,
     anchor_query: Query<&GlobalTransform, Without<Cloth>>,
     config: Res<ClothConfig>,
@@ -21,9 +21,7 @@ pub fn update_cloth(
     time: Res<Time>,
 ) {
     let delta_time = time.delta_seconds();
-    let wind_force = wind.map_or(Vec3::ZERO, |w| {
-        w.current_velocity(time.time_since_startup().as_secs_f32())
-    });
+    let wind_force = wind.map_or(Vec3::ZERO, |w| w.current_velocity(time.elapsed_seconds()));
     for (mut cloth, transform, custom_config) in query.iter_mut() {
         let config: &ClothConfig = custom_config.unwrap_or(&config);
         cloth.update_points(
@@ -42,7 +40,7 @@ pub fn update_cloth(
     }
 }
 
-pub fn render_cloth(
+pub fn render(
     mut cloth_query: Query<(&Cloth, &mut ClothRendering, &GlobalTransform, &Handle<Mesh>)>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
@@ -56,7 +54,7 @@ pub fn render_cloth(
     }
 }
 
-pub fn init_cloth(
+pub fn init(
     mut commands: Commands,
     query: Query<(Entity, &ClothBuilder, &GlobalTransform, &Handle<Mesh>), Without<Cloth>>,
     meshes: Res<Assets<Mesh>>,
@@ -75,7 +73,7 @@ pub fn init_cloth(
                 &matrix,
             );
             // TODO: should the cloth builder be removed ?
-            commands.entity(entity).insert(rendering).insert(cloth);
+            commands.entity(entity).insert((rendering, cloth));
         }
     }
 }

@@ -22,27 +22,27 @@ rapier_collisions = ["bevy_rapier3d"]
 thiserror = "1.0"
 
 [dependencies.bevy-inspector-egui]
-version = "0.13"
+version = "0.14"
 optional = true
 
 [dependencies.bevy]
-version = "0.8"
+version = "0.9"
 default-features = false
 features = ["bevy_render", "bevy_asset"]
 
 [dependencies.bevy_rapier3d]
-version = "0.18"
+version = "0.19"
 optional = true
 default-features = false
 features = ["dim3"]
 
 [dev-dependencies]
-bevy-inspector-egui = "0.13"
-bevy_rapier3d = "0.18"
+bevy-inspector-egui = "0.14"
+bevy_rapier3d = "0.19"
 rand = "0.8"
 
 [dev-dependencies.bevy]
-version = "0.8"
+version = "0.9"
 features = ["render", "bevy_winit", "x11", "png"]
 default-features = false
 

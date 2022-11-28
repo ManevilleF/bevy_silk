@@ -1,4 +1,4 @@
-use bevy::ecs::prelude::{Component, ReflectComponent};
+use bevy::ecs::prelude::{Component, ReflectComponent, Resource};
 use bevy::math::Vec3;
 use bevy::reflect::Reflect;
 
@@ -25,7 +25,7 @@ pub enum AccelerationSmoothing {
 /// Used as a resource, it is used as a global configuration for every cloth entity.
 /// Used as a component on a cloth entity, it overrides the global values for that cloth.
 #[cfg_attr(feature = "debug", derive(bevy_inspector_egui::Inspectable))]
-#[derive(Debug, Clone, Component, Reflect)]
+#[derive(Debug, Clone, Component, Reflect, Resource)]
 #[reflect(Component)]
 pub struct ClothConfig {
     /// Custom gravity, classic (0, -9.81, 0) is used by default

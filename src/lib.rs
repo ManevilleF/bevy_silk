@@ -6,7 +6,7 @@
 //! [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 //! [![Crates.io](https://img.shields.io/crates/v/bevy_silk.svg)](https://crates.io/crates/bevy_silk)
 //! [![Docs.rs](https://docs.rs/bevy_silk/badge.svg)](https://docs.rs/bevy_silk)
-//! [![dependency status](https://deps.rs/crate/bevy_silk/0.2.0/status.svg)](https://deps.rs/crate/bevy_silk)
+//! [![dependency status](https://deps.rs/crate/bevy_silk/0.4.0/status.svg)](https://deps.rs/crate/bevy_silk)
 //!
 //! CPU driven Cloth engine for Bevy using Verlet integration.
 //!
@@ -62,20 +62,22 @@
 //! use bevy_silk::prelude::*;
 //!
 //! fn spawn(mut commands: Commands) {
-//!     commands.spawn_bundle(PbrBundle {
-//!         // Add your mesh, material and your custom PBR data   
-//!         ..Default::default()
-//!     }).insert(ClothBuilder::new()
-//!         // Define pinned vertices ids using an Iterator
-//!         .with_pinned_vertex_ids(0..9)
-//!         // Define the stick generation mode
-//!         .with_stick_generation(StickGeneration::Quads)
-//!         // Defines the sticks target length option
-//!         .with_stick_length(StickLen::Auto)
-//!         // The cloth will compute flat mesh normals
-//!         .with_flat_normals()
-//!         // ...
-//!     );
+//!     commands.spawn((
+//!         PbrBundle {
+//!             // Add your mesh, material and your custom PBR data
+//!             ..Default::default()
+//!         },
+//!         ClothBuilder::new()
+//!             // Define pinned vertices ids using an Iterator
+//!             .with_pinned_vertex_ids(0..9)
+//!             // Define the stick generation mode
+//!             .with_stick_generation(StickGeneration::Quads)
+//!             // Defines the sticks target length option
+//!             .with_stick_length(StickLen::Auto)
+//!             // The cloth will compute flat mesh normals
+//!             .with_flat_normals()
+//!             // ...
+//!     ));
 //! }
 //! ```
 //!
@@ -110,10 +112,10 @@
 //! fn spawn(mut commands: Commands) {
 //!     // Spawn an entity and get its id
 //!     let entity_a = commands
-//!         .spawn()
-//!         // Add your components
-//!         // .insert_bundle(TransformBundle::default())
-//!         // ...
+//!         .spawn((
+//!             // Add your components
+//!             // ...
+//!         ))
 //!         .id();
 //!     let anchor_to_a = VertexAnchor {
 //!         custom_target: Some(entity_a), // The anchor will pin the vertices to `entity_a`
@@ -211,12 +213,14 @@
 //! use bevy_silk::prelude::*;
 //!
 //! fn spawn(mut commands: Commands) {
-//!     commands.spawn_bundle(PbrBundle {
-//!         // Add your mesh, material and your custom PBR data   
-//!         ..Default::default()
-//!     })
-//!     .insert(ClothBuilder::new())
-//!     .insert(ClothCollider::default());
+//!     commands.spawn((
+//!         PbrBundle {
+//!             // Add your mesh, material and your custom PBR data
+//!             ..Default::default()
+//!         },
+//!         ClothBuilder::new(),
+//!         ClothCollider::default()
+//!     ));
 //! }
 //! ```
 //!
@@ -258,23 +262,14 @@
     clippy::module_name_repetitions,
     clippy::redundant_pub_crate
 )]
-/// cloth module
-pub mod cloth;
-/// cloth builder module
-pub mod cloth_builder;
-/// cloth rendering module
-pub mod cloth_rendering;
-/// collider module
-#[cfg(feature = "rapier_collisions")]
-pub mod collider;
+/// components module
+pub mod components;
 /// config module
 pub mod config;
 /// error module
 pub mod error;
 /// mesh module
 pub mod mesh;
-#[cfg(feature = "rapier_collisions")]
-mod rapier_collisions;
 /// stick module
 pub mod stick;
 /// systems module
@@ -286,15 +281,16 @@ pub mod wind;
 
 use crate::prelude::*;
 use bevy::app::{App, Plugin};
-use bevy::ecs::schedule::ParallelSystemDescriptorCoercion;
+use bevy::prelude::IntoSystemDescriptor;
 
 /// Prelude module, providing every public type of the lib
 pub mod prelude {
     #[cfg(feature = "rapier_collisions")]
-    pub use crate::collider::ClothCollider;
+    pub use crate::components::collider::ClothCollider;
     pub use crate::{
-        cloth_builder::ClothBuilder,
-        cloth_rendering::NormalComputing,
+        components::cloth::Cloth,
+        components::cloth_builder::ClothBuilder,
+        components::cloth_rendering::NormalComputing,
         config::{AccelerationSmoothing, ClothConfig},
         error::Error,
         mesh::rectangle_mesh,
@@ -315,16 +311,16 @@ impl Plugin for ClothPlugin {
         app.register_type::<ClothConfig>()
             .register_type::<Wind>()
             .register_type::<Winds>();
-        app.add_system(systems::init_cloth.label("CLOTH_INIT"));
-        app.add_system(systems::update_cloth.label("CLOTH_UPDATE"));
+        app.add_system(systems::cloth::init.label("CLOTH_INIT"));
+        app.add_system(systems::cloth::update.label("CLOTH_UPDATE"));
         app.add_system(
-            systems::render_cloth
+            systems::cloth::render
                 .label("CLOTH_RENDER")
                 .after("CLOTH_UPDATE"),
         );
         #[cfg(feature = "rapier_collisions")]
-        app.add_system(rapier_collisions::init_cloth_collider.after("CLOTH_INIT"))
-            .add_system(rapier_collisions::handle_collisions.before("CLOTH_RENDER"));
+        app.add_system(systems::collisions::init_cloth_collider.after("CLOTH_INIT"))
+            .add_system(systems::collisions::handle_collisions.before("CLOTH_RENDER"));
         bevy::log::info!("Loaded Cloth Plugin");
     }
 }

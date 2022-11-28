@@ -4,7 +4,7 @@
     clippy::option_if_let_else,
     clippy::suboptimal_flops
 )]
-use crate::{cloth::Cloth, cloth_rendering::ClothRendering, ClothCollider};
+use crate::components::{cloth::Cloth, cloth_rendering::ClothRendering, collider::ClothCollider};
 use bevy::log::{debug, error};
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
@@ -96,11 +96,11 @@ pub fn init_cloth_collider(
     for (entity, transform, rendering, collider) in cloth_query.iter() {
         let matrix = transform.compute_matrix();
         debug!("Initializing Cloth collisions for {:?}", entity);
-        commands
-            .entity(entity)
-            .insert(RigidBody::KinematicPositionBased)
-            .insert(get_collider(rendering, collider, Some(&matrix)))
-            .insert(SolverGroups::new(Group::NONE, Group::NONE));
+        commands.entity(entity).insert((
+            RigidBody::KinematicPositionBased,
+            get_collider(rendering, collider, Some(&matrix)),
+            SolverGroups::new(Group::NONE, Group::NONE),
+        ));
     }
 }
 

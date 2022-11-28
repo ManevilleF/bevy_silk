@@ -8,7 +8,7 @@
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 [![Crates.io](https://img.shields.io/crates/v/bevy_silk.svg)](https://crates.io/crates/bevy_silk)
 [![Docs.rs](https://docs.rs/bevy_silk/badge.svg)](https://docs.rs/bevy_silk)
-[![dependency status](https://deps.rs/crate/bevy_silk/0.2.0/status.svg)](https://deps.rs/crate/bevy_silk)
+[![dependency status](https://deps.rs/crate/bevy_silk/0.4.0/status.svg)](https://deps.rs/crate/bevy_silk)
 
 CPU driven Cloth engine for Bevy using Verlet integration.
 
@@ -64,20 +64,22 @@ use bevy::prelude::*;
 use bevy_silk::prelude::*;
 
 fn spawn(mut commands: Commands) {
-    commands.spawn_bundle(PbrBundle {
-        // Add your mesh, material and your custom PBR data   
-        ..Default::default()
-    }).insert(ClothBuilder::new()
-        // Define pinned vertices ids using an Iterator
-        .with_pinned_vertex_ids(0..9)
-        // Define the stick generation mode
-        .with_stick_generation(StickGeneration::Quads)
-        // Defines the sticks target length option
-        .with_stick_length(StickLen::Auto)
-        // The cloth will compute flat mesh normals
-        .with_flat_normals()
-        // ...
-    );
+    commands.spawn((
+        PbrBundle {
+            // Add your mesh, material and your custom PBR data
+            ..Default::default()
+        },
+        ClothBuilder::new()
+            // Define pinned vertices ids using an Iterator
+            .with_pinned_vertex_ids(0..9)
+            // Define the stick generation mode
+            .with_stick_generation(StickGeneration::Quads)
+            // Defines the sticks target length option
+            .with_stick_length(StickLen::Auto)
+            // The cloth will compute flat mesh normals
+            .with_flat_normals()
+            // ...
+    ));
 }
 ```
 
@@ -112,10 +114,10 @@ use bevy_silk::prelude::*;
 fn spawn(mut commands: Commands) {
     // Spawn an entity and get its id
     let entity_a = commands
-        .spawn()
-        // Add your components
-        // .insert_bundle(TransformBundle::default())
-        // ...
+        .spawn((
+            // Add your components
+            // ...
+        ))
         .id();
     let anchor_to_a = VertexAnchor {
         custom_target: Some(entity_a), // The anchor will pin the vertices to `entity_a`
@@ -213,12 +215,14 @@ use bevy::prelude::*;
 use bevy_silk::prelude::*;
 
 fn spawn(mut commands: Commands) {
-    commands.spawn_bundle(PbrBundle {
-        // Add your mesh, material and your custom PBR data   
-        ..Default::default()
-    })
-    .insert(ClothBuilder::new())
-    .insert(ClothCollider::default());
+    commands.spawn((
+        PbrBundle {
+            // Add your mesh, material and your custom PBR data
+            ..Default::default()
+        },
+        ClothBuilder::new(),
+        ClothCollider::default()
+    ));
 }
 ```
 
