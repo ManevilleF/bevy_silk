@@ -74,12 +74,8 @@ impl Winds {
     pub fn current_velocity(&self, elapsed_time: f32) -> Vec3 {
         self.wind_forces
             .iter()
-            .fold(Vec3::ZERO, |res, w| res + w.current_velocity(elapsed_time))
-        // TODO: find why Vec3 doesn't implement `Sum`
-        // self.wind_forces
-        //     .iter()
-        //     .map(|w|w.current_velocity(elapsed_time))
-        //     .sum()
+            .map(|w| w.current_velocity(elapsed_time))
+            .sum()
     }
 }
 

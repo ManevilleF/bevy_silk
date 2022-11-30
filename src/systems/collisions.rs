@@ -45,13 +45,10 @@ pub fn handle_collisions(
             } else {
                 contact_pair.collider1()
             };
-            let (other_collider, other_transform, other_velocity) =
-                if let Ok(c) = colliders_query.get_mut(other_entity) {
-                    c
-                } else {
-                    error!("Couldn't find collider on entity {:?}", entity);
-                    continue;
-                };
+            let Ok((other_collider, other_transform, other_velocity)) = colliders_query.get_mut(other_entity) else {
+                error!("Couldn't find collider on entity {:?}", entity);
+                continue;
+            };
             let vel = other_velocity.as_ref().map_or(0.0, |v| {
                 v.linvel.length_squared() * delta_time * delta_time * collider.velocity_coefficient
             });
