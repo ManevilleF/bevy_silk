@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0
 
 * Bump `bevy` to `0.9.x`
 * Bump `bevy_rapier` to `0.19.x`

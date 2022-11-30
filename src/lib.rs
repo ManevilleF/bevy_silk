@@ -18,7 +18,7 @@
 //!
 //! Add `bevy_silk` as a dependency in the `Cargo.toml`
 //!
-//! `bevy_silk = "0.3"`
+//! `bevy_silk = "0.4"`
 //!
 //! Or follow the main git branch
 //!
@@ -31,6 +31,7 @@
 //! | 0.1.0  | 0.7  |
 //! | 0.2.0  | 0.7  |
 //! | 0.3.0  | 0.8  |
+//! | 0.4.0  | 0.9  |
 //!
 //! ### Plugin
 //!
@@ -145,8 +146,6 @@
 //! - define custom offsets to customize the distance between the anchored vertices an the target
 //! - use world space pinning and ignore the target's rotation for example
 //! - override the vertex positions, using only the offset
-//!
-//! > Note: `bevy` 0.7.0 doesn't support vertex colors yet, resulting in potential crash if used
 //!
 //! ### Configuration
 //!
