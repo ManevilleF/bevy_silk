@@ -31,10 +31,10 @@ default-features = false
 features = ["bevy_render", "bevy_asset"]
 
 [dependencies.bevy_rapier3d]
-version = "0.19"
+version = "0.20"
 optional = true
 default-features = false
-features = ["dim3"]
+features = ["dim3", "async-collider"]
 
 [dev-dependencies]
 bevy-inspector-egui = "0.14"

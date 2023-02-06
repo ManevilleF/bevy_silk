@@ -1,9 +1,13 @@
 # Changelog
 
+## Uneleased
+
+* Bump `bevy_rapier3d` to `0.20.x`
+
 ## 0.4.0
 
 * Bump `bevy` to `0.9.x`
-* Bump `bevy_rapier` to `0.19.x`
+* Bump `bevy_rapier3d` to `0.19.x`
 * Bump `bevy_inspector_egui` to `0.14.x`
 * Modules refactoring
 
