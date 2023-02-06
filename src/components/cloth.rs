@@ -109,10 +109,8 @@ impl Cloth {
             if !sticks.contains_key(&(c, b)) {
                 sticks.insert((b, c), stick_len.get_stick_len(p_b, p_c));
             }
-            if let StickGeneration::Triangles = stick_generation {
-                if !sticks.contains_key(&(a, c)) {
-                    sticks.insert((c, a), stick_len.get_stick_len(p_c, p_a));
-                }
+            if stick_generation == StickGeneration::Triangles && !sticks.contains_key(&(a, c)) {
+                sticks.insert((c, a), stick_len.get_stick_len(p_c, p_a));
             }
         }
         Self {
