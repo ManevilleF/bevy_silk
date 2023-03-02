@@ -20,7 +20,7 @@ macro_rules! get_point {
 
 /// Cloth component. Do not insert it directly, use [`ClothBuilder`] instead.
 ///
-/// [`ClothBuilder`]: crate::components::ClothBuilder
+/// [`ClothBuilder`]: crate::prelude::ClothBuilder
 #[derive(Debug, Clone, Component, Default)]
 #[must_use]
 pub struct Cloth {
