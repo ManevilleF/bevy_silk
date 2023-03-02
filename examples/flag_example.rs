@@ -82,7 +82,9 @@ fn spawn_cloth(
     let mesh = rectangle_mesh((size_x, size_y), (Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
 
     // Regular Smooth Flag
-    let cloth = ClothBuilder::new().with_pinned_vertex_ids((0..size_y).map(|i| i * size_x));
+    let cloth = ClothBuilder::new()
+        .with_pinned_vertex_ids((0..size_y).map(|i| i * size_x))
+        .with_stick_generation(StickGeneration::Triangles);
     commands.spawn((
         PbrBundle {
             mesh: meshes.add(mesh.clone()),

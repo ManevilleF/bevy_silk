@@ -99,8 +99,7 @@ fn spawn_cloth(
                 custom_offset: Some(Vec3::X * 30.0),
                 ..Default::default()
             },
-        )
-        .with_stick_generation(StickGeneration::Quads);
+        );
     commands.spawn((
         PbrBundle {
             mesh: meshes.add(mesh),

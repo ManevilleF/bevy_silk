@@ -4,7 +4,6 @@
 
 * Bump `bevy_rapier3d` to `0.20.x`
 * `Cloth` and `ClothRendering` components will update on `ClothBuilder` changes
-* (**BREAKING**) Default `StickGeneration` is now `Triangles`, as it is cheaper and fits more use cases
 
 ### bevy_inspector_egui
 
