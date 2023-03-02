@@ -34,15 +34,15 @@ jobs:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
       - name: build baloon example
-        run: cargo clippy --features debug --example balloon
+        run: cargo clippy --example balloon
       - name: build flag example
-        run: cargo clippy --features debug --example flag
+        run: cargo clippy --example flag
       - name: build moving example
-        run: cargo clippy --features debug --example moving
+        run: cargo clippy --example moving
       - name: build rapier example
-        run: cargo clippy --features "debug rapier_collisions" --example rapier_collision
+        run: cargo clippy --features rapier_collisions --example rapier_collision
       - name: build anchors example
-        run: cargo clippy --features debug --example anchors
+        run: cargo clippy --example anchors
 
   test:
     runs-on: ubuntu-latest

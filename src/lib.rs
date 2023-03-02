@@ -309,7 +309,8 @@ impl Plugin for ClothPlugin {
         app.init_resource::<ClothConfig>();
         app.register_type::<ClothConfig>()
             .register_type::<Wind>()
-            .register_type::<Winds>();
+            .register_type::<Winds>()
+            .register_type::<ClothBuilder>();
         app.add_system(systems::cloth::init.label("CLOTH_INIT"));
         app.add_system(systems::cloth::update.label("CLOTH_UPDATE"));
         app.add_system(
@@ -318,7 +319,8 @@ impl Plugin for ClothPlugin {
                 .after("CLOTH_UPDATE"),
         );
         #[cfg(feature = "rapier_collisions")]
-        app.add_system(systems::collisions::init_cloth_collider.after("CLOTH_INIT"))
+        app.register_type::<ClothCollider>()
+            .add_system(systems::collisions::init_cloth_collider.after("CLOTH_INIT"))
             .add_system(systems::collisions::handle_collisions.before("CLOTH_RENDER"));
         bevy::log::info!("Loaded Cloth Plugin");
     }

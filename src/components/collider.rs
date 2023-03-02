@@ -1,9 +1,10 @@
 use bevy::ecs::component::Component;
+use bevy::reflect::Reflect;
 
 /// Enables collisions on a cloth entity
 ///
 /// The collisions will be detected through a cuboid shape using the cloth AABB bounding box.
-#[derive(Debug, Clone, Component)]
+#[derive(Debug, Clone, Component, Reflect)]
 pub struct ClothCollider {
     /// offset to apply on collision projected point to prevent clipping
     pub offset: f32,

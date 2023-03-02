@@ -2,6 +2,7 @@ use crate::prelude::*;
 use crate::vertex_anchor::VertexAnchor;
 use bevy::ecs::prelude::Component;
 use bevy::log::warn;
+use bevy::reflect::Reflect;
 use bevy::render::mesh::VertexAttributeValues;
 use bevy::render::prelude::{Color, Mesh};
 use bevy::utils::HashMap;
@@ -9,7 +10,7 @@ use bevy::utils::HashMap;
 /// Builder component for cloth behaviour, defines every available option for cloth generation and rendering.
 ///
 /// Add this component to an entity with at least a `GlobalTransform` and a `Handle<Mesh>`
-#[derive(Debug, Clone, Default, Component)]
+#[derive(Debug, Clone, Reflect, Default, Component)]
 #[must_use]
 pub struct ClothBuilder {
     /// cloth vertex ids unaffected by physics and following the attached `GlobalTransform`.

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::time::FixedTimestep;
-use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
+use bevy_inspector_egui::quick::{ResourceInspectorPlugin, WorldInspectorPlugin};
 use bevy_rapier3d::prelude::*;
 use bevy_silk::prelude::*;
 use rand::{thread_rng, Rng};
@@ -21,8 +21,8 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugin(InspectorPlugin::<ClothConfig>::new())
-        .add_plugin(WorldInspectorPlugin::default())
+        .add_plugin(ResourceInspectorPlugin::<ClothConfig>::new())
+        .add_plugin(WorldInspectorPlugin)
         .add_plugin(ClothPlugin)
         .add_plugin(camera_plugin::CameraPlugin)
         .insert_resource(ClothMovement { sign: -1.0, t: 0.0 })
@@ -88,7 +88,9 @@ fn spawn_cloth(
     let flag_texture = asset_server.load("Bevy.png");
     let (size_x, size_y) = (60, 40);
     let mesh = rectangle_mesh((size_x, size_y), (-Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
-    let cloth = ClothBuilder::new().with_pinned_vertex_ids(0..size_x);
+    let cloth = ClothBuilder::new()
+        .with_pinned_vertex_ids(0..size_x)
+        .with_stick_generation(StickGeneration::Triangles);
     commands.spawn((
         PbrBundle {
             mesh: meshes.add(mesh),

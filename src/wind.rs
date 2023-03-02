@@ -3,7 +3,6 @@ use bevy::math::Vec3;
 use bevy::reflect::{FromReflect, Reflect};
 
 /// Wind definition for cloth physics
-#[cfg_attr(feature = "debug", derive(bevy_inspector_egui::Inspectable))]
 #[derive(Debug, Clone, Reflect, FromReflect)]
 pub enum Wind {
     /// Constant Wind force
@@ -25,7 +24,6 @@ pub enum Wind {
 }
 
 /// Wind forces resource for cloth physics
-#[cfg_attr(feature = "debug", derive(bevy_inspector_egui::Inspectable))]
 #[derive(Debug, Clone, Reflect, Resource, Default)]
 pub struct Winds {
     /// Array of wind forces

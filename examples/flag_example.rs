@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
+use bevy_inspector_egui::quick::{ResourceInspectorPlugin, WorldInspectorPlugin};
 use bevy_silk::prelude::*;
 
 mod camera_plugin;
@@ -11,14 +11,14 @@ fn main() {
             brightness: 1.0,
         })
         .add_plugins(DefaultPlugins)
-        .add_plugin(WorldInspectorPlugin::default())
-        .add_plugin(InspectorPlugin::<Winds>::new())
-        .add_plugin(InspectorPlugin::<ClothConfig>::new())
+        .add_plugin(WorldInspectorPlugin)
+        .add_plugin(ResourceInspectorPlugin::<Winds>::new())
+        .add_plugin(ResourceInspectorPlugin::<ClothConfig>::new())
         .add_plugin(camera_plugin::CameraPlugin)
         .insert_resource(Winds::from(vec![
             Wind::SinWave {
-                max_velocity: Vec3::new(15.0, 10.0, 0.0),
-                frequency: 1.0,
+                max_velocity: Vec3::new(20.0, 15.0, 0.0),
+                frequency: 3.0,
                 normalize: true,
                 abs: false,
             },
@@ -82,7 +82,9 @@ fn spawn_cloth(
     let mesh = rectangle_mesh((size_x, size_y), (Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
 
     // Regular Smooth Flag
-    let cloth = ClothBuilder::new().with_pinned_vertex_ids((0..size_y).map(|i| i * size_x));
+    let cloth = ClothBuilder::new()
+        .with_pinned_vertex_ids((0..size_y).map(|i| i * size_x))
+        .with_stick_generation(StickGeneration::Triangles);
     commands.spawn((
         PbrBundle {
             mesh: meshes.add(mesh.clone()),

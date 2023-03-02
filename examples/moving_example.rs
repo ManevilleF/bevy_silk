@@ -1,12 +1,11 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::{Inspectable, InspectorPlugin, WorldInspectorPlugin};
+use bevy_inspector_egui::quick::{ResourceInspectorPlugin, WorldInspectorPlugin};
 use bevy_silk::prelude::*;
 
 mod camera_plugin;
 
-#[derive(Debug, Clone, Inspectable, Resource)]
+#[derive(Debug, Clone, Reflect, Resource)]
 struct MovingAnimation {
-    #[inspectable(collapse)]
     pub base_entity: Option<Entity>,
     pub rotation_speed: f32,
 }
@@ -22,14 +21,15 @@ impl Default for MovingAnimation {
 
 fn main() {
     App::new()
+        .register_type::<MovingAnimation>()
         .insert_resource(AmbientLight {
             color: Color::WHITE,
             brightness: 1.0,
         })
         .add_plugins(DefaultPlugins)
-        .add_plugin(WorldInspectorPlugin::default())
-        .add_plugin(InspectorPlugin::<ClothConfig>::new())
-        .add_plugin(InspectorPlugin::<MovingAnimation>::new())
+        .add_plugin(WorldInspectorPlugin)
+        .add_plugin(ResourceInspectorPlugin::<ClothConfig>::new())
+        .add_plugin(ResourceInspectorPlugin::<MovingAnimation>::new())
         .add_plugin(camera_plugin::CameraPlugin)
         .add_plugin(ClothPlugin)
         .add_startup_system(spawn_cloth)
