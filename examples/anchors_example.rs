@@ -65,7 +65,7 @@ fn spawn_cloth(
             PbrBundle {
                 mesh: anchor_mesh.clone(),
                 material: materials.add(Color::RED.into()),
-                transform: Transform::from_xyz(15.0, 15.0, 15.0),
+                transform: Transform::from_xyz(-15.0, 15.0, 15.0),
                 ..Default::default()
             },
             Name::new("Anchor RED"),
@@ -76,27 +76,27 @@ fn spawn_cloth(
             PbrBundle {
                 mesh: anchor_mesh,
                 material: materials.add(Color::GREEN.into()),
-                transform: Transform::from_xyz(-15.0, 15.0, 15.0),
+                transform: Transform::from_xyz(15.0, 15.0, 15.0),
                 ..Default::default()
             },
             Name::new("Anchor GREEN"),
         ))
         .id();
 
-    let mesh = rectangle_mesh((size_x, size_y), (-Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
+    let mesh = rectangle_mesh((size_x, size_y), (Vec3::X * 0.5, -Vec3::Y * 0.5), -Vec3::Z);
     let cloth = ClothBuilder::new()
-        .with_anchored_vertex_ids(
-            (0..size_y).map(|i| i * size_x),
+        .with_anchored_vertex_positions(
+            |p| p.x <= 0.0,
             VertexAnchor {
                 custom_target: Some(entity_a),
                 ..Default::default()
             },
         )
-        .with_anchored_vertex_ids(
-            (0..size_y).map(|i| i * size_x + size_x - 1),
+        .with_anchored_vertex_positions(
+            |p| p.x >= 29.5,
             VertexAnchor {
                 custom_target: Some(entity_b),
-                custom_offset: Some(Vec3::X * 30.0),
+                custom_offset: Some(-Vec3::X * 30.0),
                 ..Default::default()
             },
         );

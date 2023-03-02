@@ -54,6 +54,6 @@ pub fn handle_camera(
     }
     // Zoom
     for ev in scroll_evr.iter() {
-        transform.translation += ev.y * delta_time * forward;
+        transform.translation += ev.y * delta_time * forward * 10.0;
     }
 }

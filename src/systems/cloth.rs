@@ -56,7 +56,7 @@ pub fn render(
 
 pub fn init(
     mut commands: Commands,
-    query: Query<(Entity, &ClothBuilder, &GlobalTransform, &Handle<Mesh>), Changed<ClothBuilder>>,
+    query: Query<(Entity, &ClothBuilder, &GlobalTransform, &Handle<Mesh>), Added<ClothBuilder>>,
     meshes: Res<Assets<Mesh>>,
 ) {
     for (entity, builder, transform, handle) in query.iter() {

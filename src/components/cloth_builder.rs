@@ -1,14 +1,13 @@
-use std::sync::Arc;
-
 use crate::prelude::*;
 use crate::vertex_anchor::VertexAnchor;
 use bevy::ecs::prelude::Component;
-use bevy::log::warn;
+use bevy::log;
 use bevy::math::Vec3;
 use bevy::reflect::Reflect;
 use bevy::render::mesh::VertexAttributeValues;
 use bevy::render::prelude::{Color, Mesh};
 use bevy::utils::HashMap;
+use std::sync::Arc;
 
 type PinnedPosCondition = dyn Fn(Vec3) -> bool + Send + Sync;
 
@@ -182,18 +181,13 @@ impl ClothBuilder {
     /// # Example
     ///
     /// ```rust
-    /// # use bevy_silk::*;
+    /// # use bevy_silk::prelude::*;
     ///
     /// let builder = ClothBuilder::new().with_pinned_vertex_positions(|pos| pos.x > 0.0);
     /// ```
     #[inline]
-    pub fn with_pinned_vertex_positions(
-        mut self,
-        condition: impl Fn(Vec3) -> bool + Send + Sync + 'static,
-    ) -> Self {
-        self.anchored_position_conditions
-            .push((Arc::new(condition), VertexAnchor::default()));
-        self
+    pub fn with_pinned_vertex_positions(self, condition: fn(Vec3) -> bool) -> Self {
+        self.with_anchored_vertex_positions(condition, Default::default())
     }
 
     /// Adds anchored vertex positions for the cloth
@@ -206,7 +200,7 @@ impl ClothBuilder {
     /// # Example
     ///
     /// ```rust
-    /// # use bevy_silk::*;
+    /// # use bevy_silk::prelude::*;
     ///
     /// let anchor = VertexAnchor::default();
     /// let builder = ClothBuilder::new().with_anchored_vertex_positions(|pos| pos.x > 0.0, anchor);
@@ -214,7 +208,7 @@ impl ClothBuilder {
     #[inline]
     pub fn with_anchored_vertex_positions(
         mut self,
-        condition: impl Fn(Vec3) -> bool + Send + Sync + 'static,
+        condition: fn(Vec3) -> bool,
         vertex_anchor: VertexAnchor,
     ) -> Self {
         self.anchored_position_conditions
@@ -310,7 +304,7 @@ impl ClothBuilder {
                         _ => None,
                     });
             vertex_colors.map_or_else(|| {
-                warn!("ClothBuilder has anchored vertex colors but the associated mesh doesn't have a valid Vertex_Color attribute");
+                log::warn!("ClothBuilder has anchored vertex colors but the associated mesh doesn't have a valid Vertex_Color attribute");
             }, |colors| {
                 res.extend(colors.into_iter().enumerate().filter_map(|(i, color)| {
                     self.anchored_vertex_colors
@@ -330,7 +324,7 @@ impl ClothBuilder {
                     _ => None,
                 });
             vertex_positions.map_or_else(|| {
-                warn!("ClothBuilder has anchored vertex positions but the associated mesh doesn't have a valid Vertex_Position attribute");
+                log::warn!("ClothBuilder has anchored vertex positions but the associated mesh doesn't have a valid Vertex_Position attribute");
             }, |positions| {
                 res.extend(positions.into_iter().enumerate().flat_map(|(i, pos)| {
                     self.anchored_position_conditions
