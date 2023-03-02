@@ -253,6 +253,18 @@ You probably didn't specify any *pinned points*, meaning there are no vertices a
 Gravity and winds are by default smoothed out by the framerate, if the framerate drops suddenly gravity and wind get much stronger.
 If your simulation suffers from this you can specify a custom smooth value in `ClothConfig::acceleration_smoothing`.
 
+- `My cloth has stange visuals / clips into itself`
+
+Try changing the `StickGeneration` mode to *triangles*, otherwise there is yet no way to avoid clipping as cloth points don't have
+actual volume and collisions, as that would be too expensive. You might want to play with vertex anchoring and maybe reduce the 
+vertex amount in your cloth mesh
+
+- `I applied a ClothBuilder to my mesh and now all other entities with that mesh are acting like a cloth`
+
+The cloth system directly edits the mesh stored in the associated `Handle<Mesh>` component, therefore, sharing the same handle between
+entities will result in the cloth physics being duplicated to other entities usin the same handle.
+This can be used for optimization, but if that is not the expected result you might want to clone the inner mesh and give its handle only 
+to the target cloth entity
 
 <!-- cargo-sync-readme end -->
 
@@ -270,23 +282,23 @@ If your simulation suffers from this you can specify a custom smooth value in `C
 
 1. Flag example
 
-run `cargo run --example flag --features debug`
+run `cargo run --example flag`
 
 2. Balloon example
 
-run `cargo run --example balloon --features debug`
+run `cargo run --example balloon`
 
 3. Moving example
 
-run `cargo run --example moving --features debug`
+run `cargo run --example moving`
 
 4. [Rapier] Collision example
 
-run `cargo run --example rapier_collision --features "debug rapier_collisions"`
+run `cargo run --example rapier_collision --features rapier_collisions`
 
 5. Anchors example
 
-run `cargo run --example anchors --features debug`
+run `cargo run --example anchors`
 
 [Rapier]: https://github.com/dimforge/bevy_rapier
 [Heron]: https://github.com/jcornaz/heron
