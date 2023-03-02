@@ -103,7 +103,9 @@ let cloth = ClothBuilder::new()
     // Adds pinned vertex colors using an Iterator
     .with_pinned_vertex_colors([Color::WHITE, Color::BLACK].into_iter())
     // Adds a single pinned vertex color
-    .with_pinned_vertex_color(Color::YELLOW);
+    .with_pinned_vertex_color(Color::YELLOW)
+    // Adds pinned vertex positions
+    .with_pinned_vertex_positions(|pos| pos.x > 0.0 && pos.z <= 5.0);
 ```
 
 For more anchoring options, for example to specify a custom entity to pin the vertices to:
@@ -139,7 +141,9 @@ fn spawn(mut commands: Commands) {
         // Adds pinned vertex colors using an Iterator
         .with_anchored_vertex_colors([Color::WHITE, Color::BLACK].into_iter(), anchor_to_a)
         // Adds a single pinned vertex color
-        .with_anchored_vertex_color(Color::YELLOW, anchor_to_self);
+        .with_anchored_vertex_color(Color::YELLOW, anchor_to_self)
+        // Adds pinned vertex positions
+        .with_anchored_vertex_positions(|pos| pos.x > 0.0 && pos.z <= 5.0, anchor_to_self);
 }
 ```
 

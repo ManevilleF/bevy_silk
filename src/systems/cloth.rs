@@ -72,7 +72,6 @@ pub fn init(
                 builder.stick_length,
                 &matrix,
             );
-            // TODO: should the cloth builder be removed ?
             commands.entity(entity).insert((rendering, cloth));
         }
     }
