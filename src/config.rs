@@ -7,7 +7,6 @@ use bevy::reflect::Reflect;
 ///
 /// By default, accelerations are multiplied by the squared value of the elapsed time since last frame
 /// (delta time) but if you notice some jittery behaviour a fixed coefficient can enforce a smooth simulation
-#[cfg_attr(feature = "debug", derive(bevy_inspector_egui::Inspectable))]
 #[derive(Debug, Copy, Clone, Default, Reflect)]
 pub enum AccelerationSmoothing {
     #[default]
@@ -24,7 +23,6 @@ pub enum AccelerationSmoothing {
 ///
 /// Used as a resource, it is used as a global configuration for every cloth entity.
 /// Used as a component on a cloth entity, it overrides the global values for that cloth.
-#[cfg_attr(feature = "debug", derive(bevy_inspector_egui::Inspectable))]
 #[derive(Debug, Clone, Component, Reflect, Resource)]
 #[reflect(Component)]
 pub struct ClothConfig {

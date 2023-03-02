@@ -3,6 +3,15 @@
 ## Uneleased
 
 * Bump `bevy_rapier3d` to `0.20.x`
+* `Cloth` and `ClothRendering` components will update on `ClothBuilder` changes
+* (**BREAKING**) Default `StickGeneration` is now `Triangles`, as it is cheaper and fits more use cases
+
+### bevy_inspector_egui
+
+With the new version (See [Migration guide](https://github.com/jakobhellermann/bevy-inspector-egui/blob/main/docs/MIGRATION_GUIDE_0.15_0.16.md)),
+the following changes were applied:
+* (**BREAKING**) Removed `debug` feature
+* Removed `bevy_inspector_egui` dependency, kept only as `dev-dependency` for examples
 
 ## 0.4.0
 
@@ -14,7 +23,7 @@
 ## 0.3.0
 
 * Bump `bevy` to `0.8.x`
-* Bump `bevy_rapier` to `0.18.x`
+* Bump `bevy_rapier3d` to `0.18.x`
 * Bump `bevy_inspector_egui` to `0.13.x`
 * Removed `smooth-bevy-cameras` dependency
 

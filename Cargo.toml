@@ -14,16 +14,11 @@ documentation = "https://docs.rs/bevy_silk"
 
 [features]
 default = []
-debug = ["bevy-inspector-egui"]
 rapier_collisions = ["bevy_rapier3d"]
 
 [dependencies]
 # Error handling
 thiserror = "1.0"
-
-[dependencies.bevy-inspector-egui]
-version = "0.14"
-optional = true
 
 [dependencies.bevy]
 version = "0.9"
@@ -37,7 +32,7 @@ default-features = false
 features = ["dim3", "async-collider"]
 
 [dev-dependencies]
-bevy-inspector-egui = "0.14"
+bevy-inspector-egui = "0.17"
 bevy_rapier3d = "0.20"
 rand = "0.8"
 
@@ -49,27 +44,23 @@ default-features = false
 [[example]]
 name = "balloon"
 path = "examples/balloon_example.rs"
-required-features = ["debug"]
 
 [[example]]
 name = "flag"
 path = "examples/flag_example.rs"
-required-features = ["debug"]
 
 [[example]]
 name = "moving"
 path = "examples/moving_example.rs"
-required-features = ["debug"]
 
 [[example]]
 name = "rapier_collision"
 path = "examples/rapier_collision_example.rs"
-required-features = ["debug", "rapier_collisions"]
+required-features = ["rapier_collisions"]
 
 [[example]]
 name = "anchors"
 path = "examples/anchors_example.rs"
-required-features = ["debug"]
 
 [[example]]
 name = "camera_plugin"

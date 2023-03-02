@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::{InspectorPlugin, WorldInspectorPlugin};
+use bevy_inspector_egui::quick::{ResourceInspectorPlugin, WorldInspectorPlugin};
 use bevy_silk::prelude::*;
 
 mod camera_plugin;
@@ -11,8 +11,8 @@ fn main() {
             brightness: 1.0,
         })
         .add_plugins(DefaultPlugins)
-        .add_plugin(InspectorPlugin::<ClothConfig>::new())
-        .add_plugin(WorldInspectorPlugin::default())
+        .add_plugin(ResourceInspectorPlugin::<ClothConfig>::new())
+        .add_plugin(WorldInspectorPlugin)
         .add_plugin(camera_plugin::CameraPlugin)
         .add_plugin(ClothPlugin)
         .add_startup_system(spawn_cloth)
@@ -99,7 +99,8 @@ fn spawn_cloth(
                 custom_offset: Some(Vec3::X * 30.0),
                 ..Default::default()
             },
-        );
+        )
+        .with_stick_generation(StickGeneration::Quads);
     commands.spawn((
         PbrBundle {
             mesh: meshes.add(mesh),
