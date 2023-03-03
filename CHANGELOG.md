@@ -3,7 +3,11 @@
 ## Uneleased
 
 * Bump `bevy_rapier3d` to `0.20.x`
-* `Cloth` and `ClothRendering` components will update on `ClothBuilder` changes
+* `ClothBuilder` is now `Reflect` and registered
+* Added vertex position anchoring for `ClothBuilder`:
+  * `ClothBuilder::with_pinned_vertex_positions`
+  * `ClothBuilder::with_anchored_vertex_positions`
+* Removed unused `VertexAnchor::world_space` attribute
 
 ### bevy_inspector_egui
 

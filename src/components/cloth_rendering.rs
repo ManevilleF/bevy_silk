@@ -124,8 +124,8 @@ impl ClothRendering {
     /// - 1: The half extents of the bounding box
     #[must_use]
     pub fn compute_aabb(&self, offset: Option<f32>) -> (Vec3, Vec3) {
-        const VEC3_MIN: Vec3 = Vec3::from_array([std::f32::MIN, std::f32::MIN, std::f32::MIN]);
-        const VEC3_MAX: Vec3 = Vec3::from_array([std::f32::MAX, std::f32::MAX, std::f32::MAX]);
+        const VEC3_MIN: Vec3 = Vec3::from_array([std::f32::MIN; 3]);
+        const VEC3_MAX: Vec3 = Vec3::from_array([std::f32::MAX; 3]);
 
         let mut minimum = VEC3_MAX;
         let mut maximum = VEC3_MIN;

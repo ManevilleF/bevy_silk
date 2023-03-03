@@ -1,16 +1,20 @@
 use crate::prelude::*;
 use crate::vertex_anchor::VertexAnchor;
 use bevy::ecs::prelude::Component;
-use bevy::log::warn;
+use bevy::log;
+use bevy::math::Vec3;
 use bevy::reflect::Reflect;
 use bevy::render::mesh::VertexAttributeValues;
 use bevy::render::prelude::{Color, Mesh};
 use bevy::utils::HashMap;
+use std::sync::Arc;
+
+type PinnedPosCondition = dyn Fn(Vec3) -> bool + Send + Sync;
 
 /// Builder component for cloth behaviour, defines every available option for cloth generation and rendering.
 ///
 /// Add this component to an entity with at least a `GlobalTransform` and a `Handle<Mesh>`
-#[derive(Debug, Clone, Reflect, Default, Component)]
+#[derive(Clone, Reflect, Default, Component)]
 #[must_use]
 pub struct ClothBuilder {
     /// cloth vertex ids unaffected by physics and following the attached `GlobalTransform`.
@@ -18,6 +22,10 @@ pub struct ClothBuilder {
     /// cloth vertex colors unaffected by physics and following the attached `GlobalTransform`.
     // TODO: convert to hashmap
     pub anchored_vertex_colors: Vec<(Color, VertexAnchor)>,
+    /// Optional condition to apply on vertex positions. If the condition returns `true` the vertex will
+    /// be anchored, and therefore unaffected by physics and following the attached `GlobalTransform`
+    #[reflect(ignore)]
+    pub anchored_position_conditions: Vec<(Arc<PinnedPosCondition>, VertexAnchor)>,
     /// How cloth sticks get generated
     pub stick_generation: StickGeneration,
     /// Define cloth sticks target length
@@ -163,6 +171,51 @@ impl ClothBuilder {
         self
     }
 
+    /// Adds pinned vertex positions for the cloth
+    ///
+    /// # Arguments
+    ///
+    /// * `condition` - a function determining if a given position ([`Vec3`]) is pinned to the
+    /// associated `GlobalTransform`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use bevy_silk::prelude::*;
+    ///
+    /// let builder = ClothBuilder::new().with_pinned_vertex_positions(|pos| pos.x > 0.0);
+    /// ```
+    #[inline]
+    pub fn with_pinned_vertex_positions(self, condition: fn(Vec3) -> bool) -> Self {
+        self.with_anchored_vertex_positions(condition, Default::default())
+    }
+
+    /// Adds anchored vertex positions for the cloth
+    ///
+    /// # Arguments
+    ///
+    /// * `condition` - a function determining if a given position ([`Vec3`]) should be anchored
+    /// * `vertex_anchor` - Vertex anchor definition
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use bevy_silk::prelude::*;
+    ///
+    /// let anchor = VertexAnchor::default();
+    /// let builder = ClothBuilder::new().with_anchored_vertex_positions(|pos| pos.x > 0.0, anchor);
+    /// ```
+    #[inline]
+    pub fn with_anchored_vertex_positions(
+        mut self,
+        condition: fn(Vec3) -> bool,
+        vertex_anchor: VertexAnchor,
+    ) -> Self {
+        self.anchored_position_conditions
+            .push((Arc::new(condition), vertex_anchor));
+        self
+    }
+
     /// Sets the stick generation option for the cloth
     ///
     /// # Arguments
@@ -251,13 +304,32 @@ impl ClothBuilder {
                         _ => None,
                     });
             vertex_colors.map_or_else(|| {
-                warn!("ClothBuilder has anchored vertex colors but the associated mesh doesn't have a valid Vertex_Color attribute");
+                log::warn!("ClothBuilder has anchored vertex colors but the associated mesh doesn't have a valid Vertex_Color attribute");
             }, |colors| {
                 res.extend(colors.into_iter().enumerate().filter_map(|(i, color)| {
                     self.anchored_vertex_colors
                         .iter()
                         .find(|(c, _)| *c == color)
                         .map(|(_, anchor)| (i, *anchor))
+                }));
+            });
+        }
+        if !self.anchored_position_conditions.is_empty() {
+            let vertex_positions: Option<Vec<Vec3>> = mesh
+                .attribute(Mesh::ATTRIBUTE_POSITION)
+                .and_then(|attr| match attr {
+                    VertexAttributeValues::Float32x3(v) => {
+                        Some(v.iter().copied().map(Vec3::from).collect())
+                    }
+                    _ => None,
+                });
+            vertex_positions.map_or_else(|| {
+                log::warn!("ClothBuilder has anchored vertex positions but the associated mesh doesn't have a valid Vertex_Position attribute");
+            }, |positions| {
+                res.extend(positions.into_iter().enumerate().flat_map(|(i, pos)| {
+                    self.anchored_position_conditions
+                        .iter()
+                        .filter_map(move |(c, anchor)| c(pos).then_some((i, *anchor)))
                 }));
             });
         }

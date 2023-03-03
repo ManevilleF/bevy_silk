@@ -16,8 +16,6 @@ pub struct VertexAnchor {
     /// If set to true, the base vertex position will be ignored.
     /// If [`Self::custom_offset`] is defined, it will then override the vertex position
     pub ignore_vertex_position: bool,
-    /// Is the anchoring in world space
-    pub world_space: bool,
 }
 
 impl VertexAnchor {
