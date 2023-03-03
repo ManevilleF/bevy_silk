@@ -59,6 +59,11 @@ name = "balloon"
 path = "examples/balloon_example.rs"
 
 [[example]]
+name = "bouncy_balloon"
+path = "examples/bouncy_balloon_example.rs"
+required-features = ["rapier_collisions"]
+
+[[example]]
 name = "flag"
 path = "examples/flag_example.rs"
 

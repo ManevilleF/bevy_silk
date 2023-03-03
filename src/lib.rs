@@ -285,6 +285,7 @@ pub mod prelude {
     pub use crate::components::collider::ClothCollider;
     pub use crate::{
         components::cloth_builder::ClothBuilder,
+        components::cloth_inflator::{ClothInflator, PivotPosition},
         components::cloth_rendering::NormalComputing,
         config::{AccelerationSmoothing, ClothConfig},
         error::Error,
