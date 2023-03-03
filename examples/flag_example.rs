@@ -102,8 +102,8 @@ fn spawn_cloth(
         .with_flat_normals();
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(mesh.clone()),
-            material: material.clone(),
+            mesh: meshes.add(mesh),
+            material,
             transform: Transform::from_xyz(0.0, 8.0, -5.0),
             ..Default::default()
         },

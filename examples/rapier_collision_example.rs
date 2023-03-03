@@ -114,7 +114,7 @@ fn spawn_cloth(
 
 fn move_cloth(
     time: Res<Time>,
-    mut query: Query<&mut Transform, With<Cloth>>,
+    mut query: Query<&mut Transform, With<ClothBuilder>>,
     mut movement: ResMut<ClothMovement>,
 ) {
     let delta_time = time.delta_seconds();

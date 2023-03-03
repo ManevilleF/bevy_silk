@@ -272,8 +272,6 @@ to the target cloth entity
 
 - [ ] World and per cloth simulation pause/ filter out cloth update
 - [ ] Cloth update batching
-- [ ] Different stick behaviors (spring, stick, etc)
-- [ ] [Heron] Collision support
 - [ ] Cloth cutting maybe?
 
 ## Examples

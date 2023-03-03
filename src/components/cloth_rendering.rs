@@ -4,6 +4,7 @@ use bevy::math::Vec3;
 use bevy::reflect::Reflect;
 use bevy::render::color::Color;
 use bevy::render::mesh::{Indices, Mesh, VertexAttributeValues};
+use bevy::render::primitives::Aabb;
 use bevy::utils::HashMap;
 
 /// Defines the cloth computation mode of vertex normals
@@ -123,7 +124,7 @@ impl ClothRendering {
     /// - 0: The center of the bounding box
     /// - 1: The half extents of the bounding box
     #[must_use]
-    pub fn compute_aabb(&self, offset: Option<f32>) -> (Vec3, Vec3) {
+    pub fn compute_aabb(&self) -> Aabb {
         const VEC3_MIN: Vec3 = Vec3::from_array([std::f32::MIN; 3]);
         const VEC3_MAX: Vec3 = Vec3::from_array([std::f32::MAX; 3]);
 
@@ -133,9 +134,7 @@ impl ClothRendering {
             minimum = minimum.min(*p);
             maximum = maximum.max(*p);
         }
-        let center = 0.5 * (maximum + minimum);
-        let half_extents = 0.5 * (maximum - minimum) + offset.unwrap_or(0.0);
-        (center, half_extents)
+        Aabb::from_min_max(minimum, maximum)
     }
 
     /// Updates the vertex positions from the cloth point values
@@ -143,9 +142,9 @@ impl ClothRendering {
     /// # Panics
     ///
     /// Panics if the new `vertex_positions` doesn't have the same length as the previous vertices
-    pub fn update_positions(&mut self, vertex_positions: Vec<Vec3>) {
-        assert_eq!(vertex_positions.len(), self.vertex_positions.len());
-        self.vertex_positions = vertex_positions;
+    pub fn update_positions(&mut self, vertex_positions: impl ExactSizeIterator<Item = Vec3>) {
+        debug_assert!(vertex_positions.len() >= self.vertex_positions.len());
+        self.vertex_positions = vertex_positions.take(self.vertex_positions.len()).collect();
     }
 
     /// Duplicates `self` by computing one vertex position per indice.

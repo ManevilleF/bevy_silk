@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use crate::vertex_anchor::VertexAnchor;
 use bevy::ecs::prelude::Component;
 use bevy::log;
 use bevy::math::Vec3;
@@ -32,6 +31,8 @@ pub struct ClothBuilder {
     pub stick_length: StickLen,
     /// Defines the cloth computation mode of vertex normals
     pub normals_computing: NormalComputing,
+    /// Default behaviour for cloth sticks
+    pub default_stick_mode: StickMode,
 }
 
 #[allow(clippy::missing_const_for_fn)]
@@ -224,6 +225,17 @@ impl ClothBuilder {
     #[inline]
     pub fn with_stick_generation(mut self, stick_generation: StickGeneration) -> Self {
         self.stick_generation = stick_generation;
+        self
+    }
+
+    /// Sets the default stick mode option for the cloth
+    ///
+    /// # Arguments
+    ///
+    /// * `stick_mode` - Default cloth sticks behavhiour
+    #[inline]
+    pub fn with_stick_mode(mut self, stick_mode: StickMode) -> Self {
+        self.default_stick_mode = stick_mode;
         self
     }
 
