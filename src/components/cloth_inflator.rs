@@ -5,8 +5,8 @@ use bevy::reflect::Reflect;
 #[derive(Debug, Copy, Clone, Reflect, Default)]
 pub enum PivotPosition {
     #[default]
-    Center,
     AabbCenter,
+    Center,
     Custom(Vec3),
 }
 

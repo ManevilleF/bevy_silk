@@ -19,6 +19,7 @@
 
 With the new version (See [Migration guide](https://github.com/jakobhellermann/bevy-inspector-egui/blob/main/docs/MIGRATION_GUIDE_0.15_0.16.md)),
 the following changes were applied:
+
 * (**BREAKING**) Removed `debug` feature
 * Removed `bevy_inspector_egui` dependency, kept only as `dev-dependency` for examples
 
