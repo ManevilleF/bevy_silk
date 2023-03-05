@@ -6,6 +6,7 @@
 
 use crate::components::cloth::Cloth;
 use crate::components::cloth_builder::ClothBuilder;
+use crate::components::cloth_inflator::{ClothInflator, InflatorCenter};
 use crate::components::cloth_rendering::ClothRendering;
 use crate::config::ClothConfig;
 use crate::wind::Winds;
@@ -41,6 +42,12 @@ pub fn update(
     }
 }
 
+pub fn inflate(mut query: Query<(&mut Cloth, &ClothInflator), Changed<ClothInflator>>) {
+    for (mut cloth, inflator) in query.iter_mut() {
+        cloth.edit_stick_modes(&inflator.sticks, inflator.stick_mode());
+    }
+}
+
 pub fn render(
     mut cloth_query: Query<(
         &Cloth,
@@ -64,16 +71,32 @@ pub fn render(
 
 pub fn init(
     mut commands: Commands,
+<<<<<<< HEAD
     mut query: Query<(Entity, &ClothBuilder, &GlobalTransform, &Handle<Mesh>), Added<ClothBuilder>>,
     meshes: Res<Assets<Mesh>>,
 ) {
     for (entity, builder, transform, handle) in query.iter_mut() {
+=======
+    mut query: Query<
+        (
+            Entity,
+            &ClothBuilder,
+            &GlobalTransform,
+            &Handle<Mesh>,
+            Option<&mut ClothInflator>,
+        ),
+        Added<ClothBuilder>,
+    >,
+    meshes: Res<Assets<Mesh>>,
+) {
+    for (entity, builder, transform, handle, inflator) in query.iter_mut() {
+>>>>>>> Sick based inflator
         if let Some(mesh) = meshes.get(handle) {
             let matrix = transform.compute_matrix();
             log::debug!("Initializing Cloth entity {:?}", entity);
             let rendering = ClothRendering::init(mesh, builder.normals_computing).unwrap();
             let aabb = rendering.compute_aabb();
-            let cloth = Cloth::new(
+            let mut cloth = Cloth::new(
                 &rendering.vertex_positions,
                 &rendering.indices,
                 builder.anchored_vertex_ids(mesh),
@@ -82,6 +105,20 @@ pub fn init(
                 builder.default_stick_mode,
                 &matrix,
             );
+            if let Some(mut inflator) = inflator {
+                let center = match inflator.center {
+                    InflatorCenter::Aabb => aabb.center.into(),
+                    InflatorCenter::Custom(c) => c,
+                };
+                let (_, sticks) = cloth.add_point(
+                    center,
+                    inflator.stick_mode(),
+                    inflator.anchor,
+                    &matrix,
+                    |_| true,
+                );
+                inflator.sticks = sticks;
+            }
             commands.entity(entity).insert((rendering, cloth, aabb));
         }
     }

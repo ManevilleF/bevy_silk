@@ -14,11 +14,11 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(WorldInspectorPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(ResourceInspectorPlugin::<ClothConfig>::new())
         .add_plugin(camera_plugin::CameraPlugin)
         .add_plugin(ClothPlugin)
         .insert_resource(ClothConfig {
-            friction: 0.1,
             ..Default::default()
         })
         .add_startup_system(spawn_cloth)
@@ -32,17 +32,18 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     commands.spawn(DirectionalLightBundle::default());
-    let mesh = meshes.add(shape::Cube::new(10.0).into());
+    let mesh = meshes.add(shape::Cube::new(50.0).into());
 
     // Ground
     commands.spawn((
         PbrBundle {
             mesh,
             material: materials.add(Color::WHITE.into()),
+            transform: Transform::from_xyz(0.0, -20.0, 0.0),
             ..Default::default()
         },
         Name::new("Ground"),
-        Collider::cuboid(5.0, 5.0, 5.0),
+        Collider::cuboid(25.0, 25.0, 25.0),
     ));
 }
 
@@ -65,7 +66,11 @@ fn spawn_cloth(
             ..Default::default()
         },
         ClothBuilder::new(),
-        ClothCollider::default(),
+        ClothInflator::new(0.7),
+        ClothCollider {
+            velocity_coefficient: 2.0,
+            ..default()
+        },
         Name::new("Balloon"),
     ));
 }

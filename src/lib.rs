@@ -285,7 +285,7 @@ pub mod prelude {
     pub use crate::components::collider::ClothCollider;
     pub use crate::{
         components::cloth_builder::ClothBuilder,
-        components::cloth_inflator::{ClothInflator, PivotPosition},
+        components::cloth_inflator::ClothInflator,
         components::cloth_rendering::NormalComputing,
         config::{AccelerationSmoothing, ClothConfig},
         error::Error,
@@ -307,7 +307,8 @@ impl Plugin for ClothPlugin {
         app.register_type::<ClothConfig>()
             .register_type::<Wind>()
             .register_type::<Winds>()
-            .register_type::<ClothBuilder>();
+            .register_type::<ClothBuilder>()
+            .register_type::<ClothInflator>();
         app.add_systems(
             Update,
             (
