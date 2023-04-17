@@ -1,5 +1,6 @@
-use bevy::prelude::*;
-use bevy::time::FixedTimestep;
+use std::time::Duration;
+
+use bevy::{prelude::*, time::common_conditions::on_timer};
 use bevy_inspector_egui::quick::{ResourceInspectorPlugin, WorldInspectorPlugin};
 use bevy_rapier3d::prelude::*;
 use bevy_silk::prelude::*;
@@ -22,17 +23,13 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugin(ResourceInspectorPlugin::<ClothConfig>::new())
-        .add_plugin(WorldInspectorPlugin)
+        .add_plugin(WorldInspectorPlugin::default())
         .add_plugin(ClothPlugin)
         .add_plugin(camera_plugin::CameraPlugin)
         .insert_resource(ClothMovement { sign: -1.0, t: 0.0 })
         .add_startup_system(spawn_cloth)
         .add_startup_system(setup)
-        .add_system_set(
-            SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(6.0))
-                .with_system(shoot_balls),
-        )
+        .add_system(shoot_balls.run_if(on_timer(Duration::from_secs(6))))
         .add_system(move_cloth)
         .run();
 }
@@ -142,7 +139,8 @@ fn shoot_balls(
                     radius,
                     subdivisions: 5,
                 }
-                .into(),
+                .try_into()
+                .unwrap(),
             ),
             material: materials.add(Color::WHITE.into()),
             transform: Transform::from_xyz(0.0, 0.0, -20.0),
