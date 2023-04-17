@@ -1,10 +1,13 @@
-use crate::stick::{StickGeneration, StickLen};
+use crate::stick::{StickGeneration, StickLen, StickMode};
 use crate::vertex_anchor::VertexAnchor;
 use bevy::ecs::prelude::Component;
 use bevy::log;
 use bevy::math::{Mat4, Vec3};
 use bevy::prelude::{Entity, GlobalTransform};
 use bevy::utils::HashMap;
+
+/// A stick is defined by the two ids of the connectecte points
+pub type StickId = [usize; 2];
 
 macro_rules! get_point {
     ($id:expr, $points:expr, $anchored_points:expr) => {
@@ -33,13 +36,18 @@ pub struct Cloth {
     pub current_point_positions: Vec<Vec3>,
     /// Old Cloth points 3D positions in world space
     pub previous_point_positions: Vec<Vec3>,
-    /// Cloth sticks linking points
+    /// Cloth sticks lengths
     ///
-    /// * key: tuple with the connected points indexes
+    /// * key: array of the two connected points indexes
     /// * value: the target distance between the points
     ///
     /// Note: this field will be automatically populated from mesh data
-    pub sticks: HashMap<(usize, usize), f32>,
+    pub stick_lengths: HashMap<StickId, f32>,
+    /// Cloth sticks behaviour modes
+    ///
+    /// * key: array of the two connected points indexes
+    /// * value: the stick mode
+    pub stick_modes: HashMap<StickId, StickMode>,
 }
 
 impl Cloth {
@@ -49,15 +57,17 @@ impl Cloth {
     ///
     /// * `transform` - the `GlobalTransform` associated to the cloth entity
     #[must_use]
-    pub fn compute_vertex_positions(&self, transform: &GlobalTransform) -> Vec<Vec3> {
+    pub fn compute_vertex_positions(
+        &self,
+        transform: &GlobalTransform,
+    ) -> impl ExactSizeIterator<Item = Vec3> + '_ {
         let matrix = transform.compute_matrix().inverse();
 
         // World space positions..
         self.current_point_positions
             .iter()
             // ..computed to local space
-            .map(|p| matrix.transform_point3(*p))
-            .collect()
+            .map(move |p| matrix.transform_point3(*p))
     }
 
     /// Creates a new cloth from a mesh. Points positions will be directly extracted from the given vertex positions
@@ -82,6 +92,7 @@ impl Cloth {
         anchored_points: HashMap<usize, VertexAnchor>,
         stick_generation: StickGeneration,
         stick_len: StickLen,
+        stick_mode: StickMode,
         transform_matrix: &Mat4,
     ) -> Self {
         let anchored_points = anchored_points
@@ -101,26 +112,81 @@ impl Cloth {
         if indices.len() % 3 != 0 {
             log::error!("Mesh indices count is not a multiple of 3, some indices will be skipped",);
         }
-        let mut sticks = HashMap::with_capacity(indices.len() / 3);
+        let mut stick_lengths = HashMap::with_capacity(indices.len() / 3);
         for truple in indices.chunks_exact(3) {
             let [a, b, c] = [truple[0], truple[1], truple[2]];
-            let (p_a, p_b, p_c) = (positions[a], positions[b], positions[c]);
-            if !sticks.contains_key(&(b, a)) {
-                sticks.insert((a, b), stick_len.get_stick_len(p_a, p_b));
+            let [p_a, p_b, p_c] = [positions[a], positions[b], positions[c]];
+            if !stick_lengths.contains_key(&[b, a]) {
+                stick_lengths.insert([a, b], stick_len.get_len(p_a, p_b));
             }
-            if !sticks.contains_key(&(c, b)) {
-                sticks.insert((b, c), stick_len.get_stick_len(p_b, p_c));
+            if !stick_lengths.contains_key(&[c, b]) {
+                stick_lengths.insert([b, c], stick_len.get_len(p_b, p_c));
             }
-            if stick_generation == StickGeneration::Triangles && !sticks.contains_key(&(a, c)) {
-                sticks.insert((c, a), stick_len.get_stick_len(p_c, p_a));
+            if stick_generation == StickGeneration::Triangles
+                && !stick_lengths.contains_key(&[a, c])
+            {
+                stick_lengths.insert([c, a], stick_len.get_len(p_c, p_a));
             }
         }
+        let stick_modes = stick_lengths.keys().map(|id| (*id, stick_mode)).collect();
         Self {
             anchored_points,
             current_point_positions: positions.clone(),
             previous_point_positions: positions,
-            sticks,
+            stick_lengths,
+            stick_modes,
         }
+    }
+
+    /// Changes the stick behaviour to `new_mode` for `sticks`
+    pub fn edit_stick_modes(&mut self, sticks: &[StickId], new_mode: StickMode) {
+        log::debug!("Editing {} sticks: {new_mode:#?}", sticks.len());
+        for id in sticks {
+            self.stick_modes.get_mut(id).map_or_else(
+                || {
+                    log::warn!("Attempted to edit missing stick `{id:?}` behaviour");
+                },
+                |mode| {
+                    *mode = new_mode;
+                },
+            );
+        }
+    }
+
+    /// Adds an extra point to the cloth (Not included in the base mesh) and returns its id and
+    /// associated stick ids.
+    pub fn add_point(
+        &mut self,
+        pos: Vec3,
+        stick_mode: StickMode,
+        anchor: Option<VertexAnchor>,
+        transform_matrix: &Mat4,
+        connects_to: impl Fn(usize, &Vec3) -> bool,
+    ) -> (usize, Vec<StickId>) {
+        let center = transform_matrix.transform_point3(pos);
+        self.current_point_positions.push(center);
+        self.previous_point_positions.push(center);
+        let id = self.current_point_positions.len().saturating_sub(1);
+        let sticks: Vec<_> = self
+            .current_point_positions
+            .iter()
+            .enumerate()
+            .filter(|(i, p)| connects_to(*i, p))
+            .map(|(i, p)| {
+                let stick_id = [id, i];
+                self.stick_modes.insert(stick_id, stick_mode);
+                self.stick_lengths.insert(stick_id, p.distance(center));
+                stick_id
+            })
+            .collect();
+        log::debug!(
+            "Added custom point {pos:?} and {} sticks with to it: {stick_mode:#?}",
+            sticks.len()
+        );
+        if let Some(anchor) = anchor {
+            self.anchored_points.insert(id, (anchor, pos));
+        }
+        (id, sticks)
     }
 
     /// Solves cloth points collisions, moving them outside of colliders
@@ -184,7 +250,7 @@ impl Cloth {
     /// * `depth` - Number of sticks constraint iterations
     pub fn update_sticks(&mut self, depth: u8) {
         for _ in 0..depth {
-            for ((id_a, id_b), target_len) in &self.sticks {
+            for ([id_a, id_b], target_len) in &self.stick_lengths {
                 let (position_a, fixed_a) =
                     get_point!(*id_a, self.current_point_positions, self.anchored_points);
                 let (position_b, fixed_b) =
@@ -192,13 +258,29 @@ impl Cloth {
                 if fixed_a && fixed_b {
                     continue;
                 }
+                let target_len = match self.stick_modes[&[*id_a, *id_b]] {
+                    StickMode::Fixed => *target_len,
+                    StickMode::Spring {
+                        min_percent,
+                        max_percent,
+                    } => {
+                        let dist = position_a.distance(position_b) / *target_len;
+                        if dist < min_percent {
+                            *target_len * min_percent
+                        } else if dist > max_percent {
+                            *target_len * max_percent
+                        } else {
+                            continue;
+                        }
+                    }
+                };
                 let center = (position_b + position_a) / 2.0;
                 let direction = match (position_b - position_a).try_normalize() {
                     None => {
                         log::warn!("Failed handle stick between points {} and {} which are too close to each other", *id_a, *id_b);
                         continue;
                     }
-                    Some(dir) => dir * *target_len / 2.0,
+                    Some(dir) => dir * target_len / 2.0,
                 };
                 if !fixed_a {
                     self.current_point_positions[*id_a] = if fixed_b {
@@ -258,11 +340,16 @@ mod tests {
                 Default::default(),
                 StickGeneration::Quads,
                 StickLen::Auto,
+                StickMode::Fixed,
                 &matrix,
             );
             assert_eq!(cloth.current_point_positions.len(), 100 * 100);
             assert_eq!(cloth.previous_point_positions.len(), 100 * 100);
-            expected_stick_len(cloth.sticks.len(), StickGeneration::Quads, (100, 100));
+            expected_stick_len(
+                cloth.stick_lengths.len(),
+                StickGeneration::Quads,
+                (100, 100),
+            );
         }
 
         #[test]
@@ -276,11 +363,12 @@ mod tests {
                 Default::default(),
                 StickGeneration::Quads,
                 StickLen::Auto,
+                StickMode::Fixed,
                 &matrix,
             );
             assert_eq!(cloth.current_point_positions.len(), 66 * 42);
             assert_eq!(cloth.previous_point_positions.len(), 66 * 42);
-            expected_stick_len(cloth.sticks.len(), StickGeneration::Quads, (66, 42));
+            expected_stick_len(cloth.stick_lengths.len(), StickGeneration::Quads, (66, 42));
         }
 
         #[test]
@@ -294,11 +382,16 @@ mod tests {
                 Default::default(),
                 StickGeneration::Triangles,
                 StickLen::Auto,
+                StickMode::Fixed,
                 &matrix,
             );
             assert_eq!(cloth.current_point_positions.len(), 100 * 100);
             assert_eq!(cloth.previous_point_positions.len(), 100 * 100);
-            expected_stick_len(cloth.sticks.len(), StickGeneration::Triangles, (100, 100));
+            expected_stick_len(
+                cloth.stick_lengths.len(),
+                StickGeneration::Triangles,
+                (100, 100),
+            );
         }
 
         #[test]
@@ -312,11 +405,16 @@ mod tests {
                 Default::default(),
                 StickGeneration::Triangles,
                 StickLen::Auto,
+                StickMode::Fixed,
                 &matrix,
             );
             assert_eq!(cloth.current_point_positions.len(), 66 * 42);
             assert_eq!(cloth.previous_point_positions.len(), 66 * 42);
-            expected_stick_len(cloth.sticks.len(), StickGeneration::Triangles, (66, 42));
+            expected_stick_len(
+                cloth.stick_lengths.len(),
+                StickGeneration::Triangles,
+                (66, 42),
+            );
         }
     }
 }

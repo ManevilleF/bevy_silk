@@ -9,9 +9,10 @@ use crate::components::cloth_builder::ClothBuilder;
 use crate::components::cloth_rendering::ClothRendering;
 use crate::config::ClothConfig;
 use crate::wind::Winds;
-use bevy::log::{debug, error, warn};
+use bevy::log;
 use bevy::math::Vec3;
 use bevy::prelude::*;
+use bevy::render::primitives::Aabb;
 
 pub fn update(
     mut query: Query<(&mut Cloth, &GlobalTransform, Option<&ClothConfig>)>,
@@ -32,7 +33,7 @@ pub fn update(
             if let Ok(t) = anchor_query.get(entity) {
                 Some(t)
             } else {
-                error!("Could not find cloth anchor target entity {:?}", entity);
+                log::error!("Could not find cloth anchor target entity {:?}", entity);
                 None
             }
         });
@@ -41,38 +42,47 @@ pub fn update(
 }
 
 pub fn render(
-    mut cloth_query: Query<(&Cloth, &mut ClothRendering, &GlobalTransform, &Handle<Mesh>)>,
+    mut cloth_query: Query<(
+        &Cloth,
+        &mut ClothRendering,
+        &mut Aabb,
+        &GlobalTransform,
+        &Handle<Mesh>,
+    )>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    for (cloth, mut rendering, transform, handle) in cloth_query.iter_mut() {
+    for (cloth, mut rendering, mut aabb, transform, handle) in cloth_query.iter_mut() {
         if let Some(mesh) = meshes.get_mut(handle) {
             rendering.update_positions(cloth.compute_vertex_positions(transform));
             rendering.apply(mesh);
+            *aabb = rendering.compute_aabb();
         } else {
-            warn!("A Cloth has a `ClothRendering` component without a loaded mesh handle");
+            log::warn!("A Cloth has a `ClothRendering` component without a loaded mesh handle");
         }
     }
 }
 
 pub fn init(
     mut commands: Commands,
-    query: Query<(Entity, &ClothBuilder, &GlobalTransform, &Handle<Mesh>), Added<ClothBuilder>>,
+    mut query: Query<(Entity, &ClothBuilder, &GlobalTransform, &Handle<Mesh>), Added<ClothBuilder>>,
     meshes: Res<Assets<Mesh>>,
 ) {
-    for (entity, builder, transform, handle) in query.iter() {
+    for (entity, builder, transform, handle) in query.iter_mut() {
         if let Some(mesh) = meshes.get(handle) {
             let matrix = transform.compute_matrix();
-            debug!("Initializing Cloth entity {:?}", entity);
+            log::debug!("Initializing Cloth entity {:?}", entity);
             let rendering = ClothRendering::init(mesh, builder.normals_computing).unwrap();
+            let aabb = rendering.compute_aabb();
             let cloth = Cloth::new(
                 &rendering.vertex_positions,
                 &rendering.indices,
                 builder.anchored_vertex_ids(mesh),
                 builder.stick_generation,
                 builder.stick_length,
+                builder.default_stick_mode,
                 &matrix,
             );
-            commands.entity(entity).insert((rendering, cloth));
+            commands.entity(entity).insert((rendering, cloth, aabb));
         }
     }
 }

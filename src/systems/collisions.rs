@@ -4,32 +4,23 @@
     clippy::option_if_let_else,
     clippy::suboptimal_flops
 )]
-use crate::components::{cloth::Cloth, cloth_rendering::ClothRendering, collider::ClothCollider};
-use bevy::log::{debug, error};
+use crate::components::{cloth::Cloth, collider::ClothCollider};
+use bevy::log;
 use bevy::prelude::*;
+use bevy::render::primitives::Aabb;
 use bevy_rapier3d::prelude::*;
 
-fn get_collider(
-    rendering: &ClothRendering,
-    collider: &ClothCollider,
-    matrix: Option<&Mat4>,
-) -> Collider {
-    let (center, extents): (Vec3, Vec3) = rendering.compute_aabb(Some(collider.offset));
+fn get_collider(aabb: &Aabb, collider: &ClothCollider) -> Collider {
+    let extents = aabb.half_extents + collider.offset;
     Collider::compound(vec![(
-        matrix.map_or(center, |mat| mat.transform_point3(center)),
+        aabb.center.into(),
         Quat::IDENTITY,
         Collider::cuboid(extents.x, extents.y, extents.z),
     )])
 }
 
 pub fn handle_collisions(
-    mut cloth_query: Query<(
-        Entity,
-        &mut Cloth,
-        &ClothRendering,
-        &ClothCollider,
-        &mut Collider,
-    )>,
+    mut cloth_query: Query<(Entity, &mut Cloth, &Aabb, &ClothCollider, &mut Collider)>,
     rapier_context: Res<RapierContext>,
     mut colliders_query: Query<
         (&Collider, &GlobalTransform, Option<&mut Velocity>),
@@ -38,7 +29,7 @@ pub fn handle_collisions(
     time: Res<Time>,
 ) {
     let delta_time = time.delta_seconds();
-    for (entity, mut cloth, rendering, collider, mut rapier_collider) in cloth_query.iter_mut() {
+    for (entity, mut cloth, aabb, collider, mut rapier_collider) in cloth_query.iter_mut() {
         for contact_pair in rapier_context.contacts_with(entity) {
             let other_entity = if contact_pair.collider1() == entity {
                 contact_pair.collider2()
@@ -46,7 +37,7 @@ pub fn handle_collisions(
                 contact_pair.collider1()
             };
             let Ok((other_collider, other_transform, other_velocity)) = colliders_query.get_mut(other_entity) else {
-                error!("Couldn't find collider on entity {:?}", entity);
+                log::error!("Couldn't find collider on entity {:?}", entity);
                 continue;
             };
             let vel = other_velocity.as_ref().map_or(0.0, |v| {
@@ -79,23 +70,19 @@ pub fn handle_collisions(
                 vel.angvel *= damp;
             }
         }
-        *rapier_collider = get_collider(rendering, collider, None);
+        *rapier_collider = get_collider(aabb, collider);
     }
 }
 
 pub fn init_cloth_collider(
     mut commands: Commands,
-    cloth_query: Query<
-        (Entity, &GlobalTransform, &ClothRendering, &ClothCollider),
-        (With<Cloth>, Without<Collider>),
-    >,
+    cloth_query: Query<(Entity, &Aabb, &ClothCollider), (With<Cloth>, Without<Collider>)>,
 ) {
-    for (entity, transform, rendering, collider) in cloth_query.iter() {
-        let matrix = transform.compute_matrix();
-        debug!("Initializing Cloth collisions for {:?}", entity);
+    for (entity, aabb, collider) in cloth_query.iter() {
+        log::debug!("Initializing Cloth collisions for {:?}", entity);
         commands.entity(entity).insert((
             RigidBody::KinematicPositionBased,
-            get_collider(rendering, collider, Some(&matrix)),
+            get_collider(aabb, collider),
             SolverGroups::new(Group::NONE, Group::NONE),
         ));
     }

@@ -1,6 +1,6 @@
 # Changelog
 
-## Uneleased
+## Unreleased
 
 * Bump `bevy_rapier3d` to `0.20.x`
 * `ClothBuilder` is now `Reflect` and registered
@@ -8,6 +8,11 @@
   * `ClothBuilder::with_pinned_vertex_positions`
   * `ClothBuilder::with_anchored_vertex_positions`
 * Removed unused `VertexAnchor::world_space` attribute
+* Added `StickMode` enum with spring variants
+
+### Fixes
+
+* Fixed visibility issues with cloths. Now the `Aabb` is directly handled by the cloth engine.
 
 ### bevy_inspector_egui
 
