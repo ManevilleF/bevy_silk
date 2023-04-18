@@ -1,14 +1,13 @@
-<!-- cargo-sync-readme start -->
-
-# Bevy Silk
-
 [![workflow](https://github.com/ManevilleF/bevy_silk/actions/workflows/rust.yml/badge.svg)](https://github.com/ManevilleF/bevy_silk/actions/workflows/rust.yml)
-
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 [![Crates.io](https://img.shields.io/crates/v/bevy_silk.svg)](https://crates.io/crates/bevy_silk)
 [![Docs.rs](https://docs.rs/bevy_silk/badge.svg)](https://docs.rs/bevy_silk)
-[![dependency status](https://deps.rs/crate/bevy_silk/0.4.0/status.svg)](https://deps.rs/crate/bevy_silk)
+[![dependency status](https://deps.rs/crate/bevy_silk/0.5.0/status.svg)](https://deps.rs/crate/bevy_silk)
+
+<!-- cargo-sync-readme start -->
+
+# Bevy Silk
 
 CPU driven Cloth engine for Bevy using Verlet integration.
 
@@ -34,7 +33,6 @@ Or follow the main git branch
 | 0.2.0  | 0.7  |
 | 0.3.0  | 0.8  |
 | 0.4.0  | 0.9  |
-| 0.5.0  | 0.10 |
 
 ### Plugin
 
@@ -212,7 +210,8 @@ fn main() {
 
 ## Collisions
 
-Enabling the `rapier_collisions` features enable cloth interaction with other colliders. Add a `ClothCollider` to your entity to enable collisions:
+Enabling the `rapier_collisions` features enable cloth interaction with other colliders.
+Add the `bevy_rapier3d::RapierPhysicsPlugin` to your app and a `ClothCollider` to your entity to enable collisions:
 
 ```rust
 use bevy::prelude::*;
@@ -254,18 +253,6 @@ You probably didn't specify any *pinned points*, meaning there are no vertices a
 Gravity and winds are by default smoothed out by the framerate, if the framerate drops suddenly gravity and wind get much stronger.
 If your simulation suffers from this you can specify a custom smooth value in `ClothConfig::acceleration_smoothing`.
 
-- `My cloth has stange visuals / clips into itself`
-
-Try changing the `StickGeneration` mode to *triangles*, otherwise there is yet no way to avoid clipping as cloth points don't have
-actual volume and collisions, as that would be too expensive. You might want to play with vertex anchoring and maybe reduce the 
-vertex amount in your cloth mesh
-
-- `I applied a ClothBuilder to my mesh and now all other entities with that mesh are acting like a cloth`
-
-The cloth system directly edits the mesh stored in the associated `Handle<Mesh>` component, therefore, sharing the same handle between
-entities will result in the cloth physics being duplicated to other entities usin the same handle.
-This can be used for optimization, but if that is not the expected result you might want to clone the inner mesh and give its handle only 
-to the target cloth entity
 
 <!-- cargo-sync-readme end -->
 

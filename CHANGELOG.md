@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.5.0
 
-* Bump `bevy_rapier3d` to `0.20.x`
+* Bump `bevy` to `0.10.x`
+* Bump `bevy_rapier3d` to `0.21.x`
 * `ClothBuilder` is now `Reflect` and registered
 * Added vertex position anchoring for `ClothBuilder`:
   * `ClothBuilder::with_pinned_vertex_positions`
