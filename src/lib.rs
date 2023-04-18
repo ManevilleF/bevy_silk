@@ -284,8 +284,7 @@ pub mod vertex_anchor;
 pub mod wind;
 
 use crate::prelude::*;
-use bevy::app::{App, Plugin};
-use bevy::prelude::IntoSystemDescriptor;
+use bevy::prelude::*;
 
 /// Prelude module, providing every public type of the lib
 pub mod prelude {
@@ -315,17 +314,16 @@ impl Plugin for ClothPlugin {
             .register_type::<Wind>()
             .register_type::<Winds>()
             .register_type::<ClothBuilder>();
-        app.add_system(systems::cloth::init)
-            .add_system(systems::cloth::update.label("CLOTH_UPDATE"))
-            .add_system(
-                systems::cloth::render
-                    .label("CLOTH_RENDER")
-                    .after("CLOTH_UPDATE"),
-            );
+        app.add_systems((
+            systems::cloth::init,
+            systems::cloth::update,
+            systems::cloth::render.after(systems::cloth::update),
+        ));
         #[cfg(feature = "rapier_collisions")]
-        app.register_type::<ClothCollider>()
-            .add_system(systems::collisions::init_cloth_collider)
-            .add_system(systems::collisions::handle_collisions.before("CLOTH_RENDER"));
+        app.register_type::<ClothCollider>().add_systems((
+            systems::collisions::init_cloth_collider,
+            systems::collisions::handle_collisions.before(systems::cloth::render),
+        ));
         bevy::log::info!("Loaded Cloth Plugin");
     }
 }

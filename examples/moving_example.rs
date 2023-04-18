@@ -27,7 +27,7 @@ fn main() {
             brightness: 1.0,
         })
         .add_plugins(DefaultPlugins)
-        .add_plugin(WorldInspectorPlugin)
+        .add_plugin(WorldInspectorPlugin::default())
         .add_plugin(ResourceInspectorPlugin::<ClothConfig>::new())
         .add_plugin(ResourceInspectorPlugin::<MovingAnimation>::new())
         .add_plugin(camera_plugin::CameraPlugin)

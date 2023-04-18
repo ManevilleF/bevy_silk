@@ -12,7 +12,7 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(ResourceInspectorPlugin::<ClothConfig>::new())
-        .add_plugin(WorldInspectorPlugin)
+        .add_plugin(WorldInspectorPlugin::default())
         .add_plugin(camera_plugin::CameraPlugin)
         .add_plugin(ClothPlugin)
         .add_startup_system(spawn_cloth)
