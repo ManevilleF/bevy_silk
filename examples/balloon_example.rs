@@ -63,7 +63,8 @@ fn spawn_cloth(
                     radius: 5.0,
                     subdivisions: 10,
                 }
-                .into(),
+                .try_into()
+                .unwrap(),
             ),
             material: materials.add(Color::YELLOW.into()),
             transform: Transform::from_xyz(0.0, 2.0, 0.0),
