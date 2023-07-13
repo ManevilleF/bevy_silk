@@ -11,10 +11,10 @@ fn main() {
             brightness: 1.0,
         })
         .add_plugins(DefaultPlugins)
-        .add_plugin(WorldInspectorPlugin::default())
-        .add_plugin(ResourceInspectorPlugin::<Winds>::new())
-        .add_plugin(ResourceInspectorPlugin::<ClothConfig>::new())
-        .add_plugin(camera_plugin::CameraPlugin)
+        .add_plugins(WorldInspectorPlugin::default())
+        .add_plugins(ResourceInspectorPlugin::<Winds>::new())
+        .add_plugins(ResourceInspectorPlugin::<ClothConfig>::new())
+        .add_plugins(camera_plugin::CameraPlugin)
         .insert_resource(Winds::from(vec![
             Wind::SinWave {
                 max_velocity: Vec3::new(20.0, 15.0, 0.0),
@@ -29,9 +29,8 @@ fn main() {
                 abs: false,
             },
         ]))
-        .add_plugin(ClothPlugin)
-        .add_startup_system(spawn_cloth)
-        .add_startup_system(setup)
+        .add_plugins(ClothPlugin)
+        .add_systems(Startup, (spawn_cloth, setup))
         .run();
 }
 

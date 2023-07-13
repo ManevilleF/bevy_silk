@@ -21,24 +21,37 @@ rapier_collisions = ["bevy_rapier3d"]
 thiserror = "1.0"
 
 [dependencies.bevy]
-version = "0.10"
+version = "0.11"
 default-features = false
 features = ["bevy_render", "bevy_asset"]
 
 [dependencies.bevy_rapier3d]
-version = "0.21"
+version = "0.22"
 optional = true
 default-features = false
 features = ["dim3", "async-collider"]
 
 [dev-dependencies]
-bevy-inspector-egui = "0.18"
-bevy_rapier3d = "0.21"
+bevy-inspector-egui = "0.19"
+bevy_rapier3d = "0.22"
 rand = "0.8"
 
 [dev-dependencies.bevy]
-version = "0.10"
-features = ["bevy_render", "bevy_pbr", "bevy_core_pipeline", "bevy_asset", "bevy_winit", "x11", "png"]
+version = "0.11"
+features = [
+  "bevy_asset",
+  "bevy_winit",
+  "bevy_core_pipeline",
+  "bevy_pbr",
+  "bevy_render",
+  "bevy_sprite",
+  "png",
+  "x11",
+  # The following features are required because of https://github.com/bevyengine/bevy/discussions/9100
+  "ktx2",
+  "zstd",
+  "tonemapping_luts",
+]
 default-features = false
 
 [[example]]
