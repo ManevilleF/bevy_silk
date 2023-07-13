@@ -12,17 +12,16 @@ fn main() {
             brightness: 1.0,
         })
         .add_plugins(DefaultPlugins)
-        .add_plugin(WorldInspectorPlugin)
-        .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugin(RapierDebugRenderPlugin::default())
-        .add_plugin(ResourceInspectorPlugin::<ClothConfig>::new())
-        .add_plugin(camera_plugin::CameraPlugin)
-        .add_plugin(ClothPlugin)
+        .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugins(RapierDebugRenderPlugin::default())
+        .add_plugins(ResourceInspectorPlugin::<ClothConfig>::new())
+        .add_plugins(camera_plugin::CameraPlugin)
+        .add_plugins(ClothPlugin)
         .insert_resource(ClothConfig {
             ..Default::default()
         })
-        .add_startup_system(spawn_cloth)
-        .add_startup_system(setup)
+        .add_systems(Startup, (spawn_cloth, setup))
         .run();
 }
 
@@ -59,7 +58,8 @@ fn spawn_cloth(
                     radius: 5.0,
                     subdivisions: 10,
                 }
-                .into(),
+                .try_into()
+                .unwrap(),
             ),
             material: materials.add(Color::YELLOW.into()),
             transform: Transform::from_xyz(0.0, 15.0, 0.0),
