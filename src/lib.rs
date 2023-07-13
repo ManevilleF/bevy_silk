@@ -313,7 +313,12 @@ impl Plugin for ClothPlugin {
             Update,
             (
                 systems::cloth::init,
-                (systems::cloth::update, systems::cloth::render).chain(),
+                (
+                    systems::cloth::inflate,
+                    systems::cloth::update,
+                    systems::cloth::render,
+                )
+                    .chain(),
             ),
         );
         #[cfg(feature = "rapier_collisions")]

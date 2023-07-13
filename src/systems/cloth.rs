@@ -71,12 +71,6 @@ pub fn render(
 
 pub fn init(
     mut commands: Commands,
-<<<<<<< HEAD
-    mut query: Query<(Entity, &ClothBuilder, &GlobalTransform, &Handle<Mesh>), Added<ClothBuilder>>,
-    meshes: Res<Assets<Mesh>>,
-) {
-    for (entity, builder, transform, handle) in query.iter_mut() {
-=======
     mut query: Query<
         (
             Entity,
@@ -90,7 +84,6 @@ pub fn init(
     meshes: Res<Assets<Mesh>>,
 ) {
     for (entity, builder, transform, handle, inflator) in query.iter_mut() {
->>>>>>> Sick based inflator
         if let Some(mesh) = meshes.get(handle) {
             let matrix = transform.compute_matrix();
             log::debug!("Initializing Cloth entity {:?}", entity);
@@ -115,7 +108,7 @@ pub fn init(
                     inflator.stick_mode(),
                     inflator.anchor,
                     &matrix,
-                    |_| true,
+                    |_, _| true,
                 );
                 inflator.sticks = sticks;
             }
