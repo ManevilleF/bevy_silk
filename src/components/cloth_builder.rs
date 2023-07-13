@@ -315,16 +315,20 @@ impl ClothBuilder {
                         ),
                         _ => None,
                     });
-            vertex_colors.map_or_else(|| {
-                log::warn!("ClothBuilder has anchored vertex colors but the associated mesh doesn't have a valid Vertex_Color attribute");
-            }, |colors| {
-                res.extend(colors.into_iter().enumerate().filter_map(|(i, color)| {
-                    self.anchored_vertex_colors
-                        .iter()
-                        .find(|(c, _)| *c == color)
-                        .map(|(_, anchor)| (i, *anchor))
-                }));
-            });
+            #[allow(clippy::option_if_let_else)]
+            match vertex_colors {
+                Some(colors) => {
+                    res.extend(colors.into_iter().enumerate().filter_map(|(i, color)| {
+                        self.anchored_vertex_colors
+                            .iter()
+                            .find(|(c, _)| *c == color)
+                            .map(|(_, anchor)| (i, *anchor))
+                    }));
+                }
+                None => {
+                    log::warn!("ClothBuilder has anchored vertex colors but the associated mesh doesn't have a valid Vertex_Color attribute");
+                }
+            };
         }
         if !self.anchored_position_conditions.is_empty() {
             let vertex_positions: Option<Vec<Vec3>> = mesh
@@ -335,15 +339,19 @@ impl ClothBuilder {
                     }
                     _ => None,
                 });
-            vertex_positions.map_or_else(|| {
-                log::warn!("ClothBuilder has anchored vertex positions but the associated mesh doesn't have a valid Vertex_Position attribute");
-            }, |positions| {
-                res.extend(positions.into_iter().enumerate().flat_map(|(i, pos)| {
-                    self.anchored_position_conditions
-                        .iter()
-                        .filter_map(move |(c, anchor)| c(pos).then_some((i, *anchor)))
-                }));
-            });
+            #[allow(clippy::option_if_let_else)]
+            match vertex_positions {
+                Some(positions) => {
+                    res.extend(positions.into_iter().enumerate().flat_map(|(i, pos)| {
+                        self.anchored_position_conditions
+                            .iter()
+                            .filter_map(move |(c, anchor)| c(pos).then_some((i, *anchor)))
+                    }));
+                }
+                None => {
+                    log::warn!("ClothBuilder has anchored vertex positions but the associated mesh doesn't have a valid Vertex_Position attribute");
+                }
+            };
         }
         res
     }

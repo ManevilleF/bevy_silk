@@ -21,16 +21,20 @@ fn main() {
             brightness: 1.0,
         })
         .add_plugins(DefaultPlugins)
-        .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugin(ResourceInspectorPlugin::<ClothConfig>::new())
-        .add_plugin(WorldInspectorPlugin::default())
-        .add_plugin(ClothPlugin)
-        .add_plugin(camera_plugin::CameraPlugin)
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugins(ResourceInspectorPlugin::<ClothConfig>::new())
+        .add_plugins(WorldInspectorPlugin::default())
+        .add_plugins(ClothPlugin)
+        .add_plugins(camera_plugin::CameraPlugin)
         .insert_resource(ClothMovement { sign: -1.0, t: 0.0 })
-        .add_startup_system(spawn_cloth)
-        .add_startup_system(setup)
-        .add_system(shoot_balls.run_if(on_timer(Duration::from_secs(6))))
-        .add_system(move_cloth)
+        .add_systems(Startup, (spawn_cloth, setup))
+        .add_systems(
+            Update,
+            (
+                shoot_balls.run_if(on_timer(Duration::from_secs(6))),
+                move_cloth,
+            ),
+        )
         .run();
 }
 

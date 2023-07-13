@@ -1,9 +1,9 @@
 use bevy::ecs::prelude::Resource;
 use bevy::math::Vec3;
-use bevy::reflect::{FromReflect, Reflect};
+use bevy::reflect::Reflect;
 
 /// Wind definition for cloth physics
-#[derive(Debug, Clone, Reflect, FromReflect)]
+#[derive(Debug, Clone, Reflect)]
 pub enum Wind {
     /// Constant Wind force
     ConstantWind {
