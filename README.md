@@ -288,5 +288,9 @@ run `cargo run --example rapier_collision --features rapier_collisions`
 
 run `cargo run --example anchors`
 
+6. Bouncy ballon
+
+run `cargo run --example bouncy_balloon --features rapier_collisions`
+
 [Rapier]: https://github.com/dimforge/bevy_rapier
 [Heron]: https://github.com/jcornaz/heron
