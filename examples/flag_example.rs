@@ -88,7 +88,7 @@ fn spawn_cloth(
         PbrBundle {
             mesh: meshes.add(mesh.clone()),
             material: material.clone(),
-            transform: Transform::from_xyz(0.0, 8.0, 5.0),
+            transform: Transform::from_xyz(0.0, 8.0, 10.0),
             ..Default::default()
         },
         cloth,
@@ -101,36 +101,35 @@ fn spawn_cloth(
         .with_flat_normals();
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(mesh),
-            material,
-            transform: Transform::from_xyz(0.0, 8.0, -5.0),
+            mesh: meshes.add(mesh.clone()),
+            material: material.clone(),
+            transform: Transform::from_xyz(0.0, 8.0, 0.0),
             ..Default::default()
         },
         cloth,
         Name::new("Regular Flat Flag"),
     ));
 
-    // TODO: enable when bevy releases vertex color support
-    // color flag
-    // let mut mesh = mesh;
-    // if let Some(VertexAttributeValues::Float32x3(positions)) =
-    //     mesh.attribute(Mesh::ATTRIBUTE_POSITION)
-    // {
-    //     let colors: Vec<[f32; 4]> = positions
-    //         .iter()
-    //         .map(|[r, g, b]| [(1. - *r) / 2., (1. - *g) / 2., (1. - *b) / 2., 1.])
-    //         .collect();
-    //     println!("{}", colors.len());
-    //     mesh.insert_attribute(Mesh::ATTRIBUTE_COLOR, colors);
-    // }
-    // let cloth = ClothBuilder::new().with_pinned_vertex_ids((0..size_y).map(|i| i * size_x));
-    // commands
-    //     .spawn_bundle(PbrBundle {
-    //         mesh: meshes.add(mesh),
-    //         material,
-    //         transform: Transform::from_xyz(0.0, 8.0, -5.0),
-    //         ..Default::default()
-    //     })
-    //     .insert(cloth)
-    //     .insert(Name::new("Colored smooth Flag"));
+    // Color flag
+    let mut mesh = mesh;
+    let colors: Vec<[f32; 4]> = (0..size_y)
+        .flat_map(|_| {
+            (0..size_x).map(|v| {
+                let v = v as f32 / size_x as f32;
+                [1.0, v, v, 1.0]
+            })
+        })
+        .collect();
+    mesh.insert_attribute(Mesh::ATTRIBUTE_COLOR, colors);
+    let cloth = ClothBuilder::new().with_pinned_vertex_color(Color::RED);
+    commands.spawn((
+        PbrBundle {
+            mesh: meshes.add(mesh),
+            material,
+            transform: Transform::from_xyz(0.0, 8.0, -10.0),
+            ..Default::default()
+        },
+        cloth,
+        Name::new("Colored smooth Flag"),
+    ));
 }

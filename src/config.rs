@@ -1,17 +1,20 @@
-use bevy::ecs::prelude::{Component, ReflectComponent, Resource};
-use bevy::math::Vec3;
-use bevy::reflect::Reflect;
+use bevy::{
+    ecs::prelude::{Component, ReflectComponent, Resource},
+    math::Vec3,
+    reflect::Reflect,
+};
 
-/// Defines how verlet physics acceleration components like gravity and winds are smoothed
-/// through every frame.
+/// Defines how verlet physics acceleration components like gravity and winds
+/// are smoothed through every frame.
 ///
-/// By default, accelerations are multiplied by the squared value of the elapsed time since last frame
-/// (delta time) but if you notice some jittery behaviour a fixed coefficient can enforce a smooth simulation
+/// By default, accelerations are multiplied by the squared value of the elapsed
+/// time since last frame (delta time) but if you notice some jittery behaviour
+/// a fixed coefficient can enforce a smooth simulation
 #[derive(Debug, Copy, Clone, Default, Reflect)]
 pub enum AccelerationSmoothing {
     #[default]
-    /// Default smoothing behaviour, accelerations are multiplied by the squared value of the
-    /// elapsed time since last frame (delta time)
+    /// Default smoothing behaviour, accelerations are multiplied by the squared
+    /// value of the elapsed time since last frame (delta time)
     SquaredDeltaTime,
     /// Fixed smooth coefficient, applied to gravity and wind once per frame.
     ///
@@ -21,20 +24,23 @@ pub enum AccelerationSmoothing {
 
 /// Cloth physics configuration.
 ///
-/// Used as a resource, it is used as a global configuration for every cloth entity.
-/// Used as a component on a cloth entity, it overrides the global values for that cloth.
+/// Used as a resource, it is used as a global configuration for every cloth
+/// entity. Used as a component on a cloth entity, it overrides the global
+/// values for that cloth.
 #[derive(Debug, Clone, Component, Reflect, Resource)]
 #[reflect(Component)]
 pub struct ClothConfig {
     /// Custom gravity, classic (0, -9.81, 0) is used by default
     pub gravity: Vec3,
-    /// Custom friction to apply to velocity. Useful to reduce the elasticity of a cloth.
+    /// Custom friction to apply to velocity. Useful to reduce the elasticity of
+    /// a cloth.
     ///
-    /// Note: The friction is not applied to external accelerations like gravity and winds
-    /// Note: will be clamped between 0.0 and 1.0
+    /// Note: The friction is not applied to external accelerations like gravity
+    /// and winds Note: will be clamped between 0.0 and 1.0
     pub friction: f32,
     /// Sets the number of sticks computation iteration.
-    /// The higher the value, the more precision and less elasticity for the sticks but the cost is increased
+    /// The higher the value, the more precision and less elasticity for the
+    /// sticks but the cost is increased
     pub sticks_computation_depth: u8,
     /// Smoothing behaviour for gravity and winds
     pub acceleration_smoothing: AccelerationSmoothing,

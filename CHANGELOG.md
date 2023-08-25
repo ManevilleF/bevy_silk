@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+* Fixed clippy warnings for rust 1.72.0 (#19)
+* Added rustfmt config (#19)
+* Added vertex colors in flag example (#19)
+
 ## 0.6.0
 
 * Bump `bevy` to `0.11.x`

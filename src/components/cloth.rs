@@ -1,10 +1,14 @@
-use crate::stick::{StickGeneration, StickLen, StickMode};
-use crate::vertex_anchor::VertexAnchor;
-use bevy::ecs::prelude::Component;
-use bevy::log;
-use bevy::math::{Mat4, Vec3};
-use bevy::prelude::{Entity, GlobalTransform};
-use bevy::utils::HashMap;
+use crate::{
+    stick::{StickGeneration, StickLen, StickMode},
+    vertex_anchor::VertexAnchor,
+};
+use bevy::{
+    ecs::prelude::Component,
+    log,
+    math::{Mat4, Vec3},
+    prelude::{Entity, GlobalTransform},
+    utils::HashMap,
+};
 
 /// A stick is defined by the two ids of the connectecte points
 pub type StickId = [usize; 2];
@@ -70,8 +74,9 @@ impl Cloth {
             .map(move |p| matrix.transform_point3(*p))
     }
 
-    /// Creates a new cloth from a mesh. Points positions will be directly extracted from the given vertex positions
-    /// and the sticks will be extracted from the given `indices` (triangles) according to
+    /// Creates a new cloth from a mesh. Points positions will be directly
+    /// extracted from the given vertex positions and the sticks will be
+    /// extracted from the given `indices` (triangles) according to
     /// the associated [`StickGeneration`] and [`StickLen`].
     ///
     /// # Arguments
@@ -81,7 +86,8 @@ impl Cloth {
     /// * `anchored_points` - the pinned vertex position indices
     /// * `stick_generation` - The stick generation mode
     /// * `stick_len` - The stick length option
-    /// * `transform_matrix` - the transform matrix of the associated `GlobalTransform`
+    /// * `transform_matrix` - the transform matrix of the associated
+    ///   `GlobalTransform`
     ///
     /// # Panics
     ///
@@ -153,8 +159,8 @@ impl Cloth {
         }
     }
 
-    /// Adds an extra point to the cloth (Not included in the base mesh) and returns its id and
-    /// associated stick ids.
+    /// Adds an extra point to the cloth (Not included in the base mesh) and
+    /// returns its id and associated stick ids.
     pub fn add_point(
         &mut self,
         pos: Vec3,
@@ -193,7 +199,8 @@ impl Cloth {
     ///
     /// # Arguments
     ///
-    /// * `solve_point` - function taking a cloth point and returning the new solved point
+    /// * `solve_point` - function taking a cloth point and returning the new
+    ///   solved point
     pub fn solve_collisions(&mut self, solve_point: impl Fn(&Vec3) -> Option<Vec3>) {
         for (point, new_point) in self
             .current_point_positions
@@ -211,7 +218,8 @@ impl Cloth {
     /// # Arguments
     ///
     /// * `transform` - The `GlobalTransform` associated to the cloth entity
-    /// * `anchor_query` - A function allowing to retrieve the `GlobalTransform` of a given entity
+    /// * `anchor_query` - A function allowing to retrieve the `GlobalTransform`
+    ///   of a given entity
     pub fn update_anchored_points<'a>(
         &mut self,
         transform: &GlobalTransform,
@@ -223,7 +231,8 @@ impl Cloth {
         }
     }
 
-    /// Updates the cloth points according to their own velocity and external friction and acceleration
+    /// Updates the cloth points according to their own velocity and external
+    /// friction and acceleration
     ///
     /// # Arguments
     ///
@@ -277,7 +286,12 @@ impl Cloth {
                 let center = (position_b + position_a) / 2.0;
                 let direction = match (position_b - position_a).try_normalize() {
                     None => {
-                        log::warn!("Failed handle stick between points {} and {} which are too close to each other", *id_a, *id_b);
+                        log::warn!(
+                            "Failed handle stick between points {} and {} which are too close to \
+                             each other",
+                            *id_a,
+                            *id_b
+                        );
                         continue;
                     }
                     Some(dir) => dir * target_len / 2.0,
