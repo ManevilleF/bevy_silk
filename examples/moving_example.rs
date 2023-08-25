@@ -100,7 +100,7 @@ fn spawn_cloth(
                                 base_color_texture: Some(flag_texture),
                                 cull_mode: None, // Option required to render back faces correctly
                                 double_sided: true, /* Option required to render back faces
-                                                     * correctly */
+                                                  * correctly */
                                 ..Default::default()
                             }),
                             transform: Transform::from_xyz(-1.0, 1.0, 1.01),
