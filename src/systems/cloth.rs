@@ -3,16 +3,12 @@
     clippy::type_complexity,
     clippy::option_if_let_else
 )]
-
-use crate::components::cloth::Cloth;
-use crate::components::cloth_builder::ClothBuilder;
-use crate::components::cloth_rendering::ClothRendering;
-use crate::config::ClothConfig;
-use crate::wind::Winds;
-use bevy::log;
-use bevy::math::Vec3;
-use bevy::prelude::*;
-use bevy::render::primitives::Aabb;
+use crate::{
+    components::{cloth::Cloth, cloth_builder::ClothBuilder, cloth_rendering::ClothRendering},
+    config::ClothConfig,
+    wind::Winds,
+};
+use bevy::{log, math::Vec3, prelude::*, render::primitives::Aabb};
 
 pub fn update(
     mut query: Query<(&mut Cloth, &GlobalTransform, Option<&ClothConfig>)>,
@@ -23,7 +19,7 @@ pub fn update(
 ) {
     let delta_time = time.delta_seconds();
     let wind_force = wind.map_or(Vec3::ZERO, |w| w.current_velocity(time.elapsed_seconds()));
-    for (mut cloth, transform, custom_config) in query.iter_mut() {
+    for (mut cloth, transform, custom_config) in &mut query {
         let config: &ClothConfig = custom_config.unwrap_or(&config);
         cloth.update_points(
             config.friction_coefficient(),
@@ -51,7 +47,7 @@ pub fn render(
     )>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    for (cloth, mut rendering, mut aabb, transform, handle) in cloth_query.iter_mut() {
+    for (cloth, mut rendering, mut aabb, transform, handle) in &mut cloth_query {
         if let Some(mesh) = meshes.get_mut(handle) {
             rendering.update_positions(cloth.compute_vertex_positions(transform));
             rendering.apply(mesh);
@@ -67,7 +63,7 @@ pub fn init(
     mut query: Query<(Entity, &ClothBuilder, &GlobalTransform, &Handle<Mesh>), Added<ClothBuilder>>,
     meshes: Res<Assets<Mesh>>,
 ) {
-    for (entity, builder, transform, handle) in query.iter_mut() {
+    for (entity, builder, transform, handle) in &mut query {
         if let Some(mesh) = meshes.get(handle) {
             let matrix = transform.compute_matrix();
             log::debug!("Initializing Cloth entity {:?}", entity);

@@ -1,5 +1,4 @@
-use bevy::math::Vec3;
-use bevy::reflect::Reflect;
+use bevy::{math::Vec3, reflect::Reflect};
 
 /// Defines how the cloth will compute sticks from mesh indices.
 #[derive(Debug, Copy, Clone, Default, Reflect, PartialEq, Eq)]
@@ -28,29 +27,32 @@ pub enum StickLen {
 /// Defines cloth stick behaviour
 #[derive(Debug, Copy, Clone, Default, Reflect)]
 pub enum StickMode {
-    /// The stick will attempt to always remain at the same length (See [`StickLen`]).
-    /// This is the default behaviour and the fastest to compute.
+    /// The stick will attempt to always remain at the same length (See
+    /// [`StickLen`]). This is the default behaviour and the fastest to
+    /// compute.
     #[default]
     Fixed,
-    /// The stick will clamp its length between a `min_percent` and `max_percent` of its
-    /// expected length (See [`StickLen`]).
+    /// The stick will clamp its length between a `min_percent` and
+    /// `max_percent` of its expected length (See [`StickLen`]).
     ///
     /// For example, the following mode:
     /// ```rust
     /// # use bevy_silk::prelude::*;
     /// let mode = StickMode::Spring {
-    ///   min_percent: 0.0,
-    ///   max_percent: 1.0
+    ///     min_percent: 0.0,
+    ///     max_percent: 1.0,
     /// };
     /// ```
     /// will behave like a [`StickMode::Fixed`].
     ///
     /// # Notes
     ///
-    /// * Please note that this mode is slower, as some distance computing involving square roots,
-    /// will happen every frame. If you just want to have smaller or larger sticks, prefer setting
-    /// a different [`StickLen`] instead
-    /// * Setting invalid `min_percent` and `max_percent` will result in unexpected behaviour:
+    /// * Please note that this mode is slower, as some distance computing
+    ///   involving square roots,
+    /// will happen every frame. If you just want to have smaller or larger
+    /// sticks, prefer setting a different [`StickLen`] instead
+    /// * Setting invalid `min_percent` and `max_percent` will result in
+    ///   unexpected behaviour:
     ///   - max value being lower than the min value
     ///   - use of negative values
     /// * Setting both values to `None` will result in no constraint
@@ -60,9 +62,11 @@ pub enum StickMode {
     ///   - `1.0` means 100%
     ///   - `2.0` means 200%
     Spring {
-        /// The stick will attempt to be at least this percent of its expected length.
+        /// The stick will attempt to be at least this percent of its expected
+        /// length.
         min_percent: f32,
-        /// The stick will attempt to be at most this percent of its expected length.
+        /// The stick will attempt to be at most this percent of its expected
+        /// length.
         max_percent: f32,
     },
 }

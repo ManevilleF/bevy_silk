@@ -1,6 +1,8 @@
-use bevy::input::mouse::{MouseMotion, MouseWheel};
-use bevy::log;
-use bevy::prelude::*;
+use bevy::{
+    input::mouse::{MouseMotion, MouseWheel},
+    log,
+    prelude::*,
+};
 
 pub struct CameraPlugin;
 

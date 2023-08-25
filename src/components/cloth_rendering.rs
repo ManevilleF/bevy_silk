@@ -1,11 +1,15 @@
 use crate::Error;
-use bevy::ecs::prelude::Component;
-use bevy::math::Vec3;
-use bevy::reflect::Reflect;
-use bevy::render::color::Color;
-use bevy::render::mesh::{Indices, Mesh, VertexAttributeValues};
-use bevy::render::primitives::Aabb;
-use bevy::utils::HashMap;
+use bevy::{
+    ecs::prelude::Component,
+    math::Vec3,
+    reflect::Reflect,
+    render::{
+        color::Color,
+        mesh::{Indices, Mesh, VertexAttributeValues},
+        primitives::Aabb,
+    },
+    utils::HashMap,
+};
 
 /// Defines the cloth computation mode of vertex normals
 #[derive(Debug, Copy, Clone, Default, Reflect)]
@@ -15,12 +19,13 @@ pub enum NormalComputing {
     #[default]
     /// The cloth will compute smooth vertex normals
     SmoothNormals,
-    /// The cloth will duplicate the vertex positions, avoiding shared vertices, and compute
-    /// flat vertex normals
+    /// The cloth will duplicate the vertex positions, avoiding shared vertices,
+    /// and compute flat vertex normals
     FlatNormals,
 }
 
-/// Cloth rendering component. It allows mesh data extraction, vertex duplication and normal computation
+/// Cloth rendering component. It allows mesh data extraction, vertex
+/// duplication and normal computation
 #[derive(Debug, Clone, Component, Default)]
 pub struct ClothRendering {
     /// Mesh vertex positions
@@ -31,7 +36,8 @@ pub struct ClothRendering {
     pub vertex_colors: Option<Vec<[f32; 4]>>,
     /// Mesh vertex indices
     pub indices: Vec<u32>,
-    /// If set to true, the vertices will be duplicated and normals computed before updating the mesh
+    /// If set to true, the vertices will be duplicated and normals computed
+    /// before updating the mesh
     pub normal_computing: NormalComputing,
 }
 
@@ -48,8 +54,9 @@ impl ClothRendering {
     ///
     /// # Errors
     ///
-    /// The function fails in the event of the mesh `ATTRIBUTE_POSITION` attribute is missing or invalid.
-    /// It may also fail if the mesh doesn't have indices.
+    /// The function fails in the event of the mesh `ATTRIBUTE_POSITION`
+    /// attribute is missing or invalid. It may also fail if the mesh
+    /// doesn't have indices.
     pub fn init(mesh: &Mesh, normal_computing: NormalComputing) -> Result<Self, Error> {
         let vertex_positions = mesh
             .attribute(Mesh::ATTRIBUTE_POSITION)
@@ -116,7 +123,8 @@ impl ClothRendering {
         })
     }
 
-    ///  Compute the Axis-Aligned Bounding Box of the mesh vertices in model space
+    ///  Compute the Axis-Aligned Bounding Box of the mesh vertices in model
+    /// space
     ///
     /// # Returns
     ///
@@ -141,7 +149,8 @@ impl ClothRendering {
     ///
     /// # Panics
     ///
-    /// Panics if the new `vertex_positions` doesn't have the same length as the previous vertices
+    /// Panics if the new `vertex_positions` doesn't have the same length as the
+    /// previous vertices
     pub fn update_positions(&mut self, vertex_positions: impl ExactSizeIterator<Item = Vec3>) {
         debug_assert!(vertex_positions.len() >= self.vertex_positions.len());
         self.vertex_positions = vertex_positions.take(self.vertex_positions.len()).collect();
@@ -175,8 +184,8 @@ impl ClothRendering {
         }
     }
 
-    /// Computes vertex normals from indices, should be called on [`Self::duplicated_self`] as it requires
-    /// no shared vertices
+    /// Computes vertex normals from indices, should be called on
+    /// [`Self::duplicated_self`] as it requires no shared vertices
     pub(crate) fn compute_flat_normals(&self) -> Vec<Vec3> {
         self.indices
             .chunks_exact(3)
@@ -189,7 +198,8 @@ impl ClothRendering {
             .collect()
     }
 
-    /// Computes averaged vertex normals from indices, should be called without duplication as it requires shared vertices
+    /// Computes averaged vertex normals from indices, should be called without
+    /// duplication as it requires shared vertices
     #[allow(clippy::cast_precision_loss)]
     pub(crate) fn compute_smooth_normals(&self) -> Vec<Vec3> {
         let mut map: HashMap<_, Vec<_>> = HashMap::with_capacity(self.vertex_positions.len());
@@ -218,8 +228,9 @@ impl ClothRendering {
 
     /// applies the rendering data to the mesh.
     ///
-    /// If [`Self::normal_computing`] is set to [`NormalComputing::FlatNormals`], the vertices will
-    /// be first be duplicated before the normals are computed
+    /// If [`Self::normal_computing`] is set to
+    /// [`NormalComputing::FlatNormals`], the vertices will be first be
+    /// duplicated before the normals are computed
     pub fn apply(&self, mesh: &mut Mesh) {
         match self.normal_computing {
             NormalComputing::None => mesh.insert_attribute(

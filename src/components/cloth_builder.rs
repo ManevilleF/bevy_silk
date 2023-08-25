@@ -1,28 +1,37 @@
 use crate::prelude::*;
-use bevy::ecs::prelude::Component;
-use bevy::log;
-use bevy::math::Vec3;
-use bevy::reflect::Reflect;
-use bevy::render::mesh::VertexAttributeValues;
-use bevy::render::prelude::{Color, Mesh};
-use bevy::utils::HashMap;
+use bevy::{
+    ecs::prelude::Component,
+    log,
+    math::Vec3,
+    reflect::Reflect,
+    render::{
+        mesh::VertexAttributeValues,
+        prelude::{Color, Mesh},
+    },
+    utils::HashMap,
+};
 use std::sync::Arc;
 
 type PinnedPosCondition = dyn Fn(Vec3) -> bool + Send + Sync;
 
-/// Builder component for cloth behaviour, defines every available option for cloth generation and rendering.
+/// Builder component for cloth behaviour, defines every available option for
+/// cloth generation and rendering.
 ///
-/// Add this component to an entity with at least a `GlobalTransform` and a `Handle<Mesh>`
+/// Add this component to an entity with at least a `GlobalTransform` and a
+/// `Handle<Mesh>`
 #[derive(Clone, Reflect, Default, Component)]
 #[must_use]
 pub struct ClothBuilder {
-    /// cloth vertex ids unaffected by physics and following the attached `GlobalTransform`.
+    /// cloth vertex ids unaffected by physics and following the attached
+    /// `GlobalTransform`.
     pub anchored_vertex_ids: HashMap<usize, VertexAnchor>,
-    /// cloth vertex colors unaffected by physics and following the attached `GlobalTransform`.
+    /// cloth vertex colors unaffected by physics and following the attached
+    /// `GlobalTransform`.
     // TODO: convert to hashmap
     pub anchored_vertex_colors: Vec<(Color, VertexAnchor)>,
-    /// Optional condition to apply on vertex positions. If the condition returns `true` the vertex will
-    /// be anchored, and therefore unaffected by physics and following the attached `GlobalTransform`
+    /// Optional condition to apply on vertex positions. If the condition
+    /// returns `true` the vertex will be anchored, and therefore unaffected
+    /// by physics and following the attached `GlobalTransform`
     #[reflect(ignore)]
     pub anchored_position_conditions: Vec<(Arc<PinnedPosCondition>, VertexAnchor)>,
     /// How cloth sticks get generated
@@ -47,7 +56,8 @@ impl ClothBuilder {
     ///
     /// # Arguments
     ///
-    /// * `fixed_points` - Iterator on the vertex indexes that should be attached to the associated `GlobalTransform`
+    /// * `fixed_points` - Iterator on the vertex indexes that should be
+    ///   attached to the associated `GlobalTransform`
     #[inline]
     #[doc(hidden)]
     #[deprecated(note = "Use `with_pinned_vertex_ids` instead")]
@@ -57,11 +67,13 @@ impl ClothBuilder {
         self
     }
 
-    /// Adds pinned vertex ids for the cloth. The vertices will be pinned to the associated `GlobalTransform`
+    /// Adds pinned vertex ids for the cloth. The vertices will be pinned to the
+    /// associated `GlobalTransform`
     ///
     /// # Arguments
     ///
-    /// * `pinned_ids` - Iterator on the vertex indexes that should be pinned to the associated `GlobalTransform`
+    /// * `pinned_ids` - Iterator on the vertex indexes that should be pinned to
+    ///   the associated `GlobalTransform`
     #[inline]
     pub fn with_pinned_vertex_ids(mut self, pinned_ids: impl Iterator<Item = usize>) -> Self {
         self.anchored_vertex_ids
@@ -69,11 +81,13 @@ impl ClothBuilder {
         self
     }
 
-    /// Adds pinned a vertex id for the cloth. The vertex will be pinned to the associated `GlobalTransform`
+    /// Adds pinned a vertex id for the cloth. The vertex will be pinned to the
+    /// associated `GlobalTransform`
     ///
     /// # Arguments
     ///
-    /// * `pinned_id` - Vertex index that should be pinned to the associated `GlobalTransform`
+    /// * `pinned_id` - Vertex index that should be pinned to the associated
+    ///   `GlobalTransform`
     #[inline]
     pub fn with_pinned_vertex_id(mut self, pinned_id: usize) -> Self {
         self.anchored_vertex_ids
@@ -118,7 +132,8 @@ impl ClothBuilder {
     ///
     /// # Arguments
     ///
-    /// * `vertex_colors` - Iterator on the vertex colors that should be pinned to the associated `GlobalTransform`
+    /// * `vertex_colors` - Iterator on the vertex colors that should be pinned
+    ///   to the associated `GlobalTransform`
     #[inline]
     pub fn with_pinned_vertex_colors(mut self, vertex_colors: impl Iterator<Item = Color>) -> Self {
         self.anchored_vertex_colors
@@ -130,7 +145,8 @@ impl ClothBuilder {
     ///
     /// # Arguments
     ///
-    /// * `vertex_color` - Vertex colors that should be pinned to the associated `GlobalTransform`
+    /// * `vertex_color` - Vertex colors that should be pinned to the associated
+    ///   `GlobalTransform`
     #[inline]
     pub fn with_pinned_vertex_color(mut self, vertex_color: Color) -> Self {
         self.anchored_vertex_colors
@@ -142,7 +158,8 @@ impl ClothBuilder {
     ///
     /// # Arguments
     ///
-    /// * `vertex_colors` - Iterator on the vertex colors that should be anchored
+    /// * `vertex_colors` - Iterator on the vertex colors that should be
+    ///   anchored
     /// * `vertex_anchor` - Vertex anchor definition
     #[inline]
     pub fn with_anchored_vertex_colors(
@@ -176,7 +193,8 @@ impl ClothBuilder {
     ///
     /// # Arguments
     ///
-    /// * `condition` - a function determining if a given position ([`Vec3`]) is pinned to the
+    /// * `condition` - a function determining if a given position ([`Vec3`]) is
+    ///   pinned to the
     /// associated `GlobalTransform`.
     ///
     /// # Example
@@ -195,7 +213,8 @@ impl ClothBuilder {
     ///
     /// # Arguments
     ///
-    /// * `condition` - a function determining if a given position ([`Vec3`]) should be anchored
+    /// * `condition` - a function determining if a given position ([`Vec3`])
+    ///   should be anchored
     /// * `vertex_anchor` - Vertex anchor definition
     ///
     /// # Example
@@ -250,8 +269,8 @@ impl ClothBuilder {
         self
     }
 
-    /// The cloth won't re-compute the mesh normals. It's the fastest option but lighting will
-    /// become inconsistent
+    /// The cloth won't re-compute the mesh normals. It's the fastest option but
+    /// lighting will become inconsistent
     #[inline]
     pub fn without_normal_computation(mut self) -> Self {
         self.normals_computing = NormalComputing::None;
@@ -292,9 +311,11 @@ impl ClothBuilder {
 
     /// Retrieves all anchored vertex ids using:
     /// - [`Self::anchored_vertex_ids`] explicit ids
-    /// - [`Self::anchored_vertex_colors`] to find every vertex id in `mesh` matching a pinned color
+    /// - [`Self::anchored_vertex_colors`] to find every vertex id in `mesh`
+    ///   matching a pinned color
     ///
-    /// Note: anchored vertex colors are ignored if the given `mesh` doesn't have vertex colors
+    /// Note: anchored vertex colors are ignored if the given `mesh` doesn't
+    /// have vertex colors
     #[must_use]
     pub fn anchored_vertex_ids(&self, mesh: &Mesh) -> HashMap<usize, VertexAnchor> {
         let mut res = self.anchored_vertex_ids.clone();
@@ -326,7 +347,10 @@ impl ClothBuilder {
                     }));
                 }
                 None => {
-                    log::warn!("ClothBuilder has anchored vertex colors but the associated mesh doesn't have a valid Vertex_Color attribute");
+                    log::warn!(
+                        "ClothBuilder has anchored vertex colors but the associated mesh doesn't \
+                         have a valid Vertex_Color attribute"
+                    );
                 }
             };
         }
@@ -349,7 +373,10 @@ impl ClothBuilder {
                     }));
                 }
                 None => {
-                    log::warn!("ClothBuilder has anchored vertex positions but the associated mesh doesn't have a valid Vertex_Position attribute");
+                    log::warn!(
+                        "ClothBuilder has anchored vertex positions but the associated mesh \
+                         doesn't have a valid Vertex_Position attribute"
+                    );
                 }
             };
         }

@@ -1,7 +1,9 @@
 // TODO: mesh generation utils
 
-use bevy::math::Vec3;
-use bevy::render::mesh::{Indices, Mesh, PrimitiveTopology};
+use bevy::{
+    math::Vec3,
+    render::mesh::{Indices, Mesh, PrimitiveTopology},
+};
 
 #[allow(clippy::cast_precision_loss, clippy::cast_possible_truncation)]
 #[must_use]

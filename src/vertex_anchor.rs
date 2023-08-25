@@ -1,20 +1,25 @@
-use bevy::math::Vec3;
-use bevy::prelude::{Entity, GlobalTransform};
-use bevy::reflect::Reflect;
+use bevy::{
+    math::Vec3,
+    prelude::{Entity, GlobalTransform},
+    reflect::Reflect,
+};
 
 /// Defines a cloth vertex anchor through a `target` and `offset`
 ///
-/// The default anchor will link the cloth vertices to the cloth entity's `GlobalTransform`,
-/// you can anchor them to a specific entity by defining a `custom_target`.
+/// The default anchor will link the cloth vertices to the cloth entity's
+/// `GlobalTransform`, you can anchor them to a specific entity by defining a
+/// `custom_target`.
 #[derive(Debug, Copy, Clone, Default, Reflect)]
 #[must_use]
 pub struct VertexAnchor {
-    /// Optional custom anchor target entity. If not set, the cloth entity will be used
+    /// Optional custom anchor target entity. If not set, the cloth entity will
+    /// be used
     pub custom_target: Option<Entity>,
     /// optional custom offset. If not set the base vertex position will be used
     pub custom_offset: Option<Vec3>,
     /// If set to true, the base vertex position will be ignored.
-    /// If [`Self::custom_offset`] is defined, it will then override the vertex position
+    /// If [`Self::custom_offset`] is defined, it will then override the vertex
+    /// position
     pub ignore_vertex_position: bool,
 }
 
@@ -24,8 +29,10 @@ impl VertexAnchor {
     /// # Arguments
     ///
     /// * `original_pos` - the original local space vertex position
-    /// * `self_transform` - the `GlobalTransform` associated with the cloth entity used without a custom target entity
-    /// * `transform_query` - ECS query used in case of a set [`Self::custom_target`]
+    /// * `self_transform` - the `GlobalTransform` associated with the cloth
+    ///   entity used without a custom target entity
+    /// * `transform_query` - ECS query used in case of a set
+    ///   [`Self::custom_target`]
     #[inline]
     #[must_use]
     pub fn get_position<'a>(

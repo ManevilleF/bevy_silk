@@ -1,6 +1,4 @@
-use bevy::ecs::prelude::Resource;
-use bevy::math::Vec3;
-use bevy::reflect::Reflect;
+use bevy::{ecs::prelude::Resource, math::Vec3, reflect::Reflect};
 
 /// Wind definition for cloth physics
 #[derive(Debug, Clone, Reflect)]
@@ -16,7 +14,8 @@ pub enum Wind {
         max_velocity: Vec3,
         /// sin wave frequency
         frequency: f32,
-        /// If set to true the wave will be normalized between 0 and 1 and avoid negative values
+        /// If set to true the wave will be normalized between 0 and 1 and avoid
+        /// negative values
         normalize: bool,
         /// Use absolute values, making the wave act as a bouncing signal
         abs: bool,
@@ -42,7 +41,8 @@ impl Default for Wind {
 }
 
 impl Wind {
-    /// Retrieves the current wind velocity according to the elapsed time since startup
+    /// Retrieves the current wind velocity according to the elapsed time since
+    /// startup
     #[must_use]
     pub fn current_velocity(&self, elapsed_time: f32) -> Vec3 {
         match self {
@@ -67,7 +67,8 @@ impl Wind {
 }
 
 impl Winds {
-    /// Retrieves the current winds velocity sum according to the elapsed time since startup
+    /// Retrieves the current winds velocity sum according to the elapsed time
+    /// since startup
     #[must_use]
     pub fn current_velocity(&self, elapsed_time: f32) -> Vec3 {
         self.wind_forces

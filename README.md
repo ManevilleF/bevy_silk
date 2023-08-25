@@ -55,11 +55,13 @@ fn main() {
 
 ### Add cloth to a mesh
 
-For a mesh to be used as cloth, add the `ClothBuilder` component to any entity with a `Handle<Mesh>` component.
+For a mesh to be used as cloth, add the `ClothBuilder` component to any
+entity with a `Handle<Mesh>` component.
 
 > Note: `Transform` and `GlobalTransform` are also required
 
-cloth data which will be populated automatically from the associated `Handle<Mesh>`.
+cloth data which will be populated automatically from the associated
+`Handle<Mesh>`.
 
 ```rust
 use bevy::prelude::*;
@@ -79,18 +81,19 @@ fn spawn(mut commands: Commands) {
             // Defines the sticks target length option
             .with_stick_length(StickLen::Auto)
             // The cloth will compute flat mesh normals
-            .with_flat_normals()
-            // ...
+            .with_flat_normals(),
     ));
 }
 ```
 
 #### Vertex anchoring
 
-Specifying vertex anchors allows to pin some cloth vertices to various entities.
-The `ClothBuilder` has multiple methods allowing to anchor vertices through their id or color.
+Specifying vertex anchors allows to pin some cloth vertices to various
+entities. The `ClothBuilder` has multiple methods allowing to anchor
+vertices through their id or color.
 
-For example you can pin some cloth vertices to the cloth entity's `GlobalTransform`:
+For example you can pin some cloth vertices to the cloth entity's
+`GlobalTransform`:
 
 ```rust
 use bevy::prelude::Color;
@@ -109,7 +112,8 @@ let cloth = ClothBuilder::new()
     .with_pinned_vertex_positions(|pos| pos.x > 0.0 && pos.z <= 5.0);
 ```
 
-For more anchoring options, for example to specify a custom entity to pin the vertices to:
+For more anchoring options, for example to specify a custom entity to pin
+the vertices to:
 
 ```rust
 use bevy::prelude::*;
@@ -150,13 +154,15 @@ fn spawn(mut commands: Commands) {
 
 Custom anchoring allows to :
 - pin vertices to various entities, like skeletal mesh joints
-- define custom offsets to customize the distance between the anchored vertices an the target
+- define custom offsets to customize the distance between the anchored
+  vertices an the target
 - use world space pinning and ignore the target's rotation for example
 - override the vertex positions, using only the offset
 
 ### Configuration
 
-You can customize the global cloth physics by inserting the `ClothConfig` resource to your app:
+You can customize the global cloth physics by inserting the `ClothConfig`
+resource to your app:
 
 ```rust no_run
 use bevy::prelude::*;
@@ -177,15 +183,19 @@ fn main() {
 }
 ```
 
-`ClothConfig` can also be used as a *component* to override the global configuration.
+`ClothConfig` can also be used as a *component* to override the global
+configuration.
 
 ## Wind
 
-You may add wind forces to the simulation for a more dynamic clothing effect, for each force you may choose from:
+You may add wind forces to the simulation for a more dynamic clothing
+effect, for each force you may choose from:
 - `Wind::Constant` for constant wind force
-- `Wind::SinWave` for a sin wave following wind intensity with custom force and frequency.
+- `Wind::SinWave` for a sin wave following wind intensity with custom force
+  and frequency.
 
-`Wind` forces can be added as a resource to your app through the `Winds` container:
+`Wind` forces can be added as a resource to your app through the `Winds`
+container:
 
 ```rust no_run
 use bevy::prelude::*;
@@ -212,8 +222,9 @@ fn main() {
 
 ## Collisions
 
-Enabling the `rapier_collisions` features enable cloth interaction with other colliders.
-Add the `bevy_rapier3d::RapierPhysicsPlugin` to your app and a `ClothCollider` to your entity to enable collisions:
+Enabling the `rapier_collisions` features enable cloth interaction with
+other colliders. Add the `bevy_rapier3d::RapierPhysicsPlugin` to your app
+and a `ClothCollider` to your entity to enable collisions:
 
 ```rust
 use bevy::prelude::*;
@@ -226,35 +237,43 @@ fn spawn(mut commands: Commands) {
             ..Default::default()
         },
         ClothBuilder::new(),
-        ClothCollider::default()
+        ClothCollider::default(),
     ));
 }
 ```
 
 Three [`bevy_rapier`](https://github.com/dimforge/bevy_rapier) components will be automatically inserted:
 - a `RigidBody::KinematicPositionBased`
-- a `Collider` which will be updated every frame to follow the cloth bounds (AABB)
-- a `SolverGroup` set to 0 (`Group::NONE`) in everything, avoiding default collision solving.
+- a `Collider` which will be updated every frame to follow the cloth bounds
+  (AABB)
+- a `SolverGroup` set to 0 (`Group::NONE`) in everything, avoiding default
+  collision solving.
 
 You can customize what collisions will be checked through a `CollisionGroups` (See the [rapier docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
 
-> Note: Collision support is still experimental for now and is not suited for production use. Feedback is welcome !
+> Note: Collision support is still experimental for now and is not suited
+> for production use. Feedback is welcome !
 
 ## Mesh utils
 
-`bevy_silk` provides a plane mesh generation function `rectangle_mesh` useful for classic cloth uses like flags or capes
+`bevy_silk` provides a plane mesh generation function `rectangle_mesh`
+useful for classic cloth uses like flags or capes
 
 ## Q&A
 
-- `My mesh falls immediately and infinitely when I add a Cloth component, how to fix it?`
+- `My mesh falls immediately and infinitely when I add a Cloth component,
+  how to fix it?`
 
-You probably didn't specify any *pinned points*, meaning there are no vertices anchored to your entity's `GlobalTransform`.
+You probably didn't specify any *pinned points*, meaning there are no
+vertices anchored to your entity's `GlobalTransform`.
 
-- `My cloth jitters a lot/ suddenly falls down/ has strange sudden behaviour`
+- `My cloth jitters a lot/ suddenly falls down/ has strange sudden
+  behaviour`
 
-Gravity and winds are by default smoothed out by the framerate, if the framerate drops suddenly gravity and wind get much stronger.
-If your simulation suffers from this you can specify a custom smooth value in `ClothConfig::acceleration_smoothing`.
-
+Gravity and winds are by default smoothed out by the framerate, if the
+framerate drops suddenly gravity and wind get much stronger.
+If your simulation suffers from this you can specify a custom smooth value
+in `ClothConfig::acceleration_smoothing`.
 
 <!-- cargo-sync-readme end -->
 
