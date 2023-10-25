@@ -51,6 +51,7 @@ pub fn render(
         if let Some(mesh) = meshes.get_mut(handle) {
             rendering.update_positions(cloth.compute_vertex_positions(transform));
             rendering.apply(mesh);
+            // TODO set_if_neq
             *aabb = rendering.compute_aabb();
         } else {
             log::warn!("A Cloth has a `ClothRendering` component without a loaded mesh handle");

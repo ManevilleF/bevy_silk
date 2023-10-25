@@ -387,7 +387,6 @@ impl Plugin for ClothPlugin {
                 systems::collisions::xpbd::handle_collisions.before(systems::cloth::render),
             ),
         );
-
         bevy::log::info!("Loaded Cloth Plugin");
     }
 }
