@@ -210,8 +210,9 @@
 //!
 //! ## Collisions
 //!
-//! Both [`bevy_rapier`] and [`bevy_xpbd`] are supported for cloth interactions with colliders.
-//! They can be enabled with the `rapier_collisions` and `xpbd_collisions` features respectively.
+//! Both [`bevy_rapier`] and [`bevy_xpbd`] are supported for cloth interactions
+//! with colliders. They can be enabled with the `rapier_collisions` and
+//! `xpbd_collisions` features respectively.
 //!
 //! > Note: Collision support is still experimental for now and is not suited
 //! > for production use. Feedback is welcome!
@@ -245,8 +246,8 @@
 //! - a `SolverGroup` set to 0 (`Group::NONE`) in everything, avoiding default
 //!   collision solving.
 //!
-//! You can customize what collisions will be checked by specifying `CollisionGroups`.
-//! (See the [`bevy_rapier` docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
+//! You can customize what collisions will be checked by specifying
+//! `CollisionGroups`. (See the [`bevy_rapier` docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
 //!
 //! ### `bevy_xpbd`
 //!
@@ -275,8 +276,8 @@
 //!   (AABB)
 //! - a `Sensor` used for avoiding default collision solving.
 //!
-//! You can customize what collisions will be checked by specifying `CollisionLayers`.
-//! (See the [`bevy_xpbd` docs](https://docs.rs/bevy_xpbd_3d/latest/bevy_xpbd_3d/components/struct.CollisionLayers.html)).
+//! You can customize what collisions will be checked by specifying
+//! `CollisionLayers`. (See the [`bevy_xpbd` docs](https://docs.rs/bevy_xpbd_3d/latest/bevy_xpbd_3d/components/struct.CollisionLayers.html)).
 //!
 //! ## Mesh utils
 //!
