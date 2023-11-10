@@ -15,6 +15,7 @@ documentation = "https://docs.rs/bevy_silk"
 [features]
 default = []
 rapier_collisions = ["bevy_rapier3d"]
+xpbd_collisions = ["bevy_xpbd_3d"]
 
 [dependencies]
 # Error handling
@@ -30,6 +31,10 @@ version = "0.23"
 optional = true
 default-features = false
 features = ["dim3", "async-collider"]
+
+[dependencies.bevy_xpbd_3d]
+version = "0.3"
+optional = true
 
 [dev-dependencies]
 bevy-inspector-egui = "0.21"
@@ -70,6 +75,11 @@ path = "examples/moving_example.rs"
 name = "rapier_collision"
 path = "examples/rapier_collision_example.rs"
 required-features = ["rapier_collisions"]
+
+[[example]]
+name = "xpbd_collision"
+path = "examples/xpbd_collision_example.rs"
+required-features = ["xpbd_collisions"]
 
 [[example]]
 name = "anchors"

@@ -301,7 +301,7 @@ use bevy::prelude::*;
 
 /// Prelude module, providing every public type of the lib
 pub mod prelude {
-    #[cfg(feature = "rapier_collisions")]
+    #[cfg(any(feature = "rapier_collisions", feature = "xpbd_collisions"))]
     pub use crate::components::collider::ClothCollider;
     pub use crate::{
         components::{cloth_builder::ClothBuilder, cloth_rendering::NormalComputing},
@@ -333,14 +333,24 @@ impl Plugin for ClothPlugin {
                 (systems::cloth::update, systems::cloth::render).chain(),
             ),
         );
+
         #[cfg(feature = "rapier_collisions")]
         app.register_type::<ClothCollider>().add_systems(
             Update,
             (
-                systems::collisions::init_cloth_collider,
-                systems::collisions::handle_collisions.before(systems::cloth::render),
+                systems::collisions::rapier::init_cloth_collider,
+                systems::collisions::rapier::handle_collisions.before(systems::cloth::render),
             ),
         );
+        #[cfg(feature = "xpbd_collisions")]
+        app.register_type::<ClothCollider>().add_systems(
+            Update,
+            (
+                systems::collisions::xpbd::init_cloth_collider,
+                systems::collisions::xpbd::handle_collisions.before(systems::cloth::render),
+            ),
+        );
+
         bevy::log::info!("Loaded Cloth Plugin");
     }
 }
