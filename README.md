@@ -153,6 +153,7 @@ fn spawn(mut commands: Commands) {
 ```
 
 Custom anchoring allows to :
+
 - pin vertices to various entities, like skeletal mesh joints
 - define custom offsets to customize the distance between the anchored
   vertices an the target
@@ -190,6 +191,7 @@ configuration.
 
 You may add wind forces to the simulation for a more dynamic clothing
 effect, for each force you may choose from:
+
 - `Wind::Constant` for constant wind force
 - `Wind::SinWave` for a sin wave following wind intensity with custom force
   and frequency.
@@ -222,9 +224,16 @@ fn main() {
 
 ## Collisions
 
-Enabling the `rapier_collisions` features enable cloth interaction with
-other colliders. Add the `bevy_rapier3d::RapierPhysicsPlugin` to your app
-and a `ClothCollider` to your entity to enable collisions:
+Both [`bevy_rapier`] and [`bevy_xpbd`] are supported for cloth interactions with colliders.
+They can be enabled with the `rapier_collisions` and `xpbd_collisions` features respectively.
+
+> Note: Collision support is still experimental for now and is not suited
+> for production use. Feedback is welcome!
+
+### `bevy_rapier`
+
+Add `bevy_rapier3d::RapierPhysicsPlugin` to your app and a `ClothCollider`
+to your entity to enable collisions:
 
 ```rust
 use bevy::prelude::*;
@@ -234,7 +243,7 @@ fn spawn(mut commands: Commands) {
     commands.spawn((
         PbrBundle {
             // Add your mesh, material and your custom PBR data
-            ..Default::default()
+            ..default()
         },
         ClothBuilder::new(),
         ClothCollider::default(),
@@ -242,17 +251,47 @@ fn spawn(mut commands: Commands) {
 }
 ```
 
-Three [`bevy_rapier`](https://github.com/dimforge/bevy_rapier) components will be automatically inserted:
+Three `bevy_rapier` components will be automatically inserted:
+
 - a `RigidBody::KinematicPositionBased`
 - a `Collider` which will be updated every frame to follow the cloth bounds
   (AABB)
 - a `SolverGroup` set to 0 (`Group::NONE`) in everything, avoiding default
-  collision solving.
+   collision solving.
 
-You can customize what collisions will be checked through a `CollisionGroups` (See the [rapier docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
+You can customize what collisions will be checked by specifying `CollisionGroups`.
+(See the [`bevy_rapier` docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
 
-> Note: Collision support is still experimental for now and is not suited
-> for production use. Feedback is welcome !
+### `bevy_xpbd`
+
+Add `bevy_xpbd_3d::PhysicsPlugins` to your app and a `ClothCollider`
+to your entity to enable collisions:
+
+```rust
+use bevy::prelude::*;
+use bevy_silk::prelude::*;
+
+fn spawn(mut commands: Commands) {
+    commands.spawn((
+        PbrBundle {
+            // Add your mesh, material and your custom PBR data
+            ..default()
+        },
+        ClothBuilder::new(),
+        ClothCollider::default(),
+    ));
+}
+```
+
+Three `bevy_xpbd` components will be automatically inserted:
+
+- a `RigidBody::Kinematic`
+- a `Collider` which will be updated every frame to follow the cloth bounds
+  (AABB)
+- a `Sensor` used for avoiding default collision solving.
+
+You can customize what collisions will be checked by specifying `CollisionLayers`.
+(See the [`bevy_xpbd` docs](https://docs.rs/bevy_xpbd_3d/latest/bevy_xpbd_3d/components/struct.CollisionLayers.html)).
 
 ## Mesh utils
 
@@ -299,13 +338,17 @@ run `cargo run --example balloon`
 
 run `cargo run --example moving`
 
-4. [Rapier] Collision example
+4. [`bevy_rapier`] collision example
 
 run `cargo run --example rapier_collision --features rapier_collisions`
 
-5. Anchors example
+5. [`bevy_xpbd`] collision example
+
+run `cargo run --example xpbd_collision --features xpbd_collisions`
+
+6. Anchors example
 
 run `cargo run --example anchors`
 
-[Rapier]: https://github.com/dimforge/bevy_rapier
-[Heron]: https://github.com/jcornaz/heron
+[`bevy_rapier`]: https://github.com/dimforge/bevy_rapier
+[`bevy_xpbd`]: https://github.com/Jondolf/bevy_xpbd
