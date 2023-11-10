@@ -35,6 +35,8 @@ features = ["dim3", "async-collider"]
 [dependencies.bevy_xpbd_3d]
 version = "0.3"
 optional = true
+default-features = false
+features = ["3d", "f32", "async-collider"]
 
 [dev-dependencies]
 bevy-inspector-egui = "0.21"
