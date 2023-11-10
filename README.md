@@ -46,8 +46,7 @@ use bevy_silk::prelude::*;
 
 fn main() {
   App::new()
-    .add_plugins(DefaultPlugins)
-    .add_plugin(ClothPlugin)
+    .add_plugins((DefaultPlugins, ClothPlugin))
     // ... Add your resources and systems
     .run();
 }
@@ -171,14 +170,13 @@ use bevy_silk::prelude::*;
 
 fn main() {
   App::new()
-    .add_plugins(DefaultPlugins)
+    .add_plugins((DefaultPlugins, ClothPlugin))
     .insert_resource(ClothConfig {
         gravity: Vec3::new(0.0, -9.81, 0.0),
         friction: 0.02,
         sticks_computation_depth: 5,
         acceleration_smoothing: AccelerationSmoothing::default()
     })
-    .add_plugin(ClothPlugin)
     // ... Add your resources and systems
     .run();
 }
@@ -205,7 +203,7 @@ use bevy_silk::prelude::*;
 
 fn main() {
   App::new()
-    .add_plugins(DefaultPlugins)
+    .add_plugins((DefaultPlugins, ClothPlugin))
     .insert_resource(Winds {
         wind_forces: vec![Wind::SinWave {
             max_velocity: Vec3::new(10.0, 15.0, -5.0),
@@ -214,7 +212,6 @@ fn main() {
             abs: false
         }]
     })
-    .add_plugin(ClothPlugin)
     // ... Add your resources and systems
     .run();
 }
