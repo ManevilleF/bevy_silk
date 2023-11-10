@@ -54,6 +54,8 @@ pub fn handle_collisions(
             });
             cloth.solve_collisions(|point| {
                 let other_transform = other_transform.compute_transform();
+                // TODO: Remove Nalgebra type conversions once bevy_xpbd has
+                //       a `Collider::project_point` method that uses Glam.
                 let projection = other_collider.shape_scaled().project_point(
                     &bevy_xpbd_3d::parry::math::Isometry::new(
                         other_transform.translation.into(),
