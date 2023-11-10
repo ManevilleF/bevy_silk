@@ -41,7 +41,7 @@ pub fn handle_camera(
     let up = transform.local_y();
     // Rotate
     if buttons.pressed(MouseButton::Left) {
-        for ev in motion_evr.iter() {
+        for ev in motion_evr.read() {
             let delta = -ev.delta * delta_time * 0.1;
             transform.rotate_y(delta.x);
             transform.rotate_local_x(delta.y);
@@ -49,14 +49,14 @@ pub fn handle_camera(
     }
     // Pan
     if buttons.pressed(MouseButton::Right) {
-        for ev in motion_evr.iter() {
+        for ev in motion_evr.read() {
             let delta = ev.delta * delta_time;
             transform.translation += -right * delta.x;
             transform.translation += up * delta.y;
         }
     }
     // Zoom
-    for ev in scroll_evr.iter() {
+    for ev in scroll_evr.read() {
         transform.translation += ev.y * delta_time * forward * 10.0;
     }
 }
