@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+* Bump `bevy` to `0.12.x`
+* Bump `bevy_rapier3d` to `0.23.x`
+* Bump `bevy_inspector_egui` to `0.21.x`
 * Fixed clippy warnings for rust 1.72.0 (#19)
 * Added rustfmt config (#19)
 * Added vertex colors in flag example (#19)
