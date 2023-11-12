@@ -210,9 +210,17 @@
 //!
 //! ## Collisions
 //!
-//! Enabling the `rapier_collisions` features enable cloth interaction with
-//! other colliders. Add the `bevy_rapier3d::RapierPhysicsPlugin` to your app
-//! and a `ClothCollider` to your entity to enable collisions:
+//! Both [`bevy_rapier`] and [`bevy_xpbd`] are supported for cloth interactions
+//! with colliders. They can be enabled with the `rapier_collisions` and
+//! `xpbd_collisions` features respectively.
+//!
+//! > Note: Collision support is still experimental for now and is not suited
+//! > for production use. Feedback is welcome!
+//!
+//! ### `bevy_rapier`
+//!
+//! Add `bevy_rapier3d::RapierPhysicsPlugin` to your app and a `ClothCollider`
+//! to your entity to enable collisions:
 //!
 //! ```rust
 //! use bevy::prelude::*;
@@ -222,7 +230,7 @@
 //!     commands.spawn((
 //!         PbrBundle {
 //!             // Add your mesh, material and your custom PBR data
-//!             ..Default::default()
+//!             ..default()
 //!         },
 //!         ClothBuilder::new(),
 //!         ClothCollider::default(),
@@ -230,17 +238,46 @@
 //! }
 //! ```
 //!
-//! Three [`bevy_rapier`](https://github.com/dimforge/bevy_rapier) components will be automatically inserted:
+//! Three `bevy_rapier` components will be automatically inserted:
+//!
 //! - a `RigidBody::KinematicPositionBased`
 //! - a `Collider` which will be updated every frame to follow the cloth bounds
 //!   (AABB)
 //! - a `SolverGroup` set to 0 (`Group::NONE`) in everything, avoiding default
 //!   collision solving.
 //!
-//! You can customize what collisions will be checked through a `CollisionGroups` (See the [rapier docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
+//! You can customize what collisions will be checked by specifying
+//! `CollisionGroups`. (See the [`bevy_rapier` docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
 //!
-//! > Note: Collision support is still experimental for now and is not suited
-//! > for production use. Feedback is welcome !
+//! ### `bevy_xpbd`
+//!
+//! Add `bevy_xpbd_3d::PhysicsPlugins` to your app and a `ClothCollider`
+//! to your entity to enable collisions:
+//!
+//! ```rust
+//! use bevy::prelude::*;
+//! use bevy_silk::prelude::*;
+//!
+//! fn spawn(mut commands: Commands) {
+//!     commands.spawn((
+//!         PbrBundle {
+//!             // Add your mesh, material and your custom PBR data
+//!             ..default()
+//!         },
+//!         ClothBuilder::new(),
+//!         ClothCollider::default(),
+//!     ));
+//! }
+//! ```
+//!
+//! Three `bevy_xpbd` components will be automatically inserted:
+//! - a `RigidBody::Kinematic`
+//! - a `Collider` which will be updated every frame to follow the cloth bounds
+//!   (AABB)
+//! - a `Sensor` used for avoiding default collision solving.
+//!
+//! You can customize what collisions will be checked by specifying
+//! `CollisionLayers`. (See the [`bevy_xpbd` docs](https://docs.rs/bevy_xpbd_3d/latest/bevy_xpbd_3d/components/struct.CollisionLayers.html)).
 //!
 //! ## Mesh utils
 //!
@@ -262,6 +299,9 @@
 //! framerate drops suddenly gravity and wind get much stronger.
 //! If your simulation suffers from this you can specify a custom smooth value
 //! in `ClothConfig::acceleration_smoothing`.
+//!
+//! [`bevy_rapier`]: https://github.com/dimforge/bevy_rapier
+//! [`bevy_xpbd`]: https://github.com/Jondolf/bevy_xpbd
 #![forbid(unsafe_code)]
 #![warn(
     missing_docs,
@@ -298,7 +338,7 @@ use bevy::prelude::*;
 
 /// Prelude module, providing every public type of the lib
 pub mod prelude {
-    #[cfg(feature = "rapier_collisions")]
+    #[cfg(any(feature = "rapier_collisions", feature = "xpbd_collisions"))]
     pub use crate::components::collider::ClothCollider;
     pub use crate::{
         components::{cloth_builder::ClothBuilder, cloth_rendering::NormalComputing},
@@ -330,14 +370,24 @@ impl Plugin for ClothPlugin {
                 (systems::cloth::update, systems::cloth::render).chain(),
             ),
         );
+
         #[cfg(feature = "rapier_collisions")]
         app.register_type::<ClothCollider>().add_systems(
             Update,
             (
-                systems::collisions::init_cloth_collider,
-                systems::collisions::handle_collisions.before(systems::cloth::render),
+                systems::collisions::rapier::init_cloth_collider,
+                systems::collisions::rapier::handle_collisions.before(systems::cloth::render),
             ),
         );
+        #[cfg(feature = "xpbd_collisions")]
+        app.register_type::<ClothCollider>().add_systems(
+            Update,
+            (
+                systems::collisions::xpbd::init_cloth_collider,
+                systems::collisions::xpbd::handle_collisions.before(systems::cloth::render),
+            ),
+        );
+
         bevy::log::info!("Loaded Cloth Plugin");
     }
 }

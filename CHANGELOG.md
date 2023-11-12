@@ -5,6 +5,10 @@
 * Bump `bevy` to `0.12.x`
 * Bump `bevy_rapier3d` to `0.23.x`
 * Bump `bevy_inspector_egui` to `0.21.x`
+* [bevy_xpbd](https://github.com/Jondolf/bevy_xpbd) collision support (#22):
+  * Added `xpbd_collisions` feature
+  * Added `xpbd_collision` example
+  * Split `collisions` into `rapier` and `xpbd` sub-modules
 * Fixed clippy warnings for rust 1.72.0 (#19)
 * Added rustfmt config (#19)
 * Added vertex colors in flag example (#19)
