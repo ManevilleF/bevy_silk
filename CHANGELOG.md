@@ -32,7 +32,8 @@
 
 ### Fixes
 
-* Fixed visibility issues with cloths. Now the `Aabb` is directly handled by the cloth engine.
+* Fixed visibility issues with cloths. Now the `Aabb` is directly handled by
+the cloth engine.
 
 ### bevy_inspector_egui
 
