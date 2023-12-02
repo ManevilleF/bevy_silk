@@ -1,3 +1,5 @@
+# Bevy Silk
+
 [![workflow](https://github.com/ManevilleF/bevy_silk/actions/workflows/rust.yml/badge.svg)](https://github.com/ManevilleF/bevy_silk/actions/workflows/rust.yml)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
@@ -7,11 +9,7 @@
 
 <!-- cargo-sync-readme start -->
 
-# Bevy Silk
-
 CPU driven Cloth engine for Bevy using Verlet integration.
-
-by [Félix Lescaudey de Maneville](https://linktree.com/ManevilleF)
 
 ## Get started
 
@@ -19,7 +17,7 @@ by [Félix Lescaudey de Maneville](https://linktree.com/ManevilleF)
 
 Add `bevy_silk` as a dependency in the `Cargo.toml`
 
-`bevy_silk = "0.6"`
+`bevy_silk = "0.7"`
 
 Or follow the main git branch
 
@@ -35,6 +33,7 @@ Or follow the main git branch
 | 0.4.0  | 0.9  |
 | 0.5.0  | 0.10 |
 | 0.6.0  | 0.11 |
+| 0.7.0  | 0.12 |
 
 ### Plugin
 
@@ -127,16 +126,20 @@ fn spawn(mut commands: Commands) {
         ))
         .id();
     let anchor_to_a = VertexAnchor {
-        custom_target: Some(entity_a), // The anchor will pin the vertices to `entity_a`
-        custom_offset: Some(Vec3::new(1.0, 1.2, 0.0)),  // Specify an extra offset from the target's `GlobalTransform`
+        // The anchor will pin the vertices to `entity_a`
+        custom_target: Some(entity_a),
+        // Specify an extra offset from the target's `GlobalTransform`
+        custom_offset: Some(Vec3::new(1.0, 1.2, 0.0)),
         ..Default::default()
     };
     let anchor_to_self = VertexAnchor {
-        custom_target: None,  // The anchor will pin the cloth entity
-        custom_offset: Some(Vec3::new(-1.0, 0.0, -0.1)), // Specify an extra offset from the target's `GlobalTransform`
+        // The anchor will pin the cloth entity
+        custom_target: None,
+        // Specify an extra offset from the target's `GlobalTransform`
+        custom_offset: Some(Vec3::new(-1.0, 0.0, -0.1)),
         ..Default::default()
     };
-   
+
     let cloth = ClothBuilder::new()
         // Adds pinned vertices ids using an Iterator
         .with_anchored_vertex_ids(0..9, anchor_to_a)
@@ -153,11 +156,11 @@ fn spawn(mut commands: Commands) {
 
 Custom anchoring allows to :
 
-- pin vertices to various entities, like skeletal mesh joints
-- define custom offsets to customize the distance between the anchored
+* pin vertices to various entities, like skeletal mesh joints
+* define custom offsets to customize the distance between the anchored
   vertices an the target
-- use world space pinning and ignore the target's rotation for example
-- override the vertex positions, using only the offset
+* use world space pinning and ignore the target's rotation for example
+* override the vertex positions, using only the offset
 
 ### Configuration
 
@@ -190,8 +193,8 @@ configuration.
 You may add wind forces to the simulation for a more dynamic clothing
 effect, for each force you may choose from:
 
-- `Wind::Constant` for constant wind force
-- `Wind::SinWave` for a sin wave following wind intensity with custom force
+* `Wind::Constant` for constant wind force
+* `Wind::SinWave` for a sin wave following wind intensity with custom force
   and frequency.
 
 `Wind` forces can be added as a resource to your app through the `Winds`
@@ -221,8 +224,9 @@ fn main() {
 
 ## Collisions
 
-Both [`bevy_rapier`] and [`bevy_xpbd`] are supported for cloth interactions with colliders.
-They can be enabled with the `rapier_collisions` and `xpbd_collisions` features respectively.
+Both [`bevy_rapier`] and [`bevy_xpbd`] are supported for cloth interactions
+with colliders. They can be enabled with the `rapier_collisions` and
+`xpbd_collisions` features respectively.
 
 > Note: Collision support is still experimental for now and is not suited
 > for production use. Feedback is welcome!
@@ -250,14 +254,14 @@ fn spawn(mut commands: Commands) {
 
 Three `bevy_rapier` components will be automatically inserted:
 
-- a `RigidBody::KinematicPositionBased`
-- a `Collider` which will be updated every frame to follow the cloth bounds
+* a `RigidBody::KinematicPositionBased`
+* a `Collider` which will be updated every frame to follow the cloth bounds
   (AABB)
-- a `SolverGroup` set to 0 (`Group::NONE`) in everything, avoiding default
-   collision solving.
+* a `SolverGroup` set to 0 (`Group::NONE`) in everything, avoiding default
+  collision solving.
 
-You can customize what collisions will be checked by specifying `CollisionGroups`.
-(See the [`bevy_rapier` docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
+You can customize what collisions will be checked by specifying
+`CollisionGroups`. (See the [`bevy_rapier` docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
 
 ### `bevy_xpbd`
 
@@ -282,13 +286,13 @@ fn spawn(mut commands: Commands) {
 
 Three `bevy_xpbd` components will be automatically inserted:
 
-- a `RigidBody::Kinematic`
-- a `Collider` which will be updated every frame to follow the cloth bounds
+* a `RigidBody::Kinematic`
+* a `Collider` which will be updated every frame to follow the cloth bounds
   (AABB)
-- a `Sensor` used for avoiding default collision solving.
+* a `Sensor` used for avoiding default collision solving.
 
-You can customize what collisions will be checked by specifying `CollisionLayers`.
-(See the [`bevy_xpbd` docs](https://docs.rs/bevy_xpbd_3d/latest/bevy_xpbd_3d/components/struct.CollisionLayers.html)).
+You can customize what collisions will be checked by specifying
+`CollisionLayers`. (See the [`bevy_xpbd` docs](https://docs.rs/bevy_xpbd_3d/latest/bevy_xpbd_3d/components/struct.CollisionLayers.html)).
 
 ## Mesh utils
 
@@ -297,27 +301,30 @@ useful for classic cloth uses like flags or capes
 
 ## Q&A
 
-- `My mesh falls immediately and infinitely when I add a Cloth component,
+* `My mesh falls immediately and infinitely when I add a Cloth component,
   how to fix it?`
 
-You probably didn't specify any *pinned points*, meaning there are no
-vertices anchored to your entity's `GlobalTransform`.
+    You probably didn't specify any *pinned points*, meaning there are no
+    vertices anchored to your entity's `GlobalTransform`.
 
-- `My cloth jitters a lot/ suddenly falls down/ has strange sudden
+* `My cloth jitters a lot/ suddenly falls down/ has strange sudden
   behaviour`
 
-Gravity and winds are by default smoothed out by the framerate, if the
-framerate drops suddenly gravity and wind get much stronger.
-If your simulation suffers from this you can specify a custom smooth value
-in `ClothConfig::acceleration_smoothing`.
+    Gravity and winds are by default smoothed out by the framerate, if the
+    framerate drops suddenly gravity and wind get much stronger.
+    If your simulation suffers from this you can specify a custom smooth
+    value in `ClothConfig::acceleration_smoothing`.
+
+[`bevy_rapier`]: https://github.com/dimforge/bevy_rapier
+[`bevy_xpbd`]: https://github.com/Jondolf/bevy_xpbd
 
 <!-- cargo-sync-readme end -->
 
 ## TODO list
 
-- [ ] World and per cloth simulation pause/ filter out cloth update
-- [ ] Cloth update batching
-- [ ] Cloth cutting maybe?
+* [ ] World and per cloth simulation pause/ filter out cloth update
+* [ ] Cloth update batching
+* [ ] Cloth cutting maybe?
 
 ## Examples
 
@@ -346,6 +353,3 @@ in `ClothConfig::acceleration_smoothing`.
 6. Anchors example
 
     run `cargo run --example anchors`
-
-[`bevy_rapier`]: https://github.com/dimforge/bevy_rapier
-[`bevy_xpbd`]: https://github.com/Jondolf/bevy_xpbd

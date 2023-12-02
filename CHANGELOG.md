@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## 0.7.0
+
 * Bump `bevy` to `0.12.x`
 * Bump `bevy_rapier3d` to `0.23.x`
 * Bump `bevy_inspector_egui` to `0.21.x`
