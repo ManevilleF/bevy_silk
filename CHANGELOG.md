@@ -9,6 +9,7 @@
   * Added `xpbd_collisions` feature
   * Added `xpbd_collision` example
   * Split `collisions` into `rapier` and `xpbd` sub-modules
+* Collisions happen on fixed update schedule (#20)
 * Fixed clippy warnings for rust 1.72.0 (#19)
 * Added rustfmt config (#19)
 * Added vertex colors in flag example (#19)
@@ -31,7 +32,8 @@
 
 ### Fixes
 
-* Fixed visibility issues with cloths. Now the `Aabb` is directly handled by the cloth engine.
+* Fixed visibility issues with cloths. Now the `Aabb` is directly handled by
+the cloth engine.
 
 ### bevy_inspector_egui
 

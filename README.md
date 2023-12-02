@@ -325,27 +325,27 @@ in `ClothConfig::acceleration_smoothing`.
 
 1. Flag example
 
-run `cargo run --example flag`
+    run `cargo run --example flag`
 
 2. Balloon example
 
-run `cargo run --example balloon`
+    run `cargo run --example balloon`
 
 3. Moving example
 
-run `cargo run --example moving`
+    run `cargo run --example moving`
 
 4. [`bevy_rapier`] collision example
 
-run `cargo run --example rapier_collision --features rapier_collisions`
+    run `cargo run --example rapier_collision --features rapier_collisions`
 
 5. [`bevy_xpbd`] collision example
 
-run `cargo run --example xpbd_collision --features xpbd_collisions`
+    run `cargo run --example xpbd_collision --features xpbd_collisions`
 
 6. Anchors example
 
-run `cargo run --example anchors`
+    run `cargo run --example anchors`
 
 [`bevy_rapier`]: https://github.com/dimforge/bevy_rapier
 [`bevy_xpbd`]: https://github.com/Jondolf/bevy_xpbd
