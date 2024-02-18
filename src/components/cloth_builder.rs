@@ -331,14 +331,15 @@ impl ClothBuilder {
                 mesh.attribute(Mesh::ATTRIBUTE_COLOR)
                     .and_then(|attr| match attr {
                         VertexAttributeValues::Float32x3(v) => {
-                            Some(v.iter().copied().map(Color::from).collect())
+                            Some(v.iter().copied().map(Color::rgb_from_array).collect())
                         }
                         VertexAttributeValues::Float32x4(v) => {
-                            Some(v.iter().copied().map(Color::from).collect())
+                            Some(v.iter().copied().map(Color::rgba_from_array).collect())
                         }
                         VertexAttributeValues::Uint8x4(v) => Some(
                             v.iter()
-                                .map(|c| Color::rgba_u8(c[0], c[1], c[2], c[3]))
+                                .copied()
+                                .map(|[r, g, b, a]| Color::rgba_u8(r, g, b, a))
                                 .collect(),
                         ),
                         _ => None,

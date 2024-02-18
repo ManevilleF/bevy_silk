@@ -265,7 +265,7 @@ impl ClothRendering {
                     Mesh::ATTRIBUTE_NORMAL,
                     Self::vec3_vertex_attr(&vertex_normals),
                 );
-                mesh.set_indices(Some(Indices::U32(new_self.indices)));
+                mesh.insert_indices(Indices::U32(new_self.indices));
             }
         }
     }
