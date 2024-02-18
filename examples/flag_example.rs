@@ -43,7 +43,7 @@ fn setup(
         transform: Transform::from_rotation(Quat::from_rotation_y(5.0)),
         ..Default::default()
     });
-    let mesh_handle = meshes.add(shape::Cube::new(1.0).into());
+    let mesh_handle = meshes.add(shape::Cube::new(1.0));
     [
         (Color::BLUE, [-10.0, 0.0]),
         (Color::GREEN, [10.0, 0.0]),

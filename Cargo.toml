@@ -22,7 +22,7 @@ xpbd_collisions = ["bevy_xpbd_3d"]
 thiserror = "1.0"
 
 [dependencies.bevy]
-version = "0.12"
+version = "0.13"
 default-features = false
 features = ["bevy_render", "bevy_asset"]
 
@@ -44,7 +44,7 @@ bevy_rapier3d = "0.23"
 rand = "0.8"
 
 [dev-dependencies.bevy]
-version = "0.12"
+version = "0.13"
 features = [
   "bevy_asset",
   "bevy_winit",
@@ -54,10 +54,9 @@ features = [
   "bevy_sprite",
   "png",
   "x11",
-  # The following features are required because of https://github.com/bevyengine/bevy/discussions/9100
-  "ktx2",
-  "zstd",
   "tonemapping_luts",
+  # Faster compilation
+  "dynamic_linking"
 ]
 default-features = false
 

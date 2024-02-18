@@ -2,7 +2,10 @@
 
 use bevy::{
     math::Vec3,
-    render::mesh::{Indices, Mesh, PrimitiveTopology},
+    render::{
+        mesh::{Indices, Mesh, PrimitiveTopology},
+        render_asset::RenderAssetUsages,
+    },
 };
 
 #[allow(clippy::cast_precision_loss, clippy::cast_possible_truncation)]
@@ -58,12 +61,14 @@ pub fn rectangle_mesh(
         })
         .collect();
 
-    let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
-    mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, points);
-    mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
-    mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
-    mesh.set_indices(Some(Indices::U32(indices)));
-    mesh
+    Mesh::new(
+        PrimitiveTopology::TriangleList,
+        RenderAssetUsages::MAIN_WORLD,
+    )
+    .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, points)
+    .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
+    .with_inserted_attribute(Mesh::ATTRIBUTE_UV_0, uvs)
+    .with_inserted_indices(Indices::U32(indices))
 }
 
 #[cfg(test)]

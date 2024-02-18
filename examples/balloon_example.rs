@@ -29,7 +29,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     commands.spawn(DirectionalLightBundle::default());
-    let mesh_handle = meshes.add(shape::Cube::new(1.0).into());
+    let mesh_handle = meshes.add(shape::Cube::new(1.0));
     [
         (Color::BLUE, [-10.0, 0.0]),
         (Color::GREEN, [10.0, 0.0]),
@@ -65,7 +65,7 @@ fn spawn_cloth(
                 .try_into()
                 .unwrap(),
             ),
-            material: materials.add(Color::YELLOW.into()),
+            material: materials.add(Color::YELLOW),
             transform: Transform::from_xyz(0.0, 2.0, 0.0),
             ..Default::default()
         },
