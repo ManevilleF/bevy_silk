@@ -72,7 +72,7 @@ fn setup(
     });
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(shape::Cube { size: 24.0 }.into()),
+            mesh: meshes.add(Cuboid::new(24.0, 24.0, 24.0)),
             material: materials.add(Color::WHITE),
             transform: Transform::from_xyz(0.0, -12.0, 0.0),
             ..Default::default()
@@ -140,14 +140,7 @@ fn shoot_balls(
     let radius = rng.gen_range(1.0..3.0);
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(
-                shape::Icosphere {
-                    radius,
-                    subdivisions: 5,
-                }
-                .try_into()
-                .unwrap(),
-            ),
+            mesh: meshes.add(Sphere::new(radius).mesh().ico(5).unwrap()),
             material: materials.add(Color::WHITE),
             transform: Transform::from_xyz(0.0, 0.0, -20.0),
             ..Default::default()
@@ -158,7 +151,7 @@ fn shoot_balls(
             rng.gen_range(20.0..30.0),
         )),
         RigidBody::Dynamic,
-        Collider::ball(radius),
+        Collider::sphere(radius),
         Name::new("Ball"),
     ));
 }

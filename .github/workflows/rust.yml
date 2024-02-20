@@ -40,6 +40,8 @@ jobs:
       - name: build moving example
         run: cargo clippy --example moving
       - name: build rapier example
+        run: cargo clippy --features xpbd_collisions --example xpbd_collision
+      - name: build rapier example
         run: cargo clippy --features rapier_collisions --example rapier_collision
       - name: build anchors example
         run: cargo clippy --example anchors
@@ -71,8 +73,12 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Cargo clippy installation
         run: rustup component add clippy
-      - name: Cargo clippy check
+      - name: Default clippy check
+        run: cargo clippy --all --tests -- -D warnings
+      - name: Full clippy check
         run: cargo clippy --all-features --all --tests -- -D warnings
+      - name: Minimal clippy check
+        run: cargo clippy --no-default-features --all --tests -- -D warnings
 
   rustdoc:
     runs-on: ubuntu-latest
