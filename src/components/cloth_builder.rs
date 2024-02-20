@@ -22,8 +22,8 @@ type PinnedPosCondition = dyn Fn(Vec3) -> bool + Send + Sync;
 ///
 /// ## Note
 ///
-/// The associated `Mesh` must have its [`RenderAssetUsages`] set to `MAIN_WORLD`
-/// for the cloth engine to access it
+/// The associated `Mesh` must have its [`RenderAssetUsages`] set to
+/// `MAIN_WORLD` for the cloth engine to access it
 ///
 /// [`RenderAssetUsages`]: bevy::render::render_asset::RenderAssetUsages,
 #[derive(Clone, Reflect, Default, Component)]
