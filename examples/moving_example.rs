@@ -42,7 +42,7 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    let mesh_handle = meshes.add(shape::Cube::new(1.0));
+    let mesh_handle = meshes.add(Cuboid::default());
     [
         (Color::BLUE, [-10.0, 0.0]),
         (Color::GREEN, [10.0, 0.0]),
@@ -85,7 +85,7 @@ fn spawn_cloth(
             .with_children(|b| {
                 b.spawn((
                     PbrBundle {
-                        mesh: meshes.add(shape::Cube::new(2.0).into()),
+                        mesh: meshes.add(Cuboid::new(2.0, 2.0, 2.0)),
                         material: materials.add(Color::WHITE),
                         transform: Transform::from_xyz(10.0, 0.0, 0.0),
                         ..Default::default()

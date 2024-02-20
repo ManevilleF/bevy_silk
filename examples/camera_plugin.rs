@@ -31,7 +31,7 @@ pub fn handle_camera(
     mut cam_controls: Query<&mut Transform, With<CameraController>>,
     mut motion_evr: EventReader<MouseMotion>,
     mut scroll_evr: EventReader<MouseWheel>,
-    buttons: Res<Input<MouseButton>>,
+    buttons: Res<ButtonInput<MouseButton>>,
     time: Res<Time>,
 ) {
     let delta_time = time.delta_seconds();

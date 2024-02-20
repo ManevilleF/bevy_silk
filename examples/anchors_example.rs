@@ -28,7 +28,7 @@ fn setup(
         transform: Transform::from_rotation(Quat::from_rotation_y(5.0)),
         ..Default::default()
     });
-    let mesh_handle = meshes.add(shape::Cube::new(1.0));
+    let mesh_handle = meshes.add(Cuboid::default());
     [
         (Color::BLUE, [-10.0, 0.0]),
         (Color::GREEN, [10.0, 0.0]),
@@ -39,11 +39,7 @@ fn setup(
         commands.spawn(PbrBundle {
             mesh: mesh_handle.clone(),
             transform: Transform::from_xyz(x, 1.0, z),
-            material: materials.add(StandardMaterial {
-                base_color: color,
-                double_sided: true,
-                ..Default::default()
-            }),
+            material: materials.add(color),
             ..Default::default()
         });
     });
@@ -58,7 +54,7 @@ fn spawn_cloth(
     let flag_texture = asset_server.load("Bevy.png");
     let (size_x, size_y) = (60, 40);
 
-    let anchor_mesh = meshes.add(shape::Cube::new(1.0));
+    let anchor_mesh = meshes.add(Cuboid::default());
     let entity_a = commands
         .spawn((
             PbrBundle {
