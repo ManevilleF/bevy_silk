@@ -39,7 +39,7 @@ default-features = false
 features = ["3d", "f32", "async-collider", "default-collider", "parry-f32"]
 
 [dev-dependencies]
-bevy-inspector-egui = "0.22"
+bevy-inspector-egui = "0.23"
 rand = "0.8"
 bevy_xpbd_3d = "0.4"
 bevy_rapier3d = "0.25"
@@ -56,8 +56,6 @@ features = [
   "png",
   "x11",
   "tonemapping_luts",
-  # Faster compilation
-  "dynamic_linking"
 ]
 default-features = false
 

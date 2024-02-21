@@ -18,7 +18,7 @@ fn main() {
     App::new()
         .insert_resource(AmbientLight {
             color: Color::WHITE,
-            brightness: 1.0,
+            brightness: 100.0,
         })
         .add_plugins(DefaultPlugins)
         .add_plugins(PhysicsPlugins::default())

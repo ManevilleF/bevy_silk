@@ -63,7 +63,7 @@ pub fn rectangle_mesh(
 
     Mesh::new(
         PrimitiveTopology::TriangleList,
-        RenderAssetUsages::MAIN_WORLD,
+        RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD,
     )
     .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, points)
     .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)

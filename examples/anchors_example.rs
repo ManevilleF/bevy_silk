@@ -8,7 +8,7 @@ fn main() {
     App::new()
         .insert_resource(AmbientLight {
             color: Color::WHITE,
-            brightness: 1.0,
+            brightness: 500.0,
         })
         .add_plugins(DefaultPlugins)
         .add_plugins(ResourceInspectorPlugin::<ClothConfig>::new())
