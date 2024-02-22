@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## 0.8.0
+
+* Bump `bevy` to `0.13.x`
+* Bump `bevy_rapier3d` to `0.25.x`
+* Bump `bevy_xpbd3d` to `0.4.x`
+* Bump `bevy_inspector_egui` to `0.23.x`
+* Reworked example camera plugin
+
 ## 0.7.0
 
 * Bump `bevy` to `0.12.x`
