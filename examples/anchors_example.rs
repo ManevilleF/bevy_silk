@@ -8,7 +8,7 @@ fn main() {
     App::new()
         .insert_resource(AmbientLight {
             color: Color::WHITE,
-            brightness: 1.0,
+            brightness: 500.0,
         })
         .add_plugins(DefaultPlugins)
         .add_plugins(ResourceInspectorPlugin::<ClothConfig>::new())
@@ -28,7 +28,7 @@ fn setup(
         transform: Transform::from_rotation(Quat::from_rotation_y(5.0)),
         ..Default::default()
     });
-    let mesh_handle = meshes.add(shape::Cube::new(1.0).into());
+    let mesh_handle = meshes.add(Cuboid::default());
     [
         (Color::BLUE, [-10.0, 0.0]),
         (Color::GREEN, [10.0, 0.0]),
@@ -39,11 +39,7 @@ fn setup(
         commands.spawn(PbrBundle {
             mesh: mesh_handle.clone(),
             transform: Transform::from_xyz(x, 1.0, z),
-            material: materials.add(StandardMaterial {
-                base_color: color,
-                double_sided: true,
-                ..Default::default()
-            }),
+            material: materials.add(color),
             ..Default::default()
         });
     });
@@ -58,12 +54,12 @@ fn spawn_cloth(
     let flag_texture = asset_server.load("Bevy.png");
     let (size_x, size_y) = (60, 40);
 
-    let anchor_mesh = meshes.add(shape::Cube::new(1.0).into());
+    let anchor_mesh = meshes.add(Cuboid::default());
     let entity_a = commands
         .spawn((
             PbrBundle {
                 mesh: anchor_mesh.clone(),
-                material: materials.add(Color::RED.into()),
+                material: materials.add(Color::RED),
                 transform: Transform::from_xyz(-15.0, 15.0, 15.0),
                 ..Default::default()
             },
@@ -74,7 +70,7 @@ fn spawn_cloth(
         .spawn((
             PbrBundle {
                 mesh: anchor_mesh,
-                material: materials.add(Color::GREEN.into()),
+                material: materials.add(Color::GREEN),
                 transform: Transform::from_xyz(15.0, 15.0, 15.0),
                 ..Default::default()
             },

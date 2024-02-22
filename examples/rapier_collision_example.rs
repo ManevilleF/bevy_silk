@@ -18,7 +18,7 @@ fn main() {
     App::new()
         .insert_resource(AmbientLight {
             color: Color::WHITE,
-            brightness: 1.0,
+            brightness: 100.0,
         })
         .add_plugins(DefaultPlugins)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
@@ -47,7 +47,7 @@ fn setup(
         transform: Transform::from_rotation(Quat::from_rotation_y(5.0)),
         ..Default::default()
     });
-    let mesh_handle = meshes.add(shape::Cube::new(2.0).into());
+    let mesh_handle = meshes.add(Cuboid::new(2.0, 2.0, 2.0));
     [
         (Color::BLUE, [-10.0, 0.0]),
         (Color::GREEN, [10.0, 0.0]),
@@ -71,8 +71,8 @@ fn setup(
     });
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(shape::Cube { size: 24.0 }.into()),
-            material: materials.add(Color::WHITE.into()),
+            mesh: meshes.add(Cuboid::new(24.0, 24.0, 24.0)),
+            material: materials.add(Color::WHITE),
             transform: Transform::from_xyz(0.0, -12.0, 0.0),
             ..Default::default()
         },
@@ -138,15 +138,8 @@ fn shoot_balls(
     let radius = rng.gen_range(1.0..3.0);
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(
-                shape::Icosphere {
-                    radius,
-                    subdivisions: 5,
-                }
-                .try_into()
-                .unwrap(),
-            ),
-            material: materials.add(Color::WHITE.into()),
+            mesh: meshes.add(Sphere::new(radius).mesh().ico(5).unwrap()),
+            material: materials.add(Color::WHITE),
             transform: Transform::from_xyz(0.0, 0.0, -20.0),
             ..Default::default()
         },

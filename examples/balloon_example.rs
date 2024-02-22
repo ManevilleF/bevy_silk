@@ -8,7 +8,7 @@ fn main() {
     App::new()
         .insert_resource(AmbientLight {
             color: Color::WHITE,
-            brightness: 1.0,
+            brightness: 100.0,
         })
         .add_plugins(DefaultPlugins)
         .add_plugins(WorldInspectorPlugin::default())
@@ -29,7 +29,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     commands.spawn(DirectionalLightBundle::default());
-    let mesh_handle = meshes.add(shape::Cube::new(1.0).into());
+    let mesh_handle = meshes.add(Cuboid::default());
     [
         (Color::BLUE, [-10.0, 0.0]),
         (Color::GREEN, [10.0, 0.0]),
@@ -57,15 +57,8 @@ fn spawn_cloth(
 ) {
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(
-                shape::Icosphere {
-                    radius: 5.0,
-                    subdivisions: 10,
-                }
-                .try_into()
-                .unwrap(),
-            ),
-            material: materials.add(Color::YELLOW.into()),
+            mesh: meshes.add(Sphere::new(5.).mesh().ico(10).unwrap()),
+            material: materials.add(Color::YELLOW),
             transform: Transform::from_xyz(0.0, 2.0, 0.0),
             ..Default::default()
         },
