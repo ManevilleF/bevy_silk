@@ -17,7 +17,7 @@ CPU driven Cloth engine for Bevy using Verlet integration.
 
 Add `bevy_silk` as a dependency in the `Cargo.toml`
 
-`bevy_silk = "0.7"`
+`bevy_silk = "0.8"`
 
 Or follow the main git branch
 
@@ -34,6 +34,7 @@ Or follow the main git branch
 | 0.5.0  | 0.10 |
 | 0.6.0  | 0.11 |
 | 0.7.0  | 0.12 |
+| 0.8.0  | 0.13 |
 
 ### Plugin
 
@@ -57,6 +58,7 @@ For a mesh to be used as cloth, add the `ClothBuilder` component to any
 entity with a `Handle<Mesh>` component.
 
 > Note: `Transform` and `GlobalTransform` are also required
+> Note: The mesh render asset usage must allow for _main world_ edits
 
 cloth data which will be populated automatically from the associated
 `Handle<Mesh>`.
