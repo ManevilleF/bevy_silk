@@ -15,8 +15,6 @@ documentation = "https://docs.rs/bevy_silk"
 [features]
 default = []
 rapier_collisions = ["bevy_rapier3d"]
-# Deprecated, use `avian_collisions` instead
-xpbd_collisions = ["avian_collisions"]
 avian_collisions = ["avian3d"]
 
 [dependencies]
@@ -79,9 +77,9 @@ path = "examples/rapier_collision_example.rs"
 required-features = ["rapier_collisions"]
 
 [[example]]
-name = "xpbd_collision"
-path = "examples/xpbd_collision_example.rs"
-required-features = ["xpbd_collisions"]
+name = "avian_collision"
+path = "examples/avian_collision_example.rs"
+required-features = ["avian_collisions"]
 
 [[example]]
 name = "anchors"

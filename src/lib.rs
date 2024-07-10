@@ -215,9 +215,9 @@
 //!
 //! ## Collisions
 //!
-//! Both [`bevy_rapier`] and [`bevy_xpbd`] are supported for cloth interactions
+//! Both [`bevy_rapier`] and [`avian`] are supported for cloth interactions
 //! with colliders. They can be enabled with the `rapier_collisions` and
-//! `xpbd_collisions` features respectively.
+//! `avian_collisions` features respectively.
 //!
 //! > Note: Collision support is still experimental for now and is not suited
 //! > for production use. Feedback is welcome!
@@ -254,9 +254,9 @@
 //! You can customize what collisions will be checked by specifying
 //! `CollisionGroups`. (See the [`bevy_rapier` docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
 //!
-//! ### `bevy_xpbd`
+//! ### `avian` (previously `bevy_xpbd`)
 //!
-//! Add `bevy_xpbd_3d::PhysicsPlugins` to your app and a `ClothCollider`
+//! Add `avian3d::PhysicsPlugins` to your app and a `ClothCollider`
 //! to your entity to enable collisions:
 //!
 //! ```rust
@@ -275,7 +275,7 @@
 //! }
 //! ```
 //!
-//! Three `bevy_xpbd` components will be automatically inserted:
+//! Three `avian3d` components will be automatically inserted:
 //!
 //! * a `RigidBody::Kinematic`
 //! * a `Collider` which will be updated every frame to follow the cloth bounds
@@ -283,7 +283,7 @@
 //! * a `Sensor` used for avoiding default collision solving.
 //!
 //! You can customize what collisions will be checked by specifying
-//! `CollisionLayers`. (See the [`bevy_xpbd` docs](https://docs.rs/bevy_xpbd_3d/latest/bevy_xpbd_3d/components/struct.CollisionLayers.html)).
+//! `CollisionLayers`. (See the [`avian` docs](https://docs.rs/avian3d/latest/avian3d/collision/struct.CollisionLayers.html)).
 //!
 //! ## Mesh utils
 //!
@@ -307,13 +307,14 @@
 //!     value in `ClothConfig::acceleration_smoothing`.
 //!
 //! [`bevy_rapier`]: https://github.com/dimforge/bevy_rapier
-//! [`bevy_xpbd`]: https://github.com/Jondolf/bevy_xpbd
+//! [`avian`]: https://github.com/Jondolf/avian
 #![forbid(unsafe_code)]
 #![warn(
     missing_docs,
     clippy::all,
     clippy::nursery,
     clippy::pedantic,
+    clippy::unwrap_used,
     nonstandard_style,
     rustdoc::broken_intra_doc_links
 )]
