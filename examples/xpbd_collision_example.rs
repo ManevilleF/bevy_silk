@@ -1,9 +1,13 @@
 use std::time::Duration;
 
-use bevy::{prelude::*, time::common_conditions::on_timer};
+use avian3d::prelude::*;
+use bevy::{
+    color::palettes::css::{BLUE, GREEN, RED, YELLOW},
+    prelude::*,
+    time::common_conditions::on_timer,
+};
 use bevy_inspector_egui::quick::{ResourceInspectorPlugin, WorldInspectorPlugin};
 use bevy_silk::prelude::*;
-use bevy_xpbd_3d::prelude::*;
 use rand::{thread_rng, Rng};
 
 mod camera_plugin;
@@ -49,10 +53,10 @@ fn setup(
     });
     let mesh_handle = meshes.add(Cuboid::new(2.0, 2.0, 2.0));
     [
-        (Color::BLUE, [-10.0, 0.0]),
-        (Color::GREEN, [10.0, 0.0]),
-        (Color::YELLOW, [0.0, -10.0]),
-        (Color::RED, [0.0, 10.0]),
+        (Color::from(BLUE), [-10.0, 0.0]),
+        (Color::from(GREEN), [10.0, 0.0]),
+        (Color::from(YELLOW), [0.0, -10.0]),
+        (Color::from(RED), [0.0, 10.0]),
     ]
     .map(|(color, [x, z])| {
         commands.spawn((

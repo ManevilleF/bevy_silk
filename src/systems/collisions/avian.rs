@@ -5,8 +5,8 @@
     clippy::suboptimal_flops
 )]
 use crate::components::{cloth::Cloth, collider::ClothCollider};
+use avian3d::prelude::*;
 use bevy::{log, prelude::*, render::primitives::Aabb};
-use bevy_xpbd_3d::prelude::*;
 
 fn get_collider(aabb: &Aabb, collider: &ClothCollider) -> Collider {
     let extents = aabb.half_extents * 2.0 + collider.offset;
@@ -57,7 +57,7 @@ pub fn handle_collisions(
                 // TODO: Remove Nalgebra type conversions once bevy_xpbd has
                 //       a `Collider::project_point` method that uses Glam.
                 let projection = other_collider.shape_scaled().project_point(
-                    &bevy_xpbd_3d::parry::math::Isometry::new(
+                    &avian3d::parry::math::Isometry::new(
                         other_transform.translation.into(),
                         other_transform.rotation.to_scaled_axis().into(),
                     ),

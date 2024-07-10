@@ -1,4 +1,4 @@
+#[cfg(feature = "avian_collisions")]
+pub mod avian;
 #[cfg(feature = "rapier_collisions")]
 pub mod rapier;
-#[cfg(feature = "xpbd_collisions")]
-pub mod xpbd;

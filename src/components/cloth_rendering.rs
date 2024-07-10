@@ -1,10 +1,10 @@
 use crate::Error;
 use bevy::{
+    color::{ColorToComponents, Srgba},
     ecs::prelude::Component,
     math::Vec3,
     reflect::Reflect,
     render::{
-        color::Color,
         mesh::{Indices, Mesh, VertexAttributeValues},
         primitives::Aabb,
     },
@@ -93,7 +93,7 @@ impl ClothRendering {
                 VertexAttributeValues::Uint8x4(v) => Some(
                     v.iter()
                         .copied()
-                        .map(|[r, g, b, a]| Color::rgba_u8(r, g, b, a).as_rgba_f32())
+                        .map(|[r, g, b, a]| Srgba::rgba_u8(r, g, b, a).to_f32_array())
                         .collect(),
                 ),
                 _ => None,
@@ -133,8 +133,8 @@ impl ClothRendering {
     /// - 1: The half extents of the bounding box
     #[must_use]
     pub fn compute_aabb(&self) -> Aabb {
-        const VEC3_MIN: Vec3 = Vec3::from_array([std::f32::MIN; 3]);
-        const VEC3_MAX: Vec3 = Vec3::from_array([std::f32::MAX; 3]);
+        const VEC3_MIN: Vec3 = Vec3::from_array([f32::MIN; 3]);
+        const VEC3_MAX: Vec3 = Vec3::from_array([f32::MAX; 3]);
 
         let mut minimum = VEC3_MAX;
         let mut maximum = VEC3_MIN;

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+* Physics improvements (#25)
+* Bevy `0.14`
+* Migrated from `bevy_xpbd3d` to `avian3d`
+
 ## 0.8.0
 
 * Bump `bevy` to `0.13.x`
