@@ -345,7 +345,7 @@ use bevy::prelude::*;
 
 /// Prelude module, providing every public type of the lib
 pub mod prelude {
-    #[cfg(any(feature = "rapier_collisions", feature = "xpbd_collisions"))]
+    #[cfg(any(feature = "rapier_collisions", feature = "avian_collisions"))]
     pub use crate::components::collider::ClothCollider;
     pub use crate::{
         components::{cloth_builder::ClothBuilder, cloth_rendering::NormalComputing},
