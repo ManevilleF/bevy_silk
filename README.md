@@ -96,7 +96,7 @@ For example you can pin some cloth vertices to the cloth entity's
 `GlobalTransform`:
 
 ```rust
-use bevy::prelude::Color;
+use bevy::color::{Color, palettes::css::*};
 use bevy_silk::prelude::*;
 
 let cloth = ClothBuilder::new()
@@ -105,9 +105,9 @@ let cloth = ClothBuilder::new()
     // Adds a single pinned vertex id
     .with_pinned_vertex_id(10)
     // Adds pinned vertex colors using an Iterator
-    .with_pinned_vertex_colors([Color::WHITE, Color::BLACK].into_iter())
+    .with_pinned_vertex_colors([Color::from(WHITE), Color::from(BLACK)].into_iter())
     // Adds a single pinned vertex color
-    .with_pinned_vertex_color(Color::YELLOW)
+    .with_pinned_vertex_color(Color::from(YELLOW))
     // Adds pinned vertex positions
     .with_pinned_vertex_positions(|pos| pos.x > 0.0 && pos.z <= 5.0);
 ```
@@ -117,6 +117,7 @@ the vertices to:
 
 ```rust
 use bevy::prelude::*;
+use bevy::color::palettes::css::*;
 use bevy_silk::prelude::*;
 
 fn spawn(mut commands: Commands) {
@@ -148,9 +149,9 @@ fn spawn(mut commands: Commands) {
         // Adds a single pinned vertex id
         .with_anchored_vertex_id(10, anchor_to_self)
         // Adds pinned vertex colors using an Iterator
-        .with_anchored_vertex_colors([Color::WHITE, Color::BLACK].into_iter(), anchor_to_a)
+        .with_anchored_vertex_colors([Color::from(WHITE), Color::from(BLACK)].into_iter(), anchor_to_a)
         // Adds a single pinned vertex color
-        .with_anchored_vertex_color(Color::YELLOW, anchor_to_self)
+        .with_anchored_vertex_color(Color::from(YELLOW), anchor_to_self)
         // Adds pinned vertex positions
         .with_anchored_vertex_positions(|pos| pos.x > 0.0 && pos.z <= 5.0, anchor_to_self);
 }
