@@ -323,6 +323,9 @@
     clippy::module_name_repetitions,
     clippy::redundant_pub_crate
 )]
+// TODO: remove when https://github.com/rust-lang/rust-clippy/issues/13058 is closed
+#![allow(clippy::used_underscore_binding)]
+
 /// components module
 pub mod components;
 /// config module
