@@ -5,7 +5,7 @@
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 [![Crates.io](https://img.shields.io/crates/v/bevy_silk.svg)](https://crates.io/crates/bevy_silk)
 [![Docs.rs](https://docs.rs/bevy_silk/badge.svg)](https://docs.rs/bevy_silk)
-[![dependency status](https://deps.rs/crate/bevy_silk/0.6.0/status.svg)](https://deps.rs/crate/bevy_silk)
+[![dependency status](https://deps.rs/crate/bevy_silk/0.9.0/status.svg)](https://deps.rs/crate/bevy_silk)
 
 <!-- cargo-sync-readme start -->
 
@@ -17,7 +17,7 @@ CPU driven Cloth engine for Bevy using Verlet integration.
 
 Add `bevy_silk` as a dependency in the `Cargo.toml`
 
-`bevy_silk = "0.8"`
+`bevy_silk = "0.9"`
 
 Or follow the main git branch
 
@@ -35,6 +35,7 @@ Or follow the main git branch
 | 0.6.0  | 0.11 |
 | 0.7.0  | 0.12 |
 | 0.8.0  | 0.13 |
+| 0.9.0  | 0.14 |
 
 ### Plugin
 

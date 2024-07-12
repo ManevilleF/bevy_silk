@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## 0.9.0
+
 * Physics improvements (#25)
 * Bevy `0.14`
 * Migrated from `bevy_xpbd` to `avian`
