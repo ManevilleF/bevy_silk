@@ -96,7 +96,7 @@ For example you can pin some cloth vertices to the cloth entity's
 `GlobalTransform`:
 
 ```rust
-use bevy::color::{Color, palettes::css::*};
+use bevy::color::{palettes::css::*, Color};
 use bevy_silk::prelude::*;
 
 let cloth = ClothBuilder::new()
@@ -116,8 +116,7 @@ For more anchoring options, for example to specify a custom entity to pin
 the vertices to:
 
 ```rust
-use bevy::prelude::*;
-use bevy::color::palettes::css::*;
+use bevy::{color::palettes::css::*, prelude::*};
 use bevy_silk::prelude::*;
 
 fn spawn(mut commands: Commands) {
@@ -149,7 +148,10 @@ fn spawn(mut commands: Commands) {
         // Adds a single pinned vertex id
         .with_anchored_vertex_id(10, anchor_to_self)
         // Adds pinned vertex colors using an Iterator
-        .with_anchored_vertex_colors([Color::from(WHITE), Color::from(BLACK)].into_iter(), anchor_to_a)
+        .with_anchored_vertex_colors(
+            [Color::from(WHITE), Color::from(BLACK)].into_iter(),
+            anchor_to_a,
+        )
         // Adds a single pinned vertex color
         .with_anchored_vertex_color(Color::from(YELLOW), anchor_to_self)
         // Adds pinned vertex positions
