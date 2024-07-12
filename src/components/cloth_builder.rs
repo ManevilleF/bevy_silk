@@ -1,13 +1,11 @@
 use crate::prelude::*;
 use bevy::{
+    color::{Color, ColorToComponents, ColorToPacked, Srgba},
     ecs::prelude::Component,
     log,
     math::Vec3,
     reflect::Reflect,
-    render::{
-        mesh::VertexAttributeValues,
-        prelude::{Color, Mesh},
-    },
+    render::{mesh::VertexAttributeValues, prelude::Mesh},
     utils::HashMap,
 };
 use std::sync::Arc;
@@ -34,8 +32,7 @@ pub struct ClothBuilder {
     pub anchored_vertex_ids: HashMap<usize, VertexAnchor>,
     /// cloth vertex colors unaffected by physics and following the attached
     /// `GlobalTransform`.
-    // TODO: convert to hashmap
-    pub anchored_vertex_colors: Vec<(Color, VertexAnchor)>,
+    pub anchored_vertex_colors: HashMap<[u8; 4], VertexAnchor>,
     /// Optional condition to apply on vertex positions. If the condition
     /// returns `true` the vertex will be anchored, and therefore unaffected
     /// by physics and following the attached `GlobalTransform`
@@ -144,7 +141,7 @@ impl ClothBuilder {
     #[inline]
     pub fn with_pinned_vertex_colors(mut self, vertex_colors: impl Iterator<Item = Color>) -> Self {
         self.anchored_vertex_colors
-            .extend(vertex_colors.map(|c| (c, VertexAnchor::default())));
+            .extend(vertex_colors.map(|c| (c.to_srgba().to_u8_array(), VertexAnchor::default())));
         self
     }
 
@@ -156,8 +153,10 @@ impl ClothBuilder {
     ///   `GlobalTransform`
     #[inline]
     pub fn with_pinned_vertex_color(mut self, vertex_color: Color) -> Self {
-        self.anchored_vertex_colors
-            .push((vertex_color, VertexAnchor::default()));
+        self.anchored_vertex_colors.insert(
+            vertex_color.to_srgba().to_u8_array(),
+            VertexAnchor::default(),
+        );
         self
     }
 
@@ -175,7 +174,7 @@ impl ClothBuilder {
         vertex_anchor: VertexAnchor,
     ) -> Self {
         self.anchored_vertex_colors
-            .extend(vertex_colors.map(|c| (c, vertex_anchor)));
+            .extend(vertex_colors.map(|c| (c.to_srgba().to_u8_array(), vertex_anchor)));
         self
     }
 
@@ -192,7 +191,7 @@ impl ClothBuilder {
         vertex_anchor: VertexAnchor,
     ) -> Self {
         self.anchored_vertex_colors
-            .push((vertex_color, vertex_anchor));
+            .insert(vertex_color.to_srgba().to_u8_array(), vertex_anchor);
         self
     }
 
@@ -327,31 +326,31 @@ impl ClothBuilder {
     pub fn anchored_vertex_ids(&self, mesh: &Mesh) -> HashMap<usize, VertexAnchor> {
         let mut res = self.anchored_vertex_ids.clone();
         if !self.anchored_vertex_colors.is_empty() {
-            let vertex_colors: Option<Vec<Color>> =
-                mesh.attribute(Mesh::ATTRIBUTE_COLOR)
-                    .and_then(|attr| match attr {
-                        VertexAttributeValues::Float32x3(v) => {
-                            Some(v.iter().copied().map(Color::rgb_from_array).collect())
-                        }
-                        VertexAttributeValues::Float32x4(v) => {
-                            Some(v.iter().copied().map(Color::rgba_from_array).collect())
-                        }
-                        VertexAttributeValues::Uint8x4(v) => Some(
-                            v.iter()
-                                .copied()
-                                .map(|[r, g, b, a]| Color::rgba_u8(r, g, b, a))
-                                .collect(),
-                        ),
-                        _ => None,
-                    });
+            let vertex_colors: Option<Vec<[u8; 4]>> = mesh
+                .attribute(Mesh::ATTRIBUTE_COLOR)
+                .and_then(|attr| match attr {
+                    VertexAttributeValues::Float32x3(v) => Some(
+                        v.iter()
+                            .copied()
+                            .map(|c| Srgba::from_f32_array_no_alpha(c).to_u8_array())
+                            .collect(),
+                    ),
+                    VertexAttributeValues::Float32x4(v) => Some(
+                        v.iter()
+                            .copied()
+                            .map(|c| Srgba::from_f32_array(c).to_u8_array())
+                            .collect(),
+                    ),
+                    VertexAttributeValues::Uint8x4(v) => Some(v.clone()),
+                    _ => None,
+                });
             #[allow(clippy::option_if_let_else)]
             match vertex_colors {
                 Some(colors) => {
                     res.extend(colors.into_iter().enumerate().filter_map(|(i, color)| {
                         self.anchored_vertex_colors
-                            .iter()
-                            .find(|(c, _)| *c == color)
-                            .map(|(_, anchor)| (i, *anchor))
+                            .get(&color)
+                            .map(|anchor| (i, *anchor))
                     }));
                 }
                 None => {

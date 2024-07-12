@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+* Physics improvements (#25)
+* Bevy `0.14`
+* Migrated from `bevy_xpbd` to `avian`
+* (**BREAKING**) Renamed `xpbd_collisions` feature to `avian_collisions`
+* Renamed `xpbd_collision_example` to `avian_collision_example`
+
 ## 0.8.0
 
 * Bump `bevy` to `0.13.x`

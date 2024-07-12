@@ -316,6 +316,7 @@ impl Cloth {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::mesh::rectangle_mesh;

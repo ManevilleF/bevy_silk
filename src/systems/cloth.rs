@@ -68,7 +68,13 @@ pub fn init(
         if let Some(mesh) = meshes.get(handle) {
             let matrix = transform.compute_matrix();
             log::debug!("Initializing Cloth entity {:?}", entity);
-            let rendering = ClothRendering::init(mesh, builder.normals_computing).unwrap();
+            let rendering = match ClothRendering::init(mesh, builder.normals_computing) {
+                Ok(r) => r,
+                Err(e) => {
+                    log::error!("Failed to setup cloth on {entity:?}: `{e}`");
+                    continue;
+                }
+            };
             let aabb = rendering.compute_aabb();
             let cloth = Cloth::new(
                 &rendering.vertex_positions,

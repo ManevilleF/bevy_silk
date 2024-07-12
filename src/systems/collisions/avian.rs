@@ -5,8 +5,8 @@
     clippy::suboptimal_flops
 )]
 use crate::components::{cloth::Cloth, collider::ClothCollider};
+use avian3d::prelude::*;
 use bevy::{log, prelude::*, render::primitives::Aabb};
-use bevy_xpbd_3d::prelude::*;
 
 fn get_collider(aabb: &Aabb, collider: &ClothCollider) -> Collider {
     let extents = aabb.half_extents * 2.0 + collider.offset;
@@ -32,7 +32,7 @@ pub fn handle_collisions(
     time: Res<Time>,
 ) {
     let delta_time = time.delta_seconds();
-    for (entity, mut cloth, aabb, collider, mut xpbd_collider) in &mut cloth_query {
+    for (entity, mut cloth, aabb, collider, mut avian_collider) in &mut cloth_query {
         for contact_pair in collisions.collisions_with_entity(entity) {
             let other_entity = if contact_pair.entity1 == entity {
                 contact_pair.entity2
@@ -54,10 +54,10 @@ pub fn handle_collisions(
             });
             cloth.solve_collisions(|point| {
                 let other_transform = other_transform.compute_transform();
-                // TODO: Remove Nalgebra type conversions once bevy_xpbd has
+                // TODO: Remove Nalgebra type conversions once avian has
                 //       a `Collider::project_point` method that uses Glam.
                 let projection = other_collider.shape_scaled().project_point(
-                    &bevy_xpbd_3d::parry::math::Isometry::new(
+                    &avian3d::parry::math::Isometry::new(
                         other_transform.translation.into(),
                         other_transform.rotation.to_scaled_axis().into(),
                     ),
@@ -88,7 +88,7 @@ pub fn handle_collisions(
                 ang_vel.0 *= damp;
             }
         }
-        *xpbd_collider = get_collider(aabb, collider);
+        *avian_collider = get_collider(aabb, collider);
     }
 }
 

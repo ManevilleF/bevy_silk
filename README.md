@@ -96,7 +96,7 @@ For example you can pin some cloth vertices to the cloth entity's
 `GlobalTransform`:
 
 ```rust
-use bevy::prelude::Color;
+use bevy::color::{palettes::css::*, Color};
 use bevy_silk::prelude::*;
 
 let cloth = ClothBuilder::new()
@@ -105,9 +105,9 @@ let cloth = ClothBuilder::new()
     // Adds a single pinned vertex id
     .with_pinned_vertex_id(10)
     // Adds pinned vertex colors using an Iterator
-    .with_pinned_vertex_colors([Color::WHITE, Color::BLACK].into_iter())
+    .with_pinned_vertex_colors([Color::from(WHITE), Color::from(BLACK)].into_iter())
     // Adds a single pinned vertex color
-    .with_pinned_vertex_color(Color::YELLOW)
+    .with_pinned_vertex_color(Color::from(YELLOW))
     // Adds pinned vertex positions
     .with_pinned_vertex_positions(|pos| pos.x > 0.0 && pos.z <= 5.0);
 ```
@@ -116,7 +116,7 @@ For more anchoring options, for example to specify a custom entity to pin
 the vertices to:
 
 ```rust
-use bevy::prelude::*;
+use bevy::{color::palettes::css::*, prelude::*};
 use bevy_silk::prelude::*;
 
 fn spawn(mut commands: Commands) {
@@ -148,9 +148,12 @@ fn spawn(mut commands: Commands) {
         // Adds a single pinned vertex id
         .with_anchored_vertex_id(10, anchor_to_self)
         // Adds pinned vertex colors using an Iterator
-        .with_anchored_vertex_colors([Color::WHITE, Color::BLACK].into_iter(), anchor_to_a)
+        .with_anchored_vertex_colors(
+            [Color::from(WHITE), Color::from(BLACK)].into_iter(),
+            anchor_to_a,
+        )
         // Adds a single pinned vertex color
-        .with_anchored_vertex_color(Color::YELLOW, anchor_to_self)
+        .with_anchored_vertex_color(Color::from(YELLOW), anchor_to_self)
         // Adds pinned vertex positions
         .with_anchored_vertex_positions(|pos| pos.x > 0.0 && pos.z <= 5.0, anchor_to_self);
 }
@@ -226,9 +229,9 @@ fn main() {
 
 ## Collisions
 
-Both [`bevy_rapier`] and [`bevy_xpbd`] are supported for cloth interactions
+Both [`bevy_rapier`] and [`avian`] are supported for cloth interactions
 with colliders. They can be enabled with the `rapier_collisions` and
-`xpbd_collisions` features respectively.
+`avian_collisions` features respectively.
 
 > Note: Collision support is still experimental for now and is not suited
 > for production use. Feedback is welcome!
@@ -265,9 +268,9 @@ Three `bevy_rapier` components will be automatically inserted:
 You can customize what collisions will be checked by specifying
 `CollisionGroups`. (See the [`bevy_rapier` docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
 
-### `bevy_xpbd`
+### `avian` (previously `bevy_xpbd`)
 
-Add `bevy_xpbd_3d::PhysicsPlugins` to your app and a `ClothCollider`
+Add `avian3d::PhysicsPlugins` to your app and a `ClothCollider`
 to your entity to enable collisions:
 
 ```rust
@@ -286,7 +289,7 @@ fn spawn(mut commands: Commands) {
 }
 ```
 
-Three `bevy_xpbd` components will be automatically inserted:
+Three `avian3d` components will be automatically inserted:
 
 * a `RigidBody::Kinematic`
 * a `Collider` which will be updated every frame to follow the cloth bounds
@@ -294,7 +297,7 @@ Three `bevy_xpbd` components will be automatically inserted:
 * a `Sensor` used for avoiding default collision solving.
 
 You can customize what collisions will be checked by specifying
-`CollisionLayers`. (See the [`bevy_xpbd` docs](https://docs.rs/bevy_xpbd_3d/latest/bevy_xpbd_3d/components/struct.CollisionLayers.html)).
+`CollisionLayers`. (See the [`avian` docs](https://docs.rs/avian3d/latest/avian3d/collision/struct.CollisionLayers.html)).
 
 ## Mesh utils
 
@@ -318,7 +321,7 @@ useful for classic cloth uses like flags or capes
     value in `ClothConfig::acceleration_smoothing`.
 
 [`bevy_rapier`]: https://github.com/dimforge/bevy_rapier
-[`bevy_xpbd`]: https://github.com/Jondolf/bevy_xpbd
+[`avian`]: https://github.com/Jondolf/avian
 
 <!-- cargo-sync-readme end -->
 

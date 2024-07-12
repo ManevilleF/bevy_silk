@@ -85,7 +85,7 @@
 //! `GlobalTransform`:
 //!
 //! ```rust
-//! use bevy::prelude::Color;
+//! use bevy::color::{palettes::css::*, Color};
 //! use bevy_silk::prelude::*;
 //!
 //! let cloth = ClothBuilder::new()
@@ -94,9 +94,9 @@
 //!     // Adds a single pinned vertex id
 //!     .with_pinned_vertex_id(10)
 //!     // Adds pinned vertex colors using an Iterator
-//!     .with_pinned_vertex_colors([Color::WHITE, Color::BLACK].into_iter())
+//!     .with_pinned_vertex_colors([Color::from(WHITE), Color::from(BLACK)].into_iter())
 //!     // Adds a single pinned vertex color
-//!     .with_pinned_vertex_color(Color::YELLOW)
+//!     .with_pinned_vertex_color(Color::from(YELLOW))
 //!     // Adds pinned vertex positions
 //!     .with_pinned_vertex_positions(|pos| pos.x > 0.0 && pos.z <= 5.0);
 //! ```
@@ -105,7 +105,7 @@
 //! the vertices to:
 //!
 //! ```rust
-//! use bevy::prelude::*;
+//! use bevy::{color::palettes::css::*, prelude::*};
 //! use bevy_silk::prelude::*;
 //!
 //! fn spawn(mut commands: Commands) {
@@ -137,9 +137,12 @@
 //!         // Adds a single pinned vertex id
 //!         .with_anchored_vertex_id(10, anchor_to_self)
 //!         // Adds pinned vertex colors using an Iterator
-//!         .with_anchored_vertex_colors([Color::WHITE, Color::BLACK].into_iter(), anchor_to_a)
+//!         .with_anchored_vertex_colors(
+//!             [Color::from(WHITE), Color::from(BLACK)].into_iter(),
+//!             anchor_to_a,
+//!         )
 //!         // Adds a single pinned vertex color
-//!         .with_anchored_vertex_color(Color::YELLOW, anchor_to_self)
+//!         .with_anchored_vertex_color(Color::from(YELLOW), anchor_to_self)
 //!         // Adds pinned vertex positions
 //!         .with_anchored_vertex_positions(|pos| pos.x > 0.0 && pos.z <= 5.0, anchor_to_self);
 //! }
@@ -215,9 +218,9 @@
 //!
 //! ## Collisions
 //!
-//! Both [`bevy_rapier`] and [`bevy_xpbd`] are supported for cloth interactions
+//! Both [`bevy_rapier`] and [`avian`] are supported for cloth interactions
 //! with colliders. They can be enabled with the `rapier_collisions` and
-//! `xpbd_collisions` features respectively.
+//! `avian_collisions` features respectively.
 //!
 //! > Note: Collision support is still experimental for now and is not suited
 //! > for production use. Feedback is welcome!
@@ -254,9 +257,9 @@
 //! You can customize what collisions will be checked by specifying
 //! `CollisionGroups`. (See the [`bevy_rapier` docs](https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups)).
 //!
-//! ### `bevy_xpbd`
+//! ### `avian` (previously `bevy_xpbd`)
 //!
-//! Add `bevy_xpbd_3d::PhysicsPlugins` to your app and a `ClothCollider`
+//! Add `avian3d::PhysicsPlugins` to your app and a `ClothCollider`
 //! to your entity to enable collisions:
 //!
 //! ```rust
@@ -275,7 +278,7 @@
 //! }
 //! ```
 //!
-//! Three `bevy_xpbd` components will be automatically inserted:
+//! Three `avian3d` components will be automatically inserted:
 //!
 //! * a `RigidBody::Kinematic`
 //! * a `Collider` which will be updated every frame to follow the cloth bounds
@@ -283,7 +286,7 @@
 //! * a `Sensor` used for avoiding default collision solving.
 //!
 //! You can customize what collisions will be checked by specifying
-//! `CollisionLayers`. (See the [`bevy_xpbd` docs](https://docs.rs/bevy_xpbd_3d/latest/bevy_xpbd_3d/components/struct.CollisionLayers.html)).
+//! `CollisionLayers`. (See the [`avian` docs](https://docs.rs/avian3d/latest/avian3d/collision/struct.CollisionLayers.html)).
 //!
 //! ## Mesh utils
 //!
@@ -307,13 +310,14 @@
 //!     value in `ClothConfig::acceleration_smoothing`.
 //!
 //! [`bevy_rapier`]: https://github.com/dimforge/bevy_rapier
-//! [`bevy_xpbd`]: https://github.com/Jondolf/bevy_xpbd
+//! [`avian`]: https://github.com/Jondolf/avian
 #![forbid(unsafe_code)]
 #![warn(
     missing_docs,
     clippy::all,
     clippy::nursery,
     clippy::pedantic,
+    clippy::unwrap_used,
     nonstandard_style,
     rustdoc::broken_intra_doc_links
 )]
@@ -322,6 +326,9 @@
     clippy::module_name_repetitions,
     clippy::redundant_pub_crate
 )]
+// TODO: remove when https://github.com/rust-lang/rust-clippy/issues/13058 is closed
+#![allow(clippy::used_underscore_binding)]
+
 /// components module
 pub mod components;
 /// config module
@@ -344,7 +351,7 @@ use bevy::prelude::*;
 
 /// Prelude module, providing every public type of the lib
 pub mod prelude {
-    #[cfg(any(feature = "rapier_collisions", feature = "xpbd_collisions"))]
+    #[cfg(any(feature = "rapier_collisions", feature = "avian_collisions"))]
     pub use crate::components::collider::ClothCollider;
     pub use crate::{
         components::{cloth_builder::ClothBuilder, cloth_rendering::NormalComputing},
@@ -381,10 +388,10 @@ impl Plugin for ClothPlugin {
         app.register_type::<ClothCollider>()
             .add_systems(Update, systems::collisions::rapier::init_cloth_collider)
             .add_systems(FixedUpdate, systems::collisions::rapier::handle_collisions);
-        #[cfg(feature = "xpbd_collisions")]
+        #[cfg(feature = "avian_collisions")]
         app.register_type::<ClothCollider>()
-            .add_systems(Update, systems::collisions::xpbd::init_cloth_collider)
-            .add_systems(FixedUpdate, systems::collisions::xpbd::handle_collisions);
+            .add_systems(Update, systems::collisions::avian::init_cloth_collider)
+            .add_systems(FixedUpdate, systems::collisions::avian::handle_collisions);
         bevy::log::info!("Loaded Cloth Plugin");
     }
 }

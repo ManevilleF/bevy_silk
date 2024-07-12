@@ -1,4 +1,7 @@
-use bevy::prelude::*;
+use bevy::{
+    color::palettes::css::{BLUE, GREEN, RED, YELLOW},
+    prelude::*,
+};
 use bevy_inspector_egui::quick::{ResourceInspectorPlugin, WorldInspectorPlugin};
 use bevy_silk::prelude::*;
 
@@ -44,10 +47,10 @@ fn setup(
 ) {
     let mesh_handle = meshes.add(Cuboid::default());
     [
-        (Color::BLUE, [-10.0, 0.0]),
-        (Color::GREEN, [10.0, 0.0]),
-        (Color::YELLOW, [0.0, -10.0]),
-        (Color::RED, [0.0, 10.0]),
+        (Color::from(GREEN), [10.0, 0.0]),
+        (Color::from(BLUE), [-10.0, 0.0]),
+        (Color::from(YELLOW), [0.0, -10.0]),
+        (Color::from(RED), [0.0, 10.0]),
     ]
     .map(|(color, [x, z])| {
         commands.spawn(PbrBundle {
