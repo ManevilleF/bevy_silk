@@ -18,19 +18,30 @@ fn get_collider(aabb: &Aabb, collider: &ClothCollider) -> Collider {
 }
 
 pub fn handle_collisions(
-    mut cloth_query: Query<(Entity, &mut Cloth, &Aabb, &ClothCollider, &mut Collider)>,
-    rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
+    mut cloth_query: Query<(
+        Entity,
+        &mut Cloth,
+        &Aabb,
+        &ClothCollider,
+        &mut Collider,
+        Option<&RapierContextEntityLink>,
+    )>,
+    defaukt_rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
+    rapier_contexts: Query<&RapierContext, Without<DefaultRapierContext>>,
     mut colliders_query: Query<
         (&Collider, &GlobalTransform, Option<&mut Velocity>),
         Without<Cloth>,
     >,
     time: Res<Time>,
 ) {
-    let Ok(context) = rapier_context.get_single() else {
-        panic!("No default rapier context set up. If you are using a custom context open an issue");
+    let Ok(default_context) = defaukt_rapier_context.get_single() else {
+        panic!("No default rapier context set up");
     };
     let delta_time = time.delta_secs();
-    for (entity, mut cloth, aabb, collider, mut rapier_collider) in &mut cloth_query {
+    for (entity, mut cloth, aabb, collider, mut rapier_collider, context_link) in &mut cloth_query {
+        let context = context_link
+            .and_then(|l| rapier_contexts.get(l.0).ok())
+            .unwrap_or(default_context);
         for contact_pair in context.contact_pairs_with(entity) {
             let other_entity = if contact_pair.collider1() == entity {
                 contact_pair.collider2()
