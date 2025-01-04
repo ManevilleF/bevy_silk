@@ -56,7 +56,7 @@ fn setup(
         commands.spawn((
             Mesh3d(mesh_handle.clone()),
             Transform::from_xyz(x, 0.0, z),
-            MesMaterial3d(materials.add(StandardMaterial {
+            MeshMaterial3d(materials.add(StandardMaterial {
                 base_color: color,
                 double_sided: true,
                 ..Default::default()
@@ -118,8 +118,8 @@ fn animate_cube(
     mut query: Query<&mut Transform>,
     time: Res<Time>,
 ) {
-    let delta_time = time.delta_seconds();
+    let delta_time = time.delta_secs();
     let mut base_transform = query.get_mut(animation.base_entity.unwrap()).unwrap();
     base_transform.rotate(Quat::from_rotation_y(delta_time * animation.rotation_speed));
-    base_transform.translation.y = 3.0 + (time.elapsed_seconds() * 3.0).sin() * 2.0;
+    base_transform.translation.y = 3.0 + (time.elapsed_secs() * 3.0).sin() * 2.0;
 }

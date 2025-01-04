@@ -70,10 +70,9 @@ use bevy_silk::prelude::*;
 
 fn spawn(mut commands: Commands) {
     commands.spawn((
-        PbrBundle {
-            // Add your mesh, material and your custom PBR data
-            ..Default::default()
-        },
+        // Add your mesh, material and your custom PBR data
+        // Mesh3d(...),
+        // MeshMaterial3d(...),
         ClothBuilder::new()
             // Define pinned vertices ids using an Iterator
             .with_pinned_vertex_ids(0..9)
@@ -248,10 +247,9 @@ use bevy_silk::prelude::*;
 
 fn spawn(mut commands: Commands) {
     commands.spawn((
-        PbrBundle {
-            // Add your mesh, material and your custom PBR data
-            ..default()
-        },
+        // Add your mesh, material and your custom PBR data
+        // Mesh3d(...),
+        // MeshMaterial3d(...),
         ClothBuilder::new(),
         ClothCollider::default(),
     ));
@@ -280,10 +278,9 @@ use bevy_silk::prelude::*;
 
 fn spawn(mut commands: Commands) {
     commands.spawn((
-        PbrBundle {
-            // Add your mesh, material and your custom PBR data
-            ..default()
-        },
+        // Add your mesh, material and your custom PBR data
+        // Mesh3d(...),
+        // MeshMaterial3d(...),
         ClothBuilder::new(),
         ClothCollider::default(),
     ));

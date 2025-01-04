@@ -43,7 +43,7 @@ fn setup(
         commands.spawn((
             Mesh3d(mesh_handle.clone()),
             Transform::from_xyz(x, 0.0, z),
-            MeshMaterial3d(Mmaterials.add(StandardMaterial {
+            MeshMaterial3d(materials.add(StandardMaterial {
                 base_color: color,
                 double_sided: true,
                 ..Default::default()
