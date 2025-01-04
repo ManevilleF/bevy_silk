@@ -47,10 +47,10 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    commands.spawn(DirectionalLightBundle {
-        transform: Transform::from_rotation(Quat::from_rotation_y(5.0)),
-        ..Default::default()
-    });
+    commands.spawn((
+        DirectionalLight::default(),
+        Transform::from_rotation(Quat::from_rotation_y(5.0)),
+    ));
     let mesh_handle = meshes.add(Cuboid::new(2.0, 2.0, 2.0));
     [
         (Color::from(BLUE), [-10.0, 0.0]),
@@ -60,27 +60,21 @@ fn setup(
     ]
     .map(|(color, [x, z])| {
         commands.spawn((
-            PbrBundle {
-                mesh: mesh_handle.clone(),
-                transform: Transform::from_xyz(x, 1.0, z),
-                material: materials.add(StandardMaterial {
-                    base_color: color,
-                    double_sided: true,
-                    ..Default::default()
-                }),
+            Mesh3d(mesh_handle.clone()),
+            Transform::from_xyz(x, 1.0, z),
+            MeshMaterial3d(materials.add(StandardMaterial {
+                base_color: color,
+                double_sided: true,
                 ..Default::default()
-            },
+            })),
             Collider::cuboid(2.0, 2.0, 2.0),
             RigidBody::Static,
         ));
     });
     commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(Cuboid::new(24.0, 24.0, 24.0)),
-            material: materials.add(Color::WHITE),
-            transform: Transform::from_xyz(0.0, -12.0, 0.0),
-            ..Default::default()
-        },
+        Mesh3d(meshes.add(Cuboid::new(24.0, 24.0, 24.0))),
+        MeshMaterial3d(materials.add(Color::WHITE)),
+        Transform::from_xyz(0.0, -12.0, 0.0),
         Collider::cuboid(24.0, 24.0, 24.0),
         RigidBody::Static,
     ));
@@ -99,17 +93,14 @@ fn spawn_cloth(
         .with_pinned_vertex_ids(0..size_x)
         .with_stick_generation(StickGeneration::Triangles);
     commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(mesh),
-            material: materials.add(StandardMaterial {
-                base_color_texture: Some(flag_texture),
-                cull_mode: None,    // Option required to render back faces correctly
-                double_sided: true, // Option required to render back faces correctly
-                ..Default::default()
-            }),
-            transform: Transform::from_xyz(15.0, 15.0, 15.0),
+        Mesh3d(meshes.add(mesh)),
+        MeshMaterial3d(materials.add(StandardMaterial {
+            base_color_texture: Some(flag_texture),
+            cull_mode: None,    // Option required to render back faces correctly
+            double_sided: true, // Option required to render back faces correctly
             ..Default::default()
-        },
+        })),
+        Transform::from_xyz(15.0, 15.0, 15.0),
         cloth,
         ClothCollider {
             dampen_others: Some(0.02),
@@ -124,7 +115,7 @@ fn move_cloth(
     mut query: Query<&mut Transform, With<ClothBuilder>>,
     mut movement: ResMut<ClothMovement>,
 ) {
-    let delta_time = time.delta_seconds();
+    let delta_time = time.delta_secs();
     for mut transform in query.iter_mut() {
         movement.t += delta_time * 2.0;
         transform.translation.z += movement.sign * delta_time * 2.0;
@@ -143,12 +134,9 @@ fn shoot_balls(
     let mut rng = thread_rng();
     let radius = rng.gen_range(1.0..3.0);
     commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(Sphere::new(radius).mesh().ico(5).unwrap()),
-            material: materials.add(Color::WHITE),
-            transform: Transform::from_xyz(0.0, 0.0, -20.0),
-            ..Default::default()
-        },
+        Mesh3d(meshes.add(Sphere::new(radius).mesh().ico(5).unwrap())),
+        MeshMaterial3d(materials.add(Color::WHITE)),
+        Transform::from_xyz(0.0, 0.0, -20.0),
         LinearVelocity(Vec3::new(
             rng.gen_range(-5.0..5.0),
             rng.gen_range(10.0..15.0),

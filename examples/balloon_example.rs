@@ -31,7 +31,7 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    commands.spawn(DirectionalLightBundle::default());
+    commands.spawn(DirectionalLight::default());
     let mesh_handle = meshes.add(Cuboid::default());
     [
         (Color::from(BLUE), [-10.0, 0.0]),
@@ -40,16 +40,15 @@ fn setup(
         (Color::from(RED), [0.0, 10.0]),
     ]
     .map(|(color, [x, z])| {
-        commands.spawn(PbrBundle {
-            mesh: mesh_handle.clone(),
-            transform: Transform::from_xyz(x, 0.0, z),
-            material: materials.add(StandardMaterial {
+        commands.spawn((
+            Mesh3d(mesh_handle.clone()),
+            Transform::from_xyz(x, 0.0, z),
+            MeshMaterial3d(materials.add(StandardMaterial {
                 base_color: color,
                 double_sided: true,
                 ..Default::default()
-            }),
-            ..Default::default()
-        });
+            })),
+        ));
     });
 }
 
@@ -59,12 +58,9 @@ fn spawn_cloth(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(Sphere::new(5.).mesh().ico(10).unwrap()),
-            material: materials.add(Color::from(YELLOW)),
-            transform: Transform::from_xyz(0.0, 2.0, 0.0),
-            ..Default::default()
-        },
+        Mesh3d(meshes.add(Sphere::new(5.).mesh().ico(10).unwrap())),
+        MeshMaterial3d(materials.add(Color::from(YELLOW))),
+        Transform::from_xyz(0.0, 2.0, 0.0),
         ClothBuilder::new().with_pinned_vertex_ids(0..=0),
         Name::new("Balloon"),
     ));

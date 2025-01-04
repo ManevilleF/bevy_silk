@@ -53,16 +53,15 @@ fn setup(
         (Color::from(RED), [0.0, 10.0]),
     ]
     .map(|(color, [x, z])| {
-        commands.spawn(PbrBundle {
-            mesh: mesh_handle.clone(),
-            transform: Transform::from_xyz(x, 0.0, z),
-            material: materials.add(StandardMaterial {
+        commands.spawn((
+            Mesh3d(mesh_handle.clone()),
+            Transform::from_xyz(x, 0.0, z),
+            MeshMaterial3d(materials.add(StandardMaterial {
                 base_color: color,
                 double_sided: true,
                 ..Default::default()
-            }),
-            ..Default::default()
-        });
+            })),
+        ));
     });
 }
 
@@ -79,36 +78,28 @@ fn spawn_cloth(
     let base_entity = Some(
         commands
             .spawn((
-                SpatialBundle {
-                    transform: Transform::from_xyz(0.0, 3.0, 0.0),
-                    ..Default::default()
-                },
+                Transform::from_xyz(0.0, 3.0, 0.0),
+                Visibility::default(),
                 Name::new("Cloth Controller"),
             ))
             .with_children(|b| {
                 b.spawn((
-                    PbrBundle {
-                        mesh: meshes.add(Cuboid::new(2.0, 2.0, 2.0)),
-                        material: materials.add(Color::WHITE),
-                        transform: Transform::from_xyz(10.0, 0.0, 0.0),
-                        ..Default::default()
-                    },
+                    Mesh3d(meshes.add(Cuboid::new(2.0, 2.0, 2.0))),
+                    MeshMaterial3d(materials.add(Color::WHITE)),
+                    Transform::from_xyz(10.0, 0.0, 0.0),
                     Name::new("Cube"),
                 ))
                 .with_children(|b2| {
                     b2.spawn((
-                        PbrBundle {
-                            mesh: meshes.add(mesh),
-                            material: materials.add(StandardMaterial {
-                                base_color_texture: Some(flag_texture),
-                                cull_mode: None, // Option required to render back faces correctly
-                                double_sided: true, /* Option required to render back faces
-                                                  * correctly */
-                                ..Default::default()
-                            }),
-                            transform: Transform::from_xyz(-1.0, 1.0, 1.01),
+                        Mesh3d(meshes.add(mesh)),
+                        MeshMaterial3d(materials.add(StandardMaterial {
+                            base_color_texture: Some(flag_texture),
+                            cull_mode: None, // Option required to render back faces correctly
+                            double_sided: true, /* Option required to render back faces
+                                              * correctly */
                             ..Default::default()
-                        },
+                        })),
+                        Transform::from_xyz(-1.0, 1.0, 1.01),
                         cloth,
                         Name::new("Cloth"),
                     ));
@@ -127,8 +118,8 @@ fn animate_cube(
     mut query: Query<&mut Transform>,
     time: Res<Time>,
 ) {
-    let delta_time = time.delta_seconds();
+    let delta_time = time.delta_secs();
     let mut base_transform = query.get_mut(animation.base_entity.unwrap()).unwrap();
     base_transform.rotate(Quat::from_rotation_y(delta_time * animation.rotation_speed));
-    base_transform.translation.y = 3.0 + (time.elapsed_seconds() * 3.0).sin() * 2.0;
+    base_transform.translation.y = 3.0 + (time.elapsed_secs() * 3.0).sin() * 2.0;
 }

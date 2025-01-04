@@ -22,40 +22,40 @@ avian_collisions = ["avian3d"]
 thiserror = "1.0"
 
 [dependencies.bevy]
-version = "0.14"
+version = "0.15"
 default-features = false
 features = ["bevy_render", "bevy_asset", "bevy_color"]
 
 [dependencies.bevy_rapier3d]
-version = "0.27"
+version = "0.28"
 optional = true
 default-features = false
 features = ["dim3", "async-collider"]
 
 [dependencies.avian3d]
-version = "0.1"
+version = "0.2"
 optional = true
 default-features = false
 features = ["3d", "f32", "default-collider", "parry-f32"]
 
 [dev-dependencies]
-bevy-inspector-egui = "0.25"
+bevy-inspector-egui = "0.28"
 rand = "0.8"
-avian3d = "0.1"
-bevy_rapier3d = "0.27"
+avian3d = "0.2"
+bevy_rapier3d = "0.28"
 
 [dev-dependencies.bevy]
-version = "0.14"
+version = "0.15"
 features = [
-  "bevy_asset",
-  "bevy_winit",
-  "bevy_core_pipeline",
-  "bevy_pbr",
-  "bevy_render",
-  "bevy_sprite",
-  "png",
-  "x11",
-  "tonemapping_luts",
+    "bevy_asset",
+    "bevy_winit",
+    "bevy_core_pipeline",
+    "bevy_pbr",
+    "bevy_render",
+    "bevy_sprite",
+    "png",
+    "x11",
+    "tonemapping_luts",
 ]
 default-features = false
 
@@ -93,4 +93,3 @@ crate-type = ["staticlib"]
 # Enable only a small amount of optimization in debug mode
 [profile.dev]
 opt-level = 1
-

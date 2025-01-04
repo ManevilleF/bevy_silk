@@ -17,8 +17,8 @@ pub fn update(
     wind: Option<Res<Winds>>,
     time: Res<Time>,
 ) {
-    let delta_time = time.delta_seconds();
-    let wind_force = wind.map_or(Vec3::ZERO, |w| w.current_velocity(time.elapsed_seconds()));
+    let delta_time = time.delta_secs();
+    let wind_force = wind.map_or(Vec3::ZERO, |w| w.current_velocity(time.elapsed_secs()));
     for (mut cloth, transform, custom_config) in &mut query {
         let config: &ClothConfig = custom_config.unwrap_or(&config);
         cloth.update_points(
@@ -43,7 +43,7 @@ pub fn render(
         &mut ClothRendering,
         &mut Aabb,
         &GlobalTransform,
-        &Handle<Mesh>,
+        &Mesh3d,
     )>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
@@ -61,7 +61,7 @@ pub fn render(
 
 pub fn init(
     mut commands: Commands,
-    mut query: Query<(Entity, &ClothBuilder, &GlobalTransform, &Handle<Mesh>), Added<ClothBuilder>>,
+    mut query: Query<(Entity, &ClothBuilder, &GlobalTransform, &Mesh3d), Added<ClothBuilder>>,
     meshes: Res<Assets<Mesh>>,
 ) {
     for (entity, builder, transform, handle) in &mut query {
