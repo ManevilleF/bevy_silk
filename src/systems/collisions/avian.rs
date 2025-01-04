@@ -31,7 +31,7 @@ pub fn handle_collisions(
     >,
     time: Res<Time>,
 ) {
-    let delta_time = time.delta_seconds();
+    let delta_time = time.delta_secs();
     for (entity, mut cloth, aabb, collider, mut avian_collider) in &mut cloth_query {
         for contact_pair in collisions.collisions_with_entity(entity) {
             let other_entity = if contact_pair.entity1 == entity {

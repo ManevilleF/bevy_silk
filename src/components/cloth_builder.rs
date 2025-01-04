@@ -200,8 +200,7 @@ impl ClothBuilder {
     /// # Arguments
     ///
     /// * `condition` - a function determining if a given position ([`Vec3`]) is
-    ///   pinned to the
-    /// associated `GlobalTransform`.
+    ///   pinned to the associated `GlobalTransform`.
     ///
     /// # Example
     ///

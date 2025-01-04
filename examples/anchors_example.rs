@@ -27,10 +27,10 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    commands.spawn(DirectionalLightBundle {
-        transform: Transform::from_rotation(Quat::from_rotation_y(5.0)),
-        ..Default::default()
-    });
+    commands.spawn((
+        DirectionalLight::default(),
+        Transform::from_rotation(Quat::from_rotation_y(5.0)),
+    ));
     let mesh_handle = meshes.add(Cuboid::default());
     [
         (Color::from(BLUE), [-10.0, 0.0]),
@@ -39,12 +39,11 @@ fn setup(
         (Color::from(RED), [0.0, 10.0]),
     ]
     .map(|(color, [x, z])| {
-        commands.spawn(PbrBundle {
-            mesh: mesh_handle.clone(),
-            transform: Transform::from_xyz(x, 1.0, z),
-            material: materials.add(color),
-            ..Default::default()
-        });
+        commands.spawn((
+            Mesh3d(mesh_handle.clone()),
+            Transform::from_xyz(x, 1.0, z),
+            MeshMaterial3d(materials.add(color)),
+        ));
     });
 }
 
@@ -60,23 +59,17 @@ fn spawn_cloth(
     let anchor_mesh = meshes.add(Cuboid::default());
     let entity_a = commands
         .spawn((
-            PbrBundle {
-                mesh: anchor_mesh.clone(),
-                material: materials.add(Color::from(RED)),
-                transform: Transform::from_xyz(-15.0, 15.0, 15.0),
-                ..Default::default()
-            },
+            Mesh3d(anchor_mesh.clone()),
+            MeshMaterial3d(materials.add(Color::from(RED))),
+            Transform::from_xyz(-15.0, 15.0, 15.0),
             Name::new("Anchor RED"),
         ))
         .id();
     let entity_b = commands
         .spawn((
-            PbrBundle {
-                mesh: anchor_mesh,
-                material: materials.add(Color::from(GREEN)),
-                transform: Transform::from_xyz(15.0, 15.0, 15.0),
-                ..Default::default()
-            },
+            Mesh3d(anchor_mesh),
+            MeshMaterial3d(materials.add(Color::from(GREEN))),
+            Transform::from_xyz(15.0, 15.0, 15.0),
             Name::new("Anchor GREEN"),
         ))
         .id();
@@ -99,17 +92,14 @@ fn spawn_cloth(
             },
         );
     commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(mesh),
-            material: materials.add(StandardMaterial {
-                base_color_texture: Some(flag_texture),
-                cull_mode: None,    // Option required to render back faces correctly
-                double_sided: true, // Option required to render back faces correctly
-                ..Default::default()
-            }),
-            transform: Transform::from_xyz(15.0, 15.0, 15.0),
+        Mesh3d(meshes.add(mesh)),
+        MeshMaterial3d(materials.add(StandardMaterial {
+            base_color_texture: Some(flag_texture),
+            cull_mode: None,    // Option required to render back faces correctly
+            double_sided: true, // Option required to render back faces correctly
             ..Default::default()
-        },
+        })),
+        Transform::from_xyz(15.0, 15.0, 15.0),
         cloth,
         Name::new("Cloth"),
     ));

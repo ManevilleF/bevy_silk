@@ -23,15 +23,13 @@ impl Plugin for CameraPlugin {
 pub fn setup(mut commands: Commands) {
     commands
         .spawn((
-            TransformBundle::from_transform(Transform::from_rotation(Quat::from_rotation_z(-1.0))),
+            Transform::from_rotation(Quat::from_rotation_z(-1.0)),
             OrbitController,
         ))
         .with_children(|b| {
             b.spawn((
-                Camera3dBundle {
-                    transform: Transform::from_xyz(0.0, 30.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
-                    ..default()
-                },
+                Camera3d::default(),
+                Transform::from_xyz(0.0, 30.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
                 CameraController,
             ));
         });
@@ -43,7 +41,7 @@ pub fn handle_rotation(
     buttons: Res<ButtonInput<MouseButton>>,
     time: Res<Time>,
 ) {
-    let delta_time = time.delta_seconds();
+    let delta_time = time.delta_secs();
     let mut transform = cam_controls.single_mut();
     if buttons.pressed(MouseButton::Left) {
         for ev in motion_evr.read() {
@@ -59,7 +57,7 @@ pub fn handle_zoom(
     mut scroll_evr: EventReader<MouseWheel>,
     time: Res<Time>,
 ) {
-    let delta_time = time.delta_seconds();
+    let delta_time = time.delta_secs();
     let mut transform = cam_controls.single_mut();
     let forward = transform.forward();
     for ev in scroll_evr.read() {

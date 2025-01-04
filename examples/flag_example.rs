@@ -42,10 +42,10 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    commands.spawn(DirectionalLightBundle {
-        transform: Transform::from_rotation(Quat::from_rotation_y(5.0)),
-        ..Default::default()
-    });
+    commands.spawn((
+        DirectionalLight::default(),
+        Transform::from_rotation(Quat::from_rotation_y(5.0)),
+    ));
     let mesh_handle = meshes.add(Cuboid::default());
     [
         (Color::from(BLUE), [-10.0, 0.0]),
@@ -54,16 +54,15 @@ fn setup(
         (Color::from(RED), [0.0, 10.0]),
     ]
     .map(|(color, [x, z])| {
-        commands.spawn(PbrBundle {
-            mesh: mesh_handle.clone(),
-            transform: Transform::from_xyz(x, 0.0, z),
-            material: materials.add(StandardMaterial {
+        commands.spawn((
+            Mesh3d(mesh_handle.clone()),
+            Transform::from_xyz(x, 0.0, z),
+            MeshMaterial3d(materials.add(StandardMaterial {
                 base_color: color,
                 double_sided: true,
                 ..Default::default()
-            }),
-            ..Default::default()
-        });
+            })),
+        ));
     });
 }
 
@@ -88,12 +87,9 @@ fn spawn_cloth(
         .with_pinned_vertex_ids((0..size_y).map(|i| i * size_x))
         .with_stick_generation(StickGeneration::Triangles);
     commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(mesh.clone()),
-            material: material.clone(),
-            transform: Transform::from_xyz(0.0, 8.0, 10.0),
-            ..Default::default()
-        },
+        Mesh3d(meshes.add(mesh.clone())),
+        MeshMaterial3d(material.clone()),
+        Transform::from_xyz(0.0, 8.0, 10.0),
         cloth,
         Name::new("Regular Smooth Flag"),
     ));
@@ -103,12 +99,9 @@ fn spawn_cloth(
         .with_pinned_vertex_ids((0..size_y).map(|i| i * size_x))
         .with_flat_normals();
     commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(mesh.clone()),
-            material: material.clone(),
-            transform: Transform::from_xyz(0.0, 8.0, 0.0),
-            ..Default::default()
-        },
+        Mesh3d(meshes.add(mesh.clone())),
+        MeshMaterial3d(material.clone()),
+        Transform::from_xyz(0.0, 8.0, 0.0),
         cloth,
         Name::new("Regular Flat Flag"),
     ));
@@ -126,12 +119,9 @@ fn spawn_cloth(
     mesh.insert_attribute(Mesh::ATTRIBUTE_COLOR, colors);
     let cloth = ClothBuilder::new().with_pinned_vertex_color(Color::from(RED));
     commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(mesh),
-            material,
-            transform: Transform::from_xyz(0.0, 8.0, -10.0),
-            ..Default::default()
-        },
+        Mesh3d(meshes.add(mesh)),
+        MeshMaterial3d(material),
+        Transform::from_xyz(0.0, 8.0, -10.0),
         cloth,
         Name::new("Colored smooth Flag"),
     ));

@@ -48,9 +48,9 @@ pub enum StickMode {
     /// # Notes
     ///
     /// * Please note that this mode is slower, as some distance computing
-    ///   involving square roots,
-    /// will happen every frame. If you just want to have smaller or larger
-    /// sticks, prefer setting a different [`StickLen`] instead
+    ///   involving square roots, will happen every frame. If you just want to
+    ///   have smaller or larger sticks, prefer setting a different [`StickLen`]
+    ///   instead
     /// * Setting invalid `min_percent` and `max_percent` will result in
     ///   unexpected behaviour:
     ///   - max value being lower than the min value
