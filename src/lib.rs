@@ -6,7 +6,7 @@
 //!
 //! Add `bevy_silk` as a dependency in the `Cargo.toml`
 //!
-//! `bevy_silk = "0.9"`
+//! `bevy_silk = "0.10"`
 //!
 //! Or follow the main git branch
 //!
@@ -25,6 +25,7 @@
 //! | 0.7.0  | 0.12 |
 //! | 0.8.0  | 0.13 |
 //! | 0.9.0  | 0.14 |
+//! | 0.10.0  | 0.17 |
 //!
 //! ### Plugin
 //!

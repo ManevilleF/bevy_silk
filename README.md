@@ -5,7 +5,7 @@
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 [![Crates.io](https://img.shields.io/crates/v/bevy_silk.svg)](https://crates.io/crates/bevy_silk)
 [![Docs.rs](https://docs.rs/bevy_silk/badge.svg)](https://docs.rs/bevy_silk)
-[![dependency status](https://deps.rs/crate/bevy_silk/0.9.0/status.svg)](https://deps.rs/crate/bevy_silk)
+[![dependency status](https://deps.rs/crate/bevy_silk/0.10.0/status.svg)](https://deps.rs/crate/bevy_silk)
 
 <!-- cargo-sync-readme start -->
 
@@ -17,7 +17,7 @@ CPU driven Cloth engine for Bevy using Verlet integration.
 
 Add `bevy_silk` as a dependency in the `Cargo.toml`
 
-`bevy_silk = "0.9"`
+`bevy_silk = "0.10"`
 
 Or follow the main git branch
 
@@ -36,6 +36,7 @@ Or follow the main git branch
 | 0.7.0  | 0.12 |
 | 0.8.0  | 0.13 |
 | 0.9.0  | 0.14 |
+| 0.10.0  | 0.17 |
 
 ### Plugin
 
@@ -307,16 +308,16 @@ useful for classic cloth uses like flags or capes
 * `My mesh falls immediately and infinitely when I add a Cloth component,
   how to fix it?`
 
-    You probably didn't specify any *pinned points*, meaning there are no
-    vertices anchored to your entity's `GlobalTransform`.
+You probably didn't specify any *pinned points*, meaning there are no
+vertices anchored to your entity's `GlobalTransform`.
 
 * `My cloth jitters a lot/ suddenly falls down/ has strange sudden
   behaviour`
 
-    Gravity and winds are by default smoothed out by the framerate, if the
-    framerate drops suddenly gravity and wind get much stronger.
-    If your simulation suffers from this you can specify a custom smooth
-    value in `ClothConfig::acceleration_smoothing`.
+Gravity and winds are by default smoothed out by the framerate, if the
+framerate drops suddenly gravity and wind get much stronger.
+If your simulation suffers from this you can specify a custom smooth
+value in `ClothConfig::acceleration_smoothing`.
 
 [`bevy_rapier`]: https://github.com/dimforge/bevy_rapier
 [`avian`]: https://github.com/Jondolf/avian

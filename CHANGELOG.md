@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## 0.10.0
+
+* Bevy `0.17`
+
 ## 0.9.0
 
 * Physics improvements (#25)
