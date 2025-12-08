@@ -2,7 +2,10 @@ use bevy::{
     color::palettes::css::{BLUE, GREEN, RED, YELLOW},
     prelude::*,
 };
-use bevy_inspector_egui::quick::{ResourceInspectorPlugin, WorldInspectorPlugin};
+use bevy_inspector_egui::{
+    bevy_egui::EguiPlugin,
+    quick::{ResourceInspectorPlugin, WorldInspectorPlugin},
+};
 use bevy_silk::prelude::*;
 
 mod camera_plugin;
@@ -28,8 +31,10 @@ fn main() {
         .insert_resource(AmbientLight {
             color: Color::WHITE,
             brightness: 500.0,
+            ..default()
         })
         .add_plugins(DefaultPlugins)
+        .add_plugins(EguiPlugin::default())
         .add_plugins(WorldInspectorPlugin::default())
         .add_plugins(ResourceInspectorPlugin::<ClothConfig>::new())
         .add_plugins(ResourceInspectorPlugin::<MovingAnimation>::new())
@@ -46,13 +51,12 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let mesh_handle = meshes.add(Cuboid::default());
-    [
+    for (color, [x, z]) in [
         (Color::from(GREEN), [10.0, 0.0]),
         (Color::from(BLUE), [-10.0, 0.0]),
         (Color::from(YELLOW), [0.0, -10.0]),
         (Color::from(RED), [0.0, 10.0]),
-    ]
-    .map(|(color, [x, z])| {
+    ] {
         commands.spawn((
             Mesh3d(mesh_handle.clone()),
             Transform::from_xyz(x, 0.0, z),
@@ -62,7 +66,7 @@ fn setup(
                 ..Default::default()
             })),
         ));
-    });
+    }
 }
 
 fn spawn_cloth(

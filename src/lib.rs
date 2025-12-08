@@ -296,16 +296,16 @@
 //! * `My mesh falls immediately and infinitely when I add a Cloth component,
 //!   how to fix it?`
 //!
-//!     You probably didn't specify any *pinned points*, meaning there are no
-//!     vertices anchored to your entity's `GlobalTransform`.
+//! You probably didn't specify any *pinned points*, meaning there are no
+//! vertices anchored to your entity's `GlobalTransform`.
 //!
 //! * `My cloth jitters a lot/ suddenly falls down/ has strange sudden
 //!   behaviour`
 //!
-//!     Gravity and winds are by default smoothed out by the framerate, if the
-//!     framerate drops suddenly gravity and wind get much stronger.
-//!     If your simulation suffers from this you can specify a custom smooth
-//!     value in `ClothConfig::acceleration_smoothing`.
+//! Gravity and winds are by default smoothed out by the framerate, if the
+//! framerate drops suddenly gravity and wind get much stronger.
+//! If your simulation suffers from this you can specify a custom smooth
+//! value in `ClothConfig::acceleration_smoothing`.
 //!
 //! [`bevy_rapier`]: https://github.com/dimforge/bevy_rapier
 //! [`avian`]: https://github.com/Jondolf/avian

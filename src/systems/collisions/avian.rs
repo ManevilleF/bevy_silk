@@ -6,7 +6,7 @@
 )]
 use crate::components::{cloth::Cloth, collider::ClothCollider};
 use avian3d::prelude::*;
-use bevy::{log, prelude::*, render::primitives::Aabb};
+use bevy::{camera::primitives::Aabb, log, prelude::*};
 
 fn get_collider(aabb: &Aabb, collider: &ClothCollider) -> Collider {
     let extents = aabb.half_extents * 2.0 + collider.offset;
@@ -19,7 +19,7 @@ fn get_collider(aabb: &Aabb, collider: &ClothCollider) -> Collider {
 
 pub fn handle_collisions(
     mut cloth_query: Query<(Entity, &mut Cloth, &Aabb, &ClothCollider, &mut Collider)>,
-    collisions: Res<Collisions>,
+    collisions: Collisions,
     mut colliders_query: Query<
         (
             &Collider,
@@ -33,11 +33,11 @@ pub fn handle_collisions(
 ) {
     let delta_time = time.delta_secs();
     for (entity, mut cloth, aabb, collider, mut avian_collider) in &mut cloth_query {
-        for contact_pair in collisions.collisions_with_entity(entity) {
-            let other_entity = if contact_pair.entity1 == entity {
-                contact_pair.entity2
+        for contact_pair in collisions.collisions_with(entity) {
+            let other_entity = if contact_pair.collider1 == entity {
+                contact_pair.collider2
             } else {
-                contact_pair.entity1
+                contact_pair.collider1
             };
             let Ok((
                 other_collider,

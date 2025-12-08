@@ -24,6 +24,7 @@ pub fn setup(mut commands: Commands) {
     commands
         .spawn((
             Transform::from_rotation(Quat::from_rotation_z(-1.0)),
+            Visibility::default(),
             OrbitController,
         ))
         .with_children(|b| {
@@ -37,12 +38,12 @@ pub fn setup(mut commands: Commands) {
 
 pub fn handle_rotation(
     mut cam_controls: Query<&mut Transform, With<OrbitController>>,
-    mut motion_evr: EventReader<MouseMotion>,
+    mut motion_evr: MessageReader<MouseMotion>,
     buttons: Res<ButtonInput<MouseButton>>,
     time: Res<Time>,
 ) {
     let delta_time = time.delta_secs();
-    let mut transform = cam_controls.single_mut();
+    let mut transform = cam_controls.single_mut().unwrap();
     if buttons.pressed(MouseButton::Left) {
         for ev in motion_evr.read() {
             let delta = ev.delta * delta_time * 0.1;
@@ -54,11 +55,11 @@ pub fn handle_rotation(
 
 pub fn handle_zoom(
     mut cam_controls: Query<&mut Transform, With<CameraController>>,
-    mut scroll_evr: EventReader<MouseWheel>,
+    mut scroll_evr: MessageReader<MouseWheel>,
     time: Res<Time>,
 ) {
     let delta_time = time.delta_secs();
-    let mut transform = cam_controls.single_mut();
+    let mut transform = cam_controls.single_mut().unwrap();
     let forward = transform.forward();
     for ev in scroll_evr.read() {
         transform.translation += forward * ev.y * delta_time * 10.0;

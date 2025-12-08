@@ -8,7 +8,7 @@ use crate::{
     config::ClothConfig,
     wind::Winds,
 };
-use bevy::{log, math::Vec3, prelude::*, render::primitives::Aabb};
+use bevy::{camera::primitives::Aabb, log, math::Vec3, prelude::*};
 
 pub fn update(
     mut query: Query<(&mut Cloth, &GlobalTransform, Option<&ClothConfig>)>,
@@ -66,7 +66,7 @@ pub fn init(
 ) {
     for (entity, builder, transform, handle) in &mut query {
         if let Some(mesh) = meshes.get(handle) {
-            let matrix = transform.compute_matrix();
+            let matrix = transform.to_matrix();
             log::debug!("Initializing Cloth entity {:?}", entity);
             let rendering = match ClothRendering::init(mesh, builder.normals_computing) {
                 Ok(r) => r,

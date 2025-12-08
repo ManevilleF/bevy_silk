@@ -33,7 +33,6 @@ impl VertexAnchor {
     ///   entity used without a custom target entity
     /// * `transform_query` - ECS query used in case of a set
     ///   [`Self::custom_target`]
-    #[inline]
     #[must_use]
     pub fn get_position<'a>(
         &self,
@@ -47,7 +46,6 @@ impl VertexAnchor {
         } else {
             original_pos
         } + self.custom_offset.unwrap_or(Vec3::ZERO);
-        let matrix = transform.compute_matrix();
-        matrix.transform_point3(local_pos)
+        transform.transform_point(local_pos)
     }
 }

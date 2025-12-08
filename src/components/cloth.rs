@@ -6,8 +6,8 @@ use bevy::{
     ecs::prelude::Component,
     log,
     math::{Mat4, Vec3},
+    platform::collections::HashMap,
     prelude::{Entity, GlobalTransform},
-    utils::HashMap,
 };
 
 /// A stick is defined by the two ids of the connectecte points
@@ -65,7 +65,7 @@ impl Cloth {
         &self,
         transform: &GlobalTransform,
     ) -> impl ExactSizeIterator<Item = Vec3> + '_ {
-        let matrix = transform.compute_matrix().inverse();
+        let matrix = transform.to_matrix().inverse();
 
         // World space positions..
         self.current_point_positions
@@ -115,7 +115,7 @@ impl Cloth {
             .map(|p| transform_matrix.transform_point3(*p))
             .collect();
         let indices: Vec<usize> = indices.iter().map(|i| *i as usize).collect();
-        if indices.len() % 3 != 0 {
+        if !indices.len().is_multiple_of(3) {
             log::error!("Mesh indices count is not a multiple of 3, some indices will be skipped",);
         }
         let mut stick_lengths = HashMap::with_capacity(indices.len() / 3);
@@ -347,7 +347,7 @@ mod tests {
         #[test]
         fn works_with_quads() {
             let mesh = rectangle_mesh((100, 100), (Vec3::X, -Vec3::Y), Vec3::Z);
-            let matrix = Transform::default().compute_matrix();
+            let matrix = Transform::default().to_matrix();
             let cloth_rendering = ClothRendering::init(&mesh, Default::default()).unwrap();
             let cloth = Cloth::new(
                 &cloth_rendering.vertex_positions,
@@ -370,7 +370,7 @@ mod tests {
         #[test]
         fn works_with_quads_2() {
             let mesh = rectangle_mesh((66, 42), (Vec3::X, -Vec3::Y), Vec3::Z);
-            let matrix = Transform::default().compute_matrix();
+            let matrix = Transform::default().to_matrix();
             let cloth_rendering = ClothRendering::init(&mesh, Default::default()).unwrap();
             let cloth = Cloth::new(
                 &cloth_rendering.vertex_positions,
@@ -389,7 +389,7 @@ mod tests {
         #[test]
         fn works_with_triangles() {
             let mesh = rectangle_mesh((100, 100), (Vec3::X, -Vec3::Y), Vec3::Z);
-            let matrix = Transform::default().compute_matrix();
+            let matrix = Transform::default().to_matrix();
             let cloth_rendering = ClothRendering::init(&mesh, Default::default()).unwrap();
             let cloth = Cloth::new(
                 &cloth_rendering.vertex_positions,
@@ -412,7 +412,7 @@ mod tests {
         #[test]
         fn works_with_triangles_2() {
             let mesh = rectangle_mesh((66, 42), (Vec3::X, -Vec3::Y), Vec3::Z);
-            let matrix = Transform::default().compute_matrix();
+            let matrix = Transform::default().to_matrix();
             let cloth_rendering = ClothRendering::init(&mesh, Default::default()).unwrap();
             let cloth = Cloth::new(
                 &cloth_rendering.vertex_positions,

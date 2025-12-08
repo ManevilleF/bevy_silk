@@ -4,9 +4,9 @@ use bevy::{
     ecs::prelude::Component,
     log,
     math::Vec3,
+    mesh::{Mesh, VertexAttributeValues},
+    platform::collections::HashMap,
     reflect::Reflect,
-    render::{mesh::VertexAttributeValues, prelude::Mesh},
-    utils::HashMap,
 };
 use std::sync::Arc;
 
@@ -23,7 +23,7 @@ type PinnedPosCondition = dyn Fn(Vec3) -> bool + Send + Sync;
 /// The associated `Mesh` must have its [`RenderAssetUsages`] set to
 /// `MAIN_WORLD` for the cloth engine to access it
 ///
-/// [`RenderAssetUsages`]: bevy::render::render_asset::RenderAssetUsages
+/// [`RenderAssetUsages`]: bevy::asset::RenderAssetUsages
 #[derive(Clone, Reflect, Default, Component)]
 #[must_use]
 pub struct ClothBuilder {
