@@ -1,11 +1,8 @@
 // TODO: mesh generation utils
-
 use bevy::{
+    asset::RenderAssetUsages,
     math::Vec3,
-    render::{
-        mesh::{Indices, Mesh, PrimitiveTopology},
-        render_asset::RenderAssetUsages,
-    },
+    mesh::{Indices, Mesh, PrimitiveTopology},
 };
 
 #[allow(clippy::cast_precision_loss, clippy::cast_possible_truncation)]

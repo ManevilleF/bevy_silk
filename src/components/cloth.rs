@@ -6,8 +6,8 @@ use bevy::{
     ecs::prelude::Component,
     log,
     math::{Mat4, Vec3},
+    platform::collections::HashMap,
     prelude::{Entity, GlobalTransform},
-    utils::HashMap,
 };
 
 /// A stick is defined by the two ids of the connectecte points
@@ -65,7 +65,7 @@ impl Cloth {
         &self,
         transform: &GlobalTransform,
     ) -> impl ExactSizeIterator<Item = Vec3> + '_ {
-        let matrix = transform.compute_matrix().inverse();
+        let matrix = transform.to_matrix().inverse();
 
         // World space positions..
         self.current_point_positions
@@ -115,7 +115,7 @@ impl Cloth {
             .map(|p| transform_matrix.transform_point3(*p))
             .collect();
         let indices: Vec<usize> = indices.iter().map(|i| *i as usize).collect();
-        if indices.len() % 3 != 0 {
+        if !indices.len().is_multiple_of(3) {
             log::error!("Mesh indices count is not a multiple of 3, some indices will be skipped",);
         }
         let mut stick_lengths = HashMap::with_capacity(indices.len() / 3);

@@ -4,9 +4,9 @@ use bevy::{
     ecs::prelude::Component,
     log,
     math::Vec3,
+    mesh::{Mesh, VertexAttributeValues},
+    platform::collections::HashMap,
     reflect::Reflect,
-    render::{mesh::VertexAttributeValues, prelude::Mesh},
-    utils::HashMap,
 };
 use std::sync::Arc;
 

@@ -6,7 +6,10 @@ use bevy::{
     prelude::*,
     time::common_conditions::on_timer,
 };
-use bevy_inspector_egui::quick::{ResourceInspectorPlugin, WorldInspectorPlugin};
+use bevy_inspector_egui::{
+    bevy_egui::EguiPlugin,
+    quick::{ResourceInspectorPlugin, WorldInspectorPlugin},
+};
 use bevy_silk::prelude::*;
 use rand::{thread_rng, Rng};
 
@@ -23,10 +26,12 @@ fn main() {
         .insert_resource(AmbientLight {
             color: Color::WHITE,
             brightness: 100.0,
+            ..default()
         })
         .add_plugins(DefaultPlugins)
         .add_plugins(PhysicsPlugins::default())
         .add_plugins(ResourceInspectorPlugin::<ClothConfig>::new())
+        .add_plugins(EguiPlugin::default())
         .add_plugins(WorldInspectorPlugin::default())
         .add_plugins(ClothPlugin)
         .add_plugins(camera_plugin::CameraPlugin)
@@ -52,13 +57,12 @@ fn setup(
         Transform::from_rotation(Quat::from_rotation_y(5.0)),
     ));
     let mesh_handle = meshes.add(Cuboid::new(2.0, 2.0, 2.0));
-    [
+    for (color, [x, z]) in [
         (Color::from(BLUE), [-10.0, 0.0]),
         (Color::from(GREEN), [10.0, 0.0]),
         (Color::from(YELLOW), [0.0, -10.0]),
         (Color::from(RED), [0.0, 10.0]),
-    ]
-    .map(|(color, [x, z])| {
+    ] {
         commands.spawn((
             Mesh3d(mesh_handle.clone()),
             Transform::from_xyz(x, 1.0, z),
@@ -70,7 +74,7 @@ fn setup(
             Collider::cuboid(2.0, 2.0, 2.0),
             RigidBody::Static,
         ));
-    });
+    }
     commands.spawn((
         Mesh3d(meshes.add(Cuboid::new(24.0, 24.0, 24.0))),
         MeshMaterial3d(materials.add(Color::WHITE)),

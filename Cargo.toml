@@ -19,33 +19,39 @@ avian_collisions = ["avian3d"]
 
 [dependencies]
 # Error handling
-thiserror = "1.0"
+thiserror = "2.0"
 
 [dependencies.bevy]
-version = "0.15"
+version = "0.17"
 default-features = false
-features = ["bevy_render", "bevy_asset", "bevy_color"]
+features = [
+    "bevy_render",
+    "bevy_mesh",
+    "bevy_asset",
+    "bevy_color",
+    "bevy_log",
+]
 
 [dependencies.bevy_rapier3d]
-version = "0.28"
+version = "0.32"
 optional = true
 default-features = false
 features = ["dim3", "async-collider"]
 
 [dependencies.avian3d]
-version = "0.2"
+version = "0.4"
 optional = true
 default-features = false
 features = ["3d", "f32", "default-collider", "parry-f32"]
 
 [dev-dependencies]
-bevy-inspector-egui = "0.28"
+bevy-inspector-egui = "0.35"
 rand = "0.8"
-avian3d = "0.2"
-bevy_rapier3d = "0.28"
+avian3d = "0.4"
+bevy_rapier3d = "0.32"
 
 [dev-dependencies.bevy]
-version = "0.15"
+version = "0.17"
 features = [
     "bevy_asset",
     "bevy_winit",
@@ -53,9 +59,15 @@ features = [
     "bevy_pbr",
     "bevy_render",
     "bevy_sprite",
+    "bevy_sprite_render",
+    "bevy_camera",
+    "bevy_light",
+    "bevy_text",
     "png",
     "x11",
     "tonemapping_luts",
+    "multi_threaded",
+    "reflect_auto_register",
 ]
 default-features = false
 

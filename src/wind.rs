@@ -55,7 +55,7 @@ impl Wind {
             } => {
                 let mut sin_value = (elapsed_time * frequency).sin();
                 if *normalize {
-                    sin_value = (sin_value + 1.0) / 2.0;
+                    sin_value = f32::midpoint(sin_value, 1.0);
                 }
                 if *abs {
                     sin_value = sin_value.abs();

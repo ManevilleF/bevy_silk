@@ -1,14 +1,12 @@
 use crate::Error;
 use bevy::{
+    camera::primitives::Aabb,
     color::{ColorToComponents, Srgba},
     ecs::prelude::Component,
     math::Vec3,
+    mesh::{Indices, Mesh, VertexAttributeValues},
+    platform::collections::HashMap,
     reflect::Reflect,
-    render::{
-        mesh::{Indices, Mesh, VertexAttributeValues},
-        primitives::Aabb,
-    },
-    utils::HashMap,
 };
 
 /// Defines the cloth computation mode of vertex normals
