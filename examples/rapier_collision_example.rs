@@ -30,8 +30,8 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugins(ResourceInspectorPlugin::<ClothConfig>::new())
         .add_plugins(EguiPlugin::default())
+        .add_plugins(ResourceInspectorPlugin::<ClothConfig>::new())
         .add_plugins(WorldInspectorPlugin::default())
         .add_plugins(ClothPlugin)
         .add_plugins(camera_plugin::CameraPlugin)
@@ -89,8 +89,12 @@ fn spawn_cloth(
     asset_server: Res<AssetServer>,
 ) {
     let flag_texture = asset_server.load("Bevy.png");
-    let (size_x, size_y) = (60, 40);
-    let mesh = rectangle_mesh((size_x, size_y), (-Vec3::X * 0.5, -Vec3::Y * 0.5), Vec3::Z);
+    let (size_x, size_y) = (120, 80);
+    let mesh = rectangle_mesh(
+        (size_x, size_y),
+        (-Vec3::X * 0.25, -Vec3::Y * 0.25),
+        Vec3::Z,
+    );
     let cloth = ClothBuilder::new()
         .with_pinned_vertex_ids(0..size_x)
         .with_stick_generation(StickGeneration::Triangles);

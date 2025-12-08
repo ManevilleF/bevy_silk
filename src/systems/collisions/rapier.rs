@@ -5,7 +5,7 @@
     clippy::suboptimal_flops
 )]
 use crate::components::{cloth::Cloth, collider::ClothCollider};
-use bevy::{log, prelude::*, render::primitives::Aabb};
+use bevy::{camera::primitives::Aabb, log, prelude::*};
 use bevy_rapier3d::prelude::*;
 
 fn get_collider(aabb: &Aabb, collider: &ClothCollider) -> Collider {
@@ -26,27 +26,42 @@ pub fn handle_collisions(
         &mut Collider,
         Option<&RapierContextEntityLink>,
     )>,
-    defaukt_rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
-    rapier_contexts: Query<&RapierContext, Without<DefaultRapierContext>>,
+    default_rapier_context: ReadRapierContext<With<DefaultRapierContext>>,
+    rapier_contexts: ReadRapierContext<Without<DefaultRapierContext>>,
     mut colliders_query: Query<
         (&Collider, &GlobalTransform, Option<&mut Velocity>),
         Without<Cloth>,
     >,
     time: Res<Time>,
 ) {
-    let Ok(default_context) = defaukt_rapier_context.get_single() else {
+    let Ok(default_context) = default_rapier_context.single() else {
         panic!("No default rapier context set up");
     };
     let delta_time = time.delta_secs();
     for (entity, mut cloth, aabb, collider, mut rapier_collider, context_link) in &mut cloth_query {
-        let context = context_link
-            .and_then(|l| rapier_contexts.get(l.0).ok())
-            .unwrap_or(default_context);
+        let linked_context = context_link.and_then(|l| {
+            rapier_contexts.rapier_context.get(l.0).ok().map(
+                |(simulation, colliders, joints, rigidbody_set)| RapierContext {
+                    simulation,
+                    colliders,
+                    joints,
+                    rigidbody_set,
+                },
+            )
+        });
+        let context = match linked_context.as_ref() {
+            Some(ctx) => ctx,
+            None => &default_context,
+        };
         for contact_pair in context.contact_pairs_with(entity) {
-            let other_entity = if contact_pair.collider1() == entity {
+            let other_entity = if contact_pair.collider1() == Some(entity) {
                 contact_pair.collider2()
             } else {
                 contact_pair.collider1()
+            };
+            let Some(other_entity) = other_entity else {
+                log::error!("Failed to retrieve contact pairs from rapier");
+                continue;
             };
             let Ok((other_collider, other_transform, other_velocity)) =
                 colliders_query.get_mut(other_entity)
