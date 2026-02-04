@@ -11,7 +11,7 @@ use bevy_inspector_egui::{
 };
 use bevy_rapier3d::prelude::*;
 use bevy_silk::prelude::*;
-use rand::{thread_rng, Rng};
+use rand::random_range;
 
 mod camera_plugin;
 
@@ -23,7 +23,7 @@ struct ClothMovement {
 
 fn main() {
     App::new()
-        .insert_resource(AmbientLight {
+        .insert_resource(GlobalAmbientLight {
             color: Color::WHITE,
             brightness: 100.0,
             ..default()
@@ -137,16 +137,15 @@ fn shoot_balls(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let mut rng = thread_rng();
-    let radius = rng.gen_range(1.0..3.0);
+    random_range(1.0..3.0);
     commands.spawn((
         Mesh3d(meshes.add(Sphere::new(radius).mesh().ico(5).unwrap())),
         MeshMaterial3d(materials.add(Color::WHITE)),
         Transform::from_xyz(0.0, 0.0, -20.0),
         Velocity::linear(Vec3::new(
-            rng.gen_range(-5.0..5.0),
-            rng.gen_range(10.0..15.0),
-            rng.gen_range(20.0..30.0),
+            random_range(-5.0..5.0),
+            random_range(10.0..15.0),
+            random_range(20.0..30.0),
         )),
         RigidBody::Dynamic,
         Collider::ball(radius),

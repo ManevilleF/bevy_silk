@@ -28,7 +28,7 @@ impl Default for MovingAnimation {
 fn main() {
     App::new()
         .register_type::<MovingAnimation>()
-        .insert_resource(AmbientLight {
+        .insert_resource(GlobalAmbientLight {
             color: Color::WHITE,
             brightness: 500.0,
             ..default()
