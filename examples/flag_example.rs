@@ -12,7 +12,7 @@ mod camera_plugin;
 
 fn main() {
     App::new()
-        .insert_resource(AmbientLight {
+        .insert_resource(GlobalAmbientLight {
             color: Color::WHITE,
             brightness: 100.0,
             ..default()
